@@ -16,8 +16,6 @@ PRIMARY GOAL:
 
 SECONDARY GOAL
 - Smart recommendations to reuse ingredients and limit repeat meals
-- grocery lists grouped into ailse/departments
-- can customize order of grocery groups according to 
 - Maintain a "my pantry" to only add ingredients you don't have
 
 
