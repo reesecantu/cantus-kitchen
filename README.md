@@ -35,9 +35,9 @@ Since then, I have been hosting dinner parties for my friends in an attempt to
 cultivate my cooking skills, connect with my friends, and make some money while
 I do it. 
 
-=================
-= Website Scope =
-=================
+# =================
+# = Website Scope =
+# =================
 PRIMARY GOAL:
 - Generate grocery lists for the meals I cooking
     - grocery lists grouped into ailse/departments
@@ -57,9 +57,9 @@ OTHER GOALS
 - log in protected recipe adding page
 
 
-===============
-= Data Design =
-===============
+# ===============
+# = Data Design =
+# ===============
 
 Ingredients:
 - string name
