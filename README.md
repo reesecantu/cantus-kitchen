@@ -42,12 +42,15 @@ PRIMARY GOAL:
 - Generate grocery lists for the meals I cooking
     - grocery lists grouped into ailse/departments
     - can customize order of grocery groups according to 
-
-- Showcase my menu for people that want to join or host a Cantu's Kitchen
+- a page for adding ingredients
+- a page for adding recipes
+- Showcase recipies for people that want to join or host a Cantu's Kitchen
 
 SECONDARY GOAL
 - Smart recommendations to reuse ingredients and limit repeat meals
 - Maintain a "my pantry" to only add ingredients you don't have
+- autofill for known ingredient names from database
+- Automatically open create new ingredient page if spelling doesn't match an already established ingredient
 
 
 OTHER GOALS
@@ -56,3 +59,4 @@ OTHER GOALS
 - prioritize certain ingredient types
 - log in protected recipe adding page
 - set specific servings number for each recipe when making a grocery list
+- users to have their own accounts with their own recipes
