@@ -1,23 +1,13 @@
-import "./App.css";
 import {
-  deleteRecipe,
   getRecipe,
   insertRecipe,
-} from "./helpers/recipe-helpers";
-import { RecipeType } from "./supabase-types";
+  deleteRecipe,
+} from "../../helpers/recipe-helpers";
+import { RecipeType } from "../../supabase-types";
 
-function App() {
-  const newRecipe: Omit<RecipeType, "id" | "created_at"> = {
-    category_id: null,
-    price: 9.99,
-    name: "New Recipe",
-    instructions: "Cook the new recipe",
-    link: "https://www.example.com",
-    servings: 4,
-  };
-
+function Recipe(props: RecipeType) {
   const handleGetRecipe = async () => {
-    const recipe = await getRecipe(1);
+    const recipe = await getRecipe(props.id);
     console.log("Recipe:", recipe);
   };
 
@@ -37,13 +27,18 @@ function App() {
   };
 
   const handleDeleteRecipe = async () => {
-    const success = await deleteRecipe(3);
+    const success = await deleteRecipe(props.id);
     console.log("Recipe deleted:", success);
   };
 
   return (
     <>
-      <h1>Hi Lily, I love yous</h1>
+      <div>Recipe</div>
+      <p>{props.id}</p>
+      <p>{props.category_id}</p>
+      <p>{props.price}</p>
+      <p>{props.name}</p>
+      <p>{props.instructions}</p>
       <button onClick={handleGetRecipe}>Get Recipe</button>
       <button onClick={handleInsertRecipe}>Insert Recipe</button>
       <button onClick={handleDeleteRecipe}>Delete Recipe</button>
@@ -51,4 +46,4 @@ function App() {
   );
 }
 
-export default App;
+export default Recipe;
