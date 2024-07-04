@@ -55,6 +55,8 @@ function IngredientCategory() {
       <button onClick={() => deleteIngredientCategory({ name: "Fruit" })}>
         Delete Ingredient Category
       </button>
+
+      
     </div>
   );
 }
