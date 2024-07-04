@@ -37,17 +37,17 @@ export type Database = {
       ingredient: {
         Row: {
           category_id: number | null
-          ingredient_id: number
+          id: number
           ingredient_name: string
         }
         Insert: {
           category_id?: number | null
-          ingredient_id: number
+          id?: number
           ingredient_name: string
         }
         Update: {
           category_id?: number | null
-          ingredient_id?: number
+          id?: number
           ingredient_name?: string
         }
         Relationships: [
@@ -56,36 +56,36 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "ingredient_category"
-            referencedColumns: ["ingredient_category_id"]
+            referencedColumns: ["id"]
           },
         ]
       }
       ingredient_category: {
         Row: {
-          ingredient_category_id: number
+          id: number
           name: string
         }
         Insert: {
-          ingredient_category_id: number
+          id?: number
           name: string
         }
         Update: {
-          ingredient_category_id?: number
+          id?: number
           name?: string
         }
         Relationships: []
       }
       ingredient_unit: {
         Row: {
-          ingredient_unit_id: number
+          id: number
           name: string
         }
         Insert: {
-          ingredient_unit_id?: number
+          id?: number
           name: string
         }
         Update: {
-          ingredient_unit_id?: number
+          id?: number
           name?: string
         }
         Relationships: []
@@ -94,31 +94,31 @@ export type Database = {
         Row: {
           category_id: number | null
           created_at: string
+          id: number
           instructions: string | null
           link: string | null
           name: string
           price: number | null
-          recipe_id: number
           servings: number | null
         }
         Insert: {
           category_id?: number | null
           created_at?: string
+          id?: number
           instructions?: string | null
           link?: string | null
           name?: string
           price?: number | null
-          recipe_id?: number
           servings?: number | null
         }
         Update: {
           category_id?: number | null
           created_at?: string
+          id?: number
           instructions?: string | null
           link?: string | null
           name?: string
           price?: number | null
-          recipe_id?: number
           servings?: number | null
         }
         Relationships: [
@@ -127,45 +127,45 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "recipe_category"
-            referencedColumns: ["recipe_category_id"]
+            referencedColumns: ["id"]
           },
         ]
       }
       recipe_category: {
         Row: {
+          id: number
           name: string | null
-          recipe_category_id: number
         }
         Insert: {
+          id?: number
           name?: string | null
-          recipe_category_id?: number
         }
         Update: {
+          id?: number
           name?: string | null
-          recipe_category_id?: number
         }
         Relationships: []
       }
       recipe_ingredient: {
         Row: {
+          id: number
           ingredient_id: number
           quanity: number | null
           recipe_id: number | null
-          recipe_ingredient_id: number
           unit: number | null
         }
         Insert: {
+          id?: number
           ingredient_id: number
           quanity?: number | null
           recipe_id?: number | null
-          recipe_ingredient_id?: number
           unit?: number | null
         }
         Update: {
+          id?: number
           ingredient_id?: number
           quanity?: number | null
           recipe_id?: number | null
-          recipe_ingredient_id?: number
           unit?: number | null
         }
         Relationships: [
@@ -174,14 +174,14 @@ export type Database = {
             columns: ["ingredient_id"]
             isOneToOne: false
             referencedRelation: "ingredient"
-            referencedColumns: ["ingredient_id"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "recipe_ingredient_recipe_id_fkey"
             columns: ["recipe_id"]
             isOneToOne: false
             referencedRelation: "recipe"
-            referencedColumns: ["recipe_id"]
+            referencedColumns: ["id"]
           },
         ]
       }
