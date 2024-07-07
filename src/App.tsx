@@ -4,6 +4,11 @@ import Login from "./pages/Login";
 
 import { useEffect, useState } from "react";
 
+/**
+ * The main component of the application. Houses the routing logic.
+ *
+ * @returns The rendered JSX elements.
+ */
 function App() {
   const [token, setToken] = useState<string | null>(null);
 
