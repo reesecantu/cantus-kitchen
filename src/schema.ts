@@ -183,6 +183,13 @@ export type Database = {
             referencedRelation: "recipe"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "recipe_ingredient_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "ingredient_unit"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
