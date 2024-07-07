@@ -24,4 +24,7 @@ dist-ssr
 *.sln
 *.sw?
 
+# Supabase
+.branches
 .temp
+.env
