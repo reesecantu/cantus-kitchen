@@ -1,13 +1,26 @@
 import { Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
+
 import Login from "./pages/Login";
+import Homepage from "./pages/Homepage";
+import { useEffect, useState } from "react";
 
 function App() {
+  const [token, setToken] = useState<string | null>(null);
+
+  if (token) sessionStorage.setItem("token", JSON.stringify(token));
+
+  useEffect(() => {
+    if(sessionStorage.getItem("token")) {
+      let data = JSON.parse(sessionStorage.getItem("token")!);
+      setToken(data);
+    }
+  }, []);
+
   return (
     <>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Homepage />} />
+        <Route path="/login" element={<Login setToken={setToken} />} />
       </Routes>
     </>
   );
