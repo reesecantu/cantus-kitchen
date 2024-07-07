@@ -1,7 +1,7 @@
 
 function Lily() {
   return (
-    <div>Hi Lily, I love yous!</div>
+    <h1>Hi Lily, I love yous!</h1>
   )
 }
 
