@@ -1,5 +1,5 @@
-import { useCallback, useState, useEffect } from "react";
-import supabase from "../../supabase-client";
+// import { useCallback, useState, useEffect } from "react";
+// import supabase from "../../supabase-client";
 import { IngredientCategoryType } from "../../supabase-types";
 
 function IngredientCategory(ic: IngredientCategoryType) {
