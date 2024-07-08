@@ -31,7 +31,9 @@ function Login({ setToken }: LoginProps) {
       if (error) throw error;
       console.log(data);
       navigate("/");
-      setToken(data);
+      setToken(data.session);
+    //   console.log("data session: ", data.session); // debugging
+    //   console.log("data as a whole: ", data);
     } catch (error) {
       alert(error);
     }
