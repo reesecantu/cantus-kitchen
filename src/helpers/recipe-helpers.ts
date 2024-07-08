@@ -1,5 +1,5 @@
-import supabase from "../supabase-client";
-import { RecipeType } from "../supabase-types";
+import supabase from "../../supabase/supabase-client";
+import { RecipeType } from "../../supabase/supabase-types";
 
 export async function getRecipe(recipeId: number): Promise<RecipeType | null> {
   const { data, error } = await supabase

@@ -1,12 +1,8 @@
 // import { useCallback, useState, useEffect } from "react";
 // import supabase from "../../supabase-client";
-import { IngredientCategoryType } from "../../supabase-types";
+import { IngredientCategoryType } from "../../../supabase/supabase-types";
 
 function IngredientCategory(ic: IngredientCategoryType) {
-  
-    
-
-
   return (
     <>
       <div>IngredientCategory</div>

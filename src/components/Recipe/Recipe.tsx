@@ -3,7 +3,7 @@ import {
   insertRecipe,
   deleteRecipe,
 } from "../../helpers/recipe-helpers";
-import { RecipeType } from "../../supabase-types";
+import { RecipeType } from "../../../supabase/supabase-types";
 
 function Recipe(props: RecipeType) {
   const handleGetRecipe = async () => {
