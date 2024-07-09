@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       if (error) throw error;
-      console.log(data);
+    //   console.log(data);
       setSession(data.session);
     } catch (error) {
       alert(error);
