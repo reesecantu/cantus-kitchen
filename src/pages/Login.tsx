@@ -1,18 +1,16 @@
 import { useState } from "react";
-import supabase from "../../supabase/supabase-client";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../Auth";
 
 interface FormData {
   email: string;
   password: string;
 }
 
-interface LoginProps {
-  setToken: (data: any) => void;
-}
-
-function Login({ setToken }: LoginProps) {
+function Login() {
   let navigate = useNavigate();
+  const { loginUser } = useAuth();
+  const { state } = useLocation();
 
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -21,22 +19,8 @@ function Login({ setToken }: LoginProps) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (error) throw error;
-      console.log(data);
-      navigate("/");
-      setToken(data.session);
-    //   console.log("data session: ", data.session); // debugging
-    //   console.log("data as a whole: ", data);
-    } catch (error) {
-      alert(error);
-    }
+    loginUser(formData.email, formData.password);
+    navigate(state?.path || "/");
   }
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
