@@ -34,7 +34,12 @@ function Login() {
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <input placeholder="Email" name="email" onChange={handleChange} />
+        <input
+          placeholder="Email"
+          name="email"
+          type="email"
+          onChange={handleChange}
+        />
 
         <input
           placeholder="Password"
