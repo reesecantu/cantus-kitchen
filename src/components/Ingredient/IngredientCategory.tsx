@@ -2,27 +2,13 @@
 // import supabase from "../../supabase-client";
 import { IngredientCategoryType } from "../../../supabase/supabase-types";
 
-function IngredientCategory(ic: IngredientCategoryType) {
+function IngredientCategory(props: IngredientCategoryType) {
   return (
     <>
       <div>IngredientCategory</div>
-      <p>{ic.name}</p>
+      <p>{props.name}</p>
     </>
   );
 }
 
 export default IngredientCategory;
-
-// const [ingredientCategories, setIngredientCategories] =
-// useState<IngredientCategoryType[]>();
-
-// const fetcher = useCallback(async () => {
-// const { data, error } = await supabase
-//   .from("ingredient_category")
-//   .select("*");
-// if (error) {
-//   console.error("error", error);
-// } else {
-//   setIngredientCategories(data);
-// }
-// }, []);
