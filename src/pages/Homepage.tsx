@@ -1,13 +1,21 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Auth";
 
 function Homepage() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   return (
     <>
-      <h1>Welcome to the Homepage!</h1>
-      <button onClick={() => navigate("/login")}>Login here</button>
+      <h1>Hello Friends!</h1>
+      <h2>Homepage Under Constructions</h2>
+      <p>
+        I've got quite a laundry list of features I want to add. The big ticket
+        item is a grocery list generator for the recipes you soon will see here.
+        In the meantime, here is a heart for you for checking out the pages: ❤️
+      </p>
+      {!user && <button onClick={() => navigate("/login")}>Login here</button>}
     </>
-  )
+  );
 }
 
 export default Homepage;
