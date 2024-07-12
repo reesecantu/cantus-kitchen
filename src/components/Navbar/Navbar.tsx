@@ -14,6 +14,14 @@ function Navbar() {
         <li>
           <Link to="/recipes">Recipes</Link>
         </li>
+        <li>
+          <Link to="/quiz">Recipe Picker</Link>
+        </li>
+        {user && (
+          <li>
+            <Link to="lily">Lily</Link>
+          </li>
+        )}
         {user && (
           <li>
             <Link to="recipe-manager">Recipe Manager</Link>
@@ -22,6 +30,11 @@ function Navbar() {
         {user && (
           <li>
             <button onClick={logout}>Logout</button>
+          </li>
+        )}
+        {!user && (
+          <li className="right">
+            <Link to="login">Login</Link>
           </li>
         )}
       </ul>
