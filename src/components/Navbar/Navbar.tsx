@@ -16,6 +16,11 @@ function Navbar() {
         </li>
         {user && (
           <li>
+            <Link to="recipe-manager">Recipe Manager</Link>
+          </li>
+        )}
+        {user && (
+          <li>
             <button onClick={logout}>Logout</button>
           </li>
         )}
