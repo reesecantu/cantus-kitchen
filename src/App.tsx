@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Lily from "./pages/Lily";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RecipeManager from "./pages/RecipeManager";
+import Navbar from "./components/Navbar/Navbar";
 
 /**
  * The main component of the application. Houses the routing logic.
@@ -13,6 +14,7 @@ import RecipeManager from "./pages/RecipeManager";
 function App() {
   return (
     <>
+      <Navbar />
       <Routes>
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
