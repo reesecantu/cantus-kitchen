@@ -1,14 +1,10 @@
-// import { IngredientCategory } from "./IngredientCategory.tsx";
+import { IngredientType } from "../../../supabase/supabase-types"
 
-// interface IngredientProps {
-//     name: string;
-//     category: IngredientCategory;
-// }
 
-// function Ingredient() {
-//   return (
-//     <div>Ingredient</div>
-//   )
-// }
+function Ingredient(props: IngredientType) {
+return (
+    <div>{JSON.stringify(props)}</div>
+)
+}
 
-// export default Ingredient
+export default Ingredient
