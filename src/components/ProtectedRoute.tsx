@@ -2,10 +2,10 @@ import React from "react";
 import { useAuth } from "../Auth";
 import { Navigate, useLocation } from "react-router-dom";
 
-function ProtectedRoute(children: React.ReactNode) {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const location = useLocation();
-  
+
   return user ? (
     children
   ) : (
