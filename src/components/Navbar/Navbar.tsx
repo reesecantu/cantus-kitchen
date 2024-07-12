@@ -12,7 +12,7 @@ function Navbar() {
           <Link to="/">Home</Link>
         </li>
         <li>
-          <Link to="/lily">Lily</Link>
+          <Link to="/recipes">Recipes</Link>
         </li>
         {user && (
           <li>

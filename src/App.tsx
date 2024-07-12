@@ -5,6 +5,9 @@ import Lily from "./pages/Lily";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RecipeManager from "./pages/RecipeManager";
 import Navbar from "./components/Navbar/Navbar";
+import RecipeBook from "./pages/RecipeBook";
+import GroceryListGenerator from "./pages/GroceryListGenerator";
+import RecipeQuiz from "./pages/RecipeQuiz";
 
 /**
  * The main component of the application. Houses the routing logic.
@@ -18,6 +21,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/recipes" element={<RecipeBook />} />
+        <Route path="/grocery-list-generator" element={<GroceryListGenerator />} />
+        <Route path="/quiz" element={<RecipeQuiz />} />
         <Route path="/lily" element={<Lily />} />
         <Route
           path="/recipe-manager"
