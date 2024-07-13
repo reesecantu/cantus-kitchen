@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (error) throw error;
       setSession(data.session);
+      setUser(session?.user);
     } catch (error) {
       alert(error);
     }
@@ -74,8 +75,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       if (error) throw error;
-    //   console.log(data);
+      //   console.log(data);
       setSession(data.session);
+      setUser(session?.user);
     } catch (error) {
       alert(error);
     }
@@ -85,6 +87,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      setSession(null);
+      setUser(null);
     } catch (error) {
       alert(error);
     }

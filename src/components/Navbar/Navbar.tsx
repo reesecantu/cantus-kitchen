@@ -17,6 +17,9 @@ function Navbar() {
         <li>
           <Link to="/quiz">Recipe Picker</Link>
         </li>
+        <li>
+          <Link to="/grocery-list-generator">Grocery List Generator</Link>
+        </li>
         {user && (
           <li>
             <Link to="lily">Lily</Link>
