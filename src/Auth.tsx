@@ -1,7 +1,7 @@
 import { Session, User } from "@supabase/supabase-js";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import supabase from "../supabase/supabase-client";
-import { jwtDecode, JwtHeader } from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 type AuthContextType = {
   user: User | null | undefined;

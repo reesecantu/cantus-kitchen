@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Homepage from "./pages/Homepage";
 import Login from "./pages/Login";
 import Lily from "./pages/Lily";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { ProtectedRouteWithRoles } from "./components/ProtectedRoute";
 import RecipeManager from "./pages/RecipeManager";
 import Navbar from "./components/Navbar/Navbar";
 import RecipeBook from "./pages/RecipeBook";
@@ -22,15 +22,27 @@ function App() {
         <Route path="/" element={<Homepage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/recipes" element={<RecipeBook />} />
-        <Route path="/grocery-list-generator" element={<GroceryListGenerator />} />
+        <Route
+          path="/grocery-list-generator"
+          element={<GroceryListGenerator />}
+        />
         <Route path="/quiz" element={<RecipeQuiz />} />
-        <Route path="/lily" element={<Lily />} />
+        <Route
+          path="/lily"
+          element={
+            <ProtectedRouteWithRoles>
+              requiredRoles={["admin", "lily"]}
+              <Lily />
+            </ProtectedRouteWithRoles>
+          }
+        />
         <Route
           path="/recipe-manager"
           element={
-            <ProtectedRoute>
+            <ProtectedRouteWithRoles>
+              requiredRoles={["admin"]}
               <RecipeManager />
-            </ProtectedRoute>
+            </ProtectedRouteWithRoles>
           }
         />
       </Routes>
