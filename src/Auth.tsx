@@ -16,6 +16,10 @@ type AuthProviderProps = {
   children: React.ReactNode;
 };
 
+interface JwtPayload {
+  user_role: string | null;
+}
+
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 /**
@@ -40,7 +44,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setSession(session);
       setUser(session?.user);
       if (session) {
-        const jwt = jwtDecode(session.access_token);
+        const jwt = jwtDecode(session.access_token) as JwtPayload;
         setUserRole(jwt.user_role);
       }
     };
@@ -50,7 +54,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setSession(session);
         setUser(session?.user);
         if (session) {
-          const jwt = jwtDecode(session.access_token);
+          const jwt = jwtDecode(session.access_token) as JwtPayload;
           setUserRole(jwt.user_role);
         }
       }
@@ -74,7 +78,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setSession(data.session);
       setUser(session?.user);
       if (session) {
-        const jwt = jwtDecode(session.access_token);
+        const jwt = jwtDecode(session.access_token) as JwtPayload;
         setUserRole(jwt.user_role);
       }
       console.log("successfully signed up!");
@@ -95,7 +99,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setSession(data.session);
       setUser(session?.user);
       if (session) {
-        const jwt = jwtDecode(session.access_token);
+        const jwt = jwtDecode(session.access_token) as JwtPayload;
         setUserRole(jwt.user_role);
       }
       console.log("successfully logged in!");
