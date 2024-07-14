@@ -16,7 +16,7 @@ function InsertIngredientUnit() {
     try {
       const { data, error } = await supabase
         .from("ingredient_unit")
-        .insert([{ ...formData, id: undefined }]);
+        .insert([{ ...formData }]);
       if (error) {
         throw error;
       }
