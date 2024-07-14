@@ -30,8 +30,7 @@ function App() {
         <Route
           path="/lily"
           element={
-            <ProtectedRouteWithRoles>
-              requiredRoles={["admin", "lily"]}
+            <ProtectedRouteWithRoles requiredRoles={["admin", "lily"]}>
               <Lily />
             </ProtectedRouteWithRoles>
           }
@@ -39,8 +38,7 @@ function App() {
         <Route
           path="/recipe-manager"
           element={
-            <ProtectedRouteWithRoles>
-              requiredRoles={["admin"]}
+            <ProtectedRouteWithRoles requiredRoles={["admin"]}>
               <RecipeManager />
             </ProtectedRouteWithRoles>
           }
