@@ -21,6 +21,7 @@ function Login() {
     e.preventDefault();
     loginUser(formData.email, formData.password);
     navigate(state?.path || "/");
+    console.log("login method should navigate now");
   }
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {

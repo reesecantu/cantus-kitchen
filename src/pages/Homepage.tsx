@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth";
+import { jwtDecode } from "jwt-decode";
 
 function Homepage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   return (
     <>
       <h1>Hello Friends!</h1>
@@ -13,6 +14,12 @@ function Homepage() {
         item is a grocery list generator for the recipes you soon will see here.
         In the meantime, here is a heart for you for checking out the pages: ❤️
       </p>
+      <button onClick={() => jwtDecode("")}>try to decode nothing</button>
+      {session && (
+        <button onClick={() => console.log(jwtDecode(session.access_token))}>
+          decode access token
+        </button>
+      )}
       {!user && <button onClick={() => navigate("/login")}>Login here</button>}
     </>
   );

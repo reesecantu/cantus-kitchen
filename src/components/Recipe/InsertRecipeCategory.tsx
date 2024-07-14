@@ -16,7 +16,7 @@ function InsertRecipeCategory() {
     try {
       const { data, error } = await supabase
         .from("recipe_category")
-        .insert([{ ...formData, id: undefined }]);
+        .insert([{ ...formData }]);
       if (error) {
         throw error;
       }
