@@ -1,10 +1,12 @@
 import { Session, User } from "@supabase/supabase-js";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import supabase from "../supabase/supabase-client";
+import { jwtDecode, JwtHeader } from "jwt-decode";
 
 type AuthContextType = {
   user: User | null | undefined;
   session: Session | null | undefined;
+  userRole: string | null | undefined;
   registerUser: (email: string, password: string) => void;
   loginUser: (email: string, password: string) => void;
   logout: () => void;
@@ -25,6 +27,7 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
  */
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>();
+  const [userRole, setUserRole] = useState<string | null>();
   const [session, setSession] = useState<Session | null>();
 
   useEffect(() => {
@@ -36,12 +39,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (error) throw error;
       setSession(session);
       setUser(session?.user);
+      if (session) {
+        const jwt = jwtDecode(session.access_token);
+        setUserRole(jwt.user_role);
+      }
     };
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
         setUser(session?.user);
+        if (session) {
+          const jwt = jwtDecode(session.access_token);
+          setUserRole(jwt.user_role);
+        }
       }
     );
 
@@ -62,6 +73,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (error) throw error;
       setSession(data.session);
       setUser(session?.user);
+      if (session) {
+        const jwt = jwtDecode(session.access_token);
+        setUserRole(jwt.user_role);
+      }
+      console.log("successfully signed up!");
     } catch (error) {
       alert(error);
     }
@@ -75,9 +91,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       if (error) throw error;
-      //   console.log(data);
+      // console.log(data);
       setSession(data.session);
       setUser(session?.user);
+      if (session) {
+        const jwt = jwtDecode(session.access_token);
+        setUserRole(jwt.user_role);
+      }
+      console.log("successfully logged in!");
     } catch (error) {
       alert(error);
     }
@@ -89,6 +110,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (error) throw error;
       setSession(null);
       setUser(null);
+      setUserRole(null);
+      console.log("successfully logged out!");
     } catch (error) {
       alert(error);
     }
@@ -96,7 +119,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, session, registerUser, loginUser, logout }}
+      value={{ user, userRole, session, registerUser, loginUser, logout }}
     >
       {children}
     </AuthContext.Provider>
