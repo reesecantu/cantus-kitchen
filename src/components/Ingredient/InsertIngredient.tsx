@@ -5,7 +5,7 @@ import {
 } from "../../../supabase/supabase-types";
 import { useEffect, useState } from "react";
 import Select from "react-select";
-import Async, { useAsync } from 'react-select/async';
+import { capitalizeFirstLetter } from "../../helpers/insert-filter";
 
 function InsertIngredient() {
   const [formData, setFormData] = useState<InsertIngredientType>({
@@ -37,7 +37,7 @@ function InsertIngredient() {
     try {
       const { data, error } = await supabase
         .from("ingredient")
-        .insert([{ ...formData }]);
+        .insert([{ ...formData, ingredient_name: capitalizeFirstLetter(formData.ingredient_name) }]);
       if (error) {
         throw error;
       }

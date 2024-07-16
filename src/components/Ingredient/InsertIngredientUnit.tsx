@@ -1,6 +1,7 @@
 import supabase from "../../../supabase/supabase-client";
 import { InsertIngredientUnitType } from "../../../supabase/supabase-types";
 import { useState } from "react";
+import { capitalizeFirstLetter } from "../../helpers/insert-filter";
 
 function InsertIngredientUnit() {
   const [formData, setFormData] = useState<InsertIngredientUnitType>({
@@ -8,7 +9,7 @@ function InsertIngredientUnit() {
   });
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, name: event.target.value });
+    setFormData({ ...formData, name: capitalizeFirstLetter(event.target.value) });
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -16,7 +17,7 @@ function InsertIngredientUnit() {
     try {
       const { data, error } = await supabase
         .from("ingredient_unit")
-        .insert([{ ...formData }]);
+        .insert([{ ...formData, name: capitalizeFirstLetter(formData.name) }]);
       if (error) {
         throw error;
       }
