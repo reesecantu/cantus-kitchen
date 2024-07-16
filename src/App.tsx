@@ -39,6 +39,7 @@ function App() {
           path="/recipe-manager"
           element={
             <ProtectedRouteWithRoles requiredRoles={["admin"]}>
+
               <RecipeManager />
             </ProtectedRouteWithRoles>
           }
