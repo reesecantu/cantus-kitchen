@@ -15,6 +15,7 @@ extra_search_path = ["public", "extensions"]
 # for accidental or malicious requests.
 max_rows = 1000
 
+
 [api.tls]
 enabled = false
 
