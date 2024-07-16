@@ -30,17 +30,15 @@ function DynamicDropdown ({ tableName, columnName }: DynamicDropdownProps) {
 
     return (
         <div>
-            <input
-                type="text"
-                placeholder="Search..."
+            <select
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <ul>
+            >
+                <option value="">Select an option</option>
                 {data.map((item) => (
-                    <li key={item}>{item}</li>
+                    <option key={item} value={item}>{item}</option>
                 ))}
-            </ul>
+            </select>
         </div>
     );
 };
