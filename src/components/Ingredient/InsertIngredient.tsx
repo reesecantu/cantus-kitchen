@@ -3,9 +3,10 @@ import {
   IngredientCategoryType,
   InsertIngredientType,
 } from "../../../supabase/supabase-types";
-import { useEffect, useState } from "react";
-import Select from "react-select";
+import { useState } from "react";
+import AsyncSelect from "react-select/async";
 import { capitalizeFirstLetter } from "../../helpers/insert-filter";
+import "./insert.css";
 
 function InsertIngredient() {
   const [formData, setFormData] = useState<InsertIngredientType>({
@@ -13,31 +14,32 @@ function InsertIngredient() {
     category_id: -1,
   });
 
-  const [ingredientCategoryOptions, setIngredientCategoryOption] = useState<
-    IngredientCategoryType[]
-  >([]);
-
-  useEffect(() => {
-    const setOptions = async () => {
+  const loadOptions = (
+    inputValue: string,
+    callback: (options: IngredientCategoryType[]) => void
+  ) => {
+    setTimeout(async () => {
       const { data, error } = await supabase
         .from("ingredient_category")
-        .select();
+        .select("*")
+        .ilike("name", `%${inputValue}%`);
       if (error) {
-        console.error("Error fetching data:", error);
-      } else {
-        setIngredientCategoryOption(data);
+        throw error;
       }
-    };
-
-    setOptions();
-  }, []);
+      console.log("Loaded ingredient categories:", data);
+      callback(data);
+    }, 2000);
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const { data, error } = await supabase
-        .from("ingredient")
-        .insert([{ ...formData, ingredient_name: capitalizeFirstLetter(formData.ingredient_name) }]);
+      const { data, error } = await supabase.from("ingredient").insert([
+        {
+          ...formData,
+          ingredient_name: capitalizeFirstLetter(formData.ingredient_name),
+        },
+      ]);
       if (error) {
         throw error;
       }
@@ -50,32 +52,59 @@ function InsertIngredient() {
   };
 
   return (
-    <>
+    <div>
       <h2>Insert New Ingredient</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="container">
         <label>
           Ingredient Name:
           <input
+            className="input"
             type="text"
             value={formData.ingredient_name}
             onChange={(e) =>
               setFormData({ ...formData, ingredient_name: e.target.value })
             }
+            required
+            placeholder="Enter ingredient name"
           />
         </label>
         <br />
-        <label>
+        <label className="select">
           Category:
-          <Select
-            isClearable
+          <AsyncSelect
             isSearchable
-            name="Ingredient Category"
-            options={ingredientCategoryOptions}
-            getOptionValue={(option) => `${option["id"]}`}
+            placeholder="Select category"
+            loadOptions={loadOptions}
+            defaultOptions
+            cacheOptions
+            getOptionLabel={(option) => option.name}
+            getOptionValue={(option) => option.id.toString()}
+            onChange={(selectedOption) =>
+              setFormData({
+                ...formData,
+                category_id: selectedOption?.id || -1,
+              })
+            }
+            required
+            styles={{
+              option: (provided) => ({
+                ...provided,
+                color: "black", // text color
+              }),
+              control: (provided) => ({
+                ...provided,
+                minHeight: "1.5rem",
+              }),
+            }}
           />
         </label>
+        {/* <button type="button" onClick={() => console.log(formData)}>
+                form data
+            </button> */}
+        <br />
+        <button type="submit">Insert</button>
       </form>
-    </>
+    </div>
   );
 }
 

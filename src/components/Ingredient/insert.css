@@ -1,0 +1,39 @@
+.container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.container input {
+    border: none;
+    display: block;
+    width: 100%;
+    padding: 6px 12px;
+    border-radius: 4px;
+    min-height: 1.5rem;
+    overflow: hidden;
+    white-space: nowrap;
+    background-color: white;
+    caret-color: black;
+    padding: 2px 8px;
+    box-sizing: border-box;
+}
+
+.container input:focus {
+    outline: none;
+}
+
+.select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 10px;
+    max-width: 400px;
+    min-height: 1.5rem;
+}
