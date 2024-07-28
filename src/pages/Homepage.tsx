@@ -8,13 +8,12 @@ function Homepage() {
   return (
     <>
       <h1>Hello Friends!</h1>
-      <h2>Homepage Under Constructions</h2>
+      <h2>Homepage Under Construction</h2>
       <p>
         I've got quite a laundry list of features I want to add. The big ticket
         item is a grocery list generator for the recipes you soon will see here.
         In the meantime, here is a heart for you for checking out the pages: ❤️
       </p>
-      <button onClick={() => jwtDecode("")}>try to decode nothing</button>
       {session && (
         <button onClick={() => console.log(jwtDecode(session.access_token))}>
           decode access token
