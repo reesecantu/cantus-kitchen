@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar/Navbar";
 import RecipeBook from "./pages/RecipeBook";
 import GroceryListGenerator from "./pages/GroceryListGenerator";
 import RecipeQuiz from "./pages/RecipeQuiz";
+import TestingPage from "./pages/TestingPage";
 
 /**
  * The main component of the application. Houses the routing logic.
@@ -41,6 +42,15 @@ function App() {
             <ProtectedRouteWithRoles requiredRoles={["admin"]}>
 
               <RecipeManager />
+            </ProtectedRouteWithRoles>
+          }
+        />
+         <Route
+          path="/testing"
+          element={
+            <ProtectedRouteWithRoles requiredRoles={["admin"]}>
+
+              <TestingPage />
             </ProtectedRouteWithRoles>
           }
         />
