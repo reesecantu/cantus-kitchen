@@ -1,9 +1,9 @@
 import supabase from "../../../supabase/supabase-client";
-import { InsertRecipeCategoryType } from "../../../supabase/supabase-types";
+import { InsertRecipeTagType } from "../../../supabase/supabase-types";
 import { useState } from "react";
 
 function InsertRecipeCategory() {
-  const [formData, setFormData] = useState<InsertRecipeCategoryType>({
+  const [formData, setFormData] = useState<InsertRecipeTagType>({
     name: "",
   });
 
@@ -15,7 +15,7 @@ function InsertRecipeCategory() {
     event.preventDefault();
     try {
       const { data, error } = await supabase
-        .from("recipe_category")
+        .from("recipe_tag")
         .insert([{ ...formData }]);
       if (error) {
         throw error;

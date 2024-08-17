@@ -92,7 +92,6 @@ export type Database = {
       }
       recipe: {
         Row: {
-          category_id: number | null
           created_at: string
           id: number
           instructions: string | null
@@ -102,7 +101,6 @@ export type Database = {
           servings: number | null
         }
         Insert: {
-          category_id?: number | null
           created_at?: string
           id?: number
           instructions?: string | null
@@ -112,7 +110,6 @@ export type Database = {
           servings?: number | null
         }
         Update: {
-          category_id?: number | null
           created_at?: string
           id?: number
           instructions?: string | null
@@ -120,29 +117,6 @@ export type Database = {
           name?: string
           price?: number | null
           servings?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "recipe_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "recipe_category"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      recipe_category: {
-        Row: {
-          id: number
-          name: string
-        }
-        Insert: {
-          id?: number
-          name?: string
-        }
-        Update: {
-          id?: number
-          name?: string
         }
         Relationships: []
       }
@@ -188,6 +162,54 @@ export type Database = {
             columns: ["unit"]
             isOneToOne: false
             referencedRelation: "ingredient_unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipe_tag: {
+        Row: {
+          id: number
+          name: string
+        }
+        Insert: {
+          id?: number
+          name: string
+        }
+        Update: {
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      recipe_tag_union: {
+        Row: {
+          id: number
+          recipe_id: number | null
+          tag_id: number | null
+        }
+        Insert: {
+          id?: number
+          recipe_id?: number | null
+          tag_id?: number | null
+        }
+        Update: {
+          id?: number
+          recipe_id?: number | null
+          tag_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_tag_union_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_tag_union_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "recipe_tag"
             referencedColumns: ["id"]
           },
         ]
@@ -342,6 +364,7 @@ export type Database = {
           owner_id: string | null
           path_tokens: string[] | null
           updated_at: string | null
+          user_metadata: Json | null
           version: string | null
         }
         Insert: {
@@ -355,6 +378,7 @@ export type Database = {
           owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          user_metadata?: Json | null
           version?: string | null
         }
         Update: {
@@ -368,6 +392,7 @@ export type Database = {
           owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          user_metadata?: Json | null
           version?: string | null
         }
         Relationships: [
@@ -389,6 +414,7 @@ export type Database = {
           key: string
           owner_id: string | null
           upload_signature: string
+          user_metadata: Json | null
           version: string
         }
         Insert: {
@@ -399,6 +425,7 @@ export type Database = {
           key: string
           owner_id?: string | null
           upload_signature: string
+          user_metadata?: Json | null
           version: string
         }
         Update: {
@@ -409,6 +436,7 @@ export type Database = {
           key?: string
           owner_id?: string | null
           upload_signature?: string
+          user_metadata?: Json | null
           version?: string
         }
         Relationships: [

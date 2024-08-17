@@ -18,8 +18,8 @@ export type InsertIngredientUnitType = Database['public']['Tables']['ingredient_
 export type RecipeType = Database['public']['Tables']['recipe']['Row'];
 export type InsertRecipeType = Database['public']['Tables']['recipe']['Insert'];
 
-export type RecipeCategoryType = Database['public']['Tables']['recipe_category']['Row'];
-export type InsertRecipeCategoryType = Database['public']['Tables']['recipe_category']['Insert'];
+export type RecipeTagType = Database['public']['Tables']['recipe_tag']['Row'];
+export type InsertRecipeTagType = Database['public']['Tables']['recipe_tag']['Insert'];
 
 export type RecipeIngredientType = Database['public']['Tables']['recipe_ingredient']['Row'];
 export type InsertRecipeIngredientType = Database['public']['Tables']['recipe_ingredient']['Insert'];

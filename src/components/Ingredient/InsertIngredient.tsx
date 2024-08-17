@@ -91,10 +91,10 @@ function InsertIngredient() {
                 ...provided,
                 color: "black", // text color
               }),
-              control: (provided) => ({
-                ...provided,
-                minHeight: "1.5rem",
-              }),
+            //   control: (provided) => ({
+            //     ...provided,
+            //     minHeight: "1.5rem",
+            //   }),
             }}
           />
         </label>

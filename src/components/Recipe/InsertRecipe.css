@@ -1,0 +1,28 @@
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.container input {
+    border: none;
+    display: block;
+    width: 100%;
+    padding: 6px 12px;
+    border-radius: 4px;
+    min-height: 1.5rem;
+    overflow: hidden;
+    white-space: nowrap;
+    background-color: white;
+    caret-color: black;
+    padding: 2px 8px;
+    box-sizing: border-box;
+    color: black;
+}
+
+textarea {
+    min-height: 50px;
+    width: 400px;
+    background-color: white;
+    color: black;
+    font-family: Inter;
+}
