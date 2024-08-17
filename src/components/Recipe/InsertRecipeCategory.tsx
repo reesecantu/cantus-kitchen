@@ -30,13 +30,13 @@ function InsertRecipeCategory() {
 
   return (
     <div>
-      <h2>Insert Recipe Category</h2>
+      <h2>Insert Recipe Tag</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           value={formData.name}
           onChange={handleInputChange}
-          placeholder="Enter recipe category name"
+          placeholder="Enter new recipe tag"
         />
         <button type="submit">Insert</button>
       </form>

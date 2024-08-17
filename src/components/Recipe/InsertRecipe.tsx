@@ -8,16 +8,22 @@ import supabase from "../../../supabase/supabase-client";
 import "./InsertRecipe.css";
 
 function InsertRecipe() {
-    const initFormData = (): InsertRecipeType => {
-        return {
-            name: "",
-            instructions: "",
-            link: "",
-            price: null,
-            servings: null,
-    }};
+  const initFormData = (): InsertRecipeType => {
+    return {
+      name: "",
+      instructions: "",
+      link: "",
+      price: null,
+      servings: null,
+    };
+  };
 
-    const [formData, setFormData] = useState<InsertRecipeType>(initFormData());
+  const initTags = (): RecipeTagType[] => {
+    return [];
+  }
+
+  const [formData, setFormData] = useState<InsertRecipeType>(initFormData());
+  const [selectedTags, setSelectedTags] = useState<RecipeTagType[]>([]);
 
   /**
    * Load options for the recipe category select input
@@ -75,28 +81,22 @@ function InsertRecipe() {
           Recipe tag(s):
           <AsyncSelect
             isSearchable
-            placeholder="Select category"
+            isMulti
+            placeholder="Select Tag(s)"
             loadOptions={loadOptions}
             defaultOptions
             cacheOptions
             getOptionLabel={(option) => option.name}
             getOptionValue={(option) => option.id.toString()}
             required
-            onChange={(selectedOption) =>
-              setFormData({
-                ...formData,
-                tag_id: selectedOption?.id || -1,
-              })
+            onChange={(selectedOptions) =>
+              setSelectedTags(selectedOptions as RecipeTagType[])
             }
             styles={{
               option: (provided) => ({
                 ...provided,
                 color: "black", // text color
               }),
-            //   control: (provided) => ({
-            //     ...provided,
-            //     minHeight: "1.5rem",
-            //   }),
             }}
           />
         </label>
@@ -128,7 +128,10 @@ function InsertRecipe() {
             type="number"
             value={formData.price ?? ""}
             onChange={(event) =>
-              setFormData({ ...formData, price: event.target.value ? Number(event.target.value) : null })
+              setFormData({
+                ...formData,
+                price: event.target.value ? Number(event.target.value) : null,
+              })
             }
             placeholder="Enter recipe price"
           />
@@ -139,7 +142,12 @@ function InsertRecipe() {
             type="number"
             value={formData.servings ?? ""}
             onChange={(event) =>
-              setFormData({ ...formData, servings: event.target.value ? Number(event.target.value) : null })
+              setFormData({
+                ...formData,
+                servings: event.target.value
+                  ? Number(event.target.value)
+                  : null,
+              })
             }
             placeholder="Enter recipe servings"
           />
