@@ -124,21 +124,21 @@ export type Database = {
         Row: {
           id: number
           ingredient_id: number
-          quanity: number | null
+          quantity: number | null
           recipe_id: number | null
           unit: number | null
         }
         Insert: {
           id?: number
           ingredient_id: number
-          quanity?: number | null
+          quantity?: number | null
           recipe_id?: number | null
           unit?: number | null
         }
         Update: {
           id?: number
           ingredient_id?: number
-          quanity?: number | null
+          quantity?: number | null
           recipe_id?: number | null
           unit?: number | null
         }
@@ -274,6 +274,14 @@ export type Database = {
           event: Json
         }
         Returns: Json
+      }
+      insert_recipe_with_ingredients_and_tags: {
+        Args: {
+          recipe: Json
+          ingredients: Json
+          recipe_tags: Json
+        }
+        Returns: undefined
       }
     }
     Enums: {
