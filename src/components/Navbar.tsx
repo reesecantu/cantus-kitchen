@@ -7,8 +7,8 @@ export const Navbar = () => {
   const username = "John Doe"; // This will come from user object later
 
   return (
-    <nav className="fixed top-0 z-40 w-full backdrop-blur-lg shadow-lg bg-blue-500">
-      <div className="mx-auto">
+    <nav className="fixed top-0 z-40 w-full backdrop-blur-lg shadow-md bg-slate-50 border-b border-gray-500">
+      <div className="mx-auto max-w-7xl">
         <div className="flex items-center h-20 justify-between px-8">
           {/* Left Section - Logo */}
           <div className="flex-shrink-0 pl-4">
@@ -22,7 +22,7 @@ export const Navbar = () => {
           </div>
 
           {/* Navigation */}
-          <div className="flex items-center space-x-10">
+          <div className="flex items-center space-x-10 mr-10">
             {/* Desktop Navigation */}
             <div
               className="hidden md:flex items-center space-x-12"
@@ -31,31 +31,31 @@ export const Navbar = () => {
             >
               <Link
                 to="/recipes"
-                className="text-white text-xl hover:text-blue-100 transition-colors font-medium"
+                className="text-gray-700 text-l hover:text-gray-800 transition-colors font-medium"
                 role="menuitem"
               >
                 Recipes
               </Link>
               <Link
                 to="/grocery-lists"
-                className="text-white text-xl hover:text-blue-100 transition-colors font-medium"
+                className="text-gray-700 text-l hover:text-gray-800 transition-colors font-medium"
                 role="menuitem"
               >
                 Grocery Lists
               </Link>
               <Link
                 to="/"
-                className="text-white text-xl hover:text-blue-100 transition-colors font-medium"
+                className="text-gray-700 text-l hover:text-gray-800 transition-colors font-medium"
                 role="menuitem"
               >
                 Instagram
               </Link>
             </div>
             {/* Auth */}
-            <div className="hidden md:flex items-center space-x-4 pr-3">
+            <div className="hidden md:flex items-center space-x-4 pl-10">
               {user ? (
                 <div className="flex items-center space-x-3">
-                  <span className="text-white font-medium">
+                  <span className="text-slate-700 font-medium">
                     Welcome, {username}
                   </span>
                   <button
@@ -63,21 +63,27 @@ export const Navbar = () => {
                       // TODO: Implement logout functionality
                       console.log("Logout clicked");
                     }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
                   >
                     Logout
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={() => {
-                    // TODO: Implement login functionality
-                    console.log("Login clicked");
-                  }}
-                  className="bg-white text-xl hover:bg-blue-50 text-blue-500 px-6 py-2 rounded-lg transition-colors font-medium border border-white"
-                >
-                  Login
-                </button>
+                <div className="flex items-center space-x-2">
+                    <Link
+                        to="/sign-in"
+                        className="text-l text-gray-700 hover:text-gray-800 transition-colors font-medium hover:cursor-pointer"
+                    >
+                        Sign in
+                    </Link>
+                    <span className="text-slate-600 select-none">|</span>
+                    <Link
+                        to="/sign-up"
+                        className="text-l text-blue-500 hover:text-blue-600 transition-colors font-medium hover:cursor-pointer"
+                    >
+                        Sign up
+                    </Link>
+                </div>
               )}
             </div>
           </div>
