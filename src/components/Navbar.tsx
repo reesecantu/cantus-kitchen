@@ -70,19 +70,19 @@ export const Navbar = () => {
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
-                    <Link
-                        to="/sign-in"
-                        className="text-l text-gray-700 hover:text-gray-800 transition-colors font-medium hover:cursor-pointer"
-                    >
-                        Sign in
-                    </Link>
-                    <span className="text-slate-600 select-none">|</span>
-                    <Link
-                        to="/sign-up"
-                        className="text-l text-blue-500 hover:text-blue-600 transition-colors font-medium hover:cursor-pointer"
-                    >
-                        Sign up
-                    </Link>
+                  <Link
+                    to="/sign-in"
+                    className="text-l text-gray-700 hover:text-gray-800 transition-colors font-medium hover:cursor-pointer"
+                  >
+                    Sign in
+                  </Link>
+                  <span className="text-slate-600 select-none">|</span>
+                  <Link
+                    to="/sign-up"
+                    className="bg-amber-200 hover:bg-amber-300 text-amber-800 hover:text-amber-900 px-1.5 rounded transition-colors font-medium"
+                  >
+                    Sign up
+                  </Link>
                 </div>
               )}
             </div>
