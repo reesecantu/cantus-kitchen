@@ -1,10 +1,10 @@
 import { Link } from "react-router";
+// import { SquarePlus } from "lucide-react";
 import logoLongBlue from "../assets/logo_long_blue.png";
+import { useAuth } from "../contexts/AuthContext";
 
 export const Navbar = () => {
-  // TODO: Replace with actual useAuth() hook implementation
-  const user = null; // This will be replaced with useAuth() later
-  const username = "John Doe"; // This will come from user object later
+  const { user, signOut } = useAuth();
 
   return (
     <nav className="fixed top-0 z-40 w-full backdrop-blur-lg shadow-md bg-slate-50 border-b border-gray-500">
@@ -50,19 +50,23 @@ export const Navbar = () => {
               >
                 Instagram
               </Link>
+              <Link
+                to="/create"
+                className="text-gray-700 text-l hover:text-gray-800 transition-colors font-medium"
+              >
+                {/* <SquarePlus size={24} strokeWidth={1.75}  /> */}
+                Create
+              </Link>
             </div>
             {/* Auth */}
-            <div className="hidden md:flex items-center space-x-4 pl-10">
+            <div className="hidden md:flex items-center space-x-4 pl-12">
               {user ? (
                 <div className="flex items-center space-x-3">
                   <span className="text-slate-700 font-medium">
-                    Welcome, {username}
+                    Welcome {user?.user_metadata.username ? `, ${user?.user_metadata.username}`  : ""} 
                   </span>
                   <button
-                    onClick={() => {
-                      // TODO: Implement logout functionality
-                      console.log("Logout clicked");
-                    }}
+                    onClick={signOut}
                     className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
                   >
                     Logout
