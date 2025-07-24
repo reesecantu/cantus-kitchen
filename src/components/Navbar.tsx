@@ -25,34 +25,34 @@ export const Navbar = () => {
           <div className="flex items-center space-x-10 mr-10">
             {/* Desktop Navigation */}
             <div
-              className="hidden md:flex items-center space-x-12"
+              className="hidden md:flex items-center space-x-12 text-gray-700 text-l hover:text-gray-800 transition-colors font-semibold"
               role="menu"
               aria-label="Main navigation"
             >
               <Link
                 to="/recipes"
-                className="text-gray-700 text-l hover:text-gray-800 transition-colors font-medium"
+                className=""
                 role="menuitem"
               >
                 Recipes
               </Link>
               <Link
                 to="/grocery-lists"
-                className="text-gray-700 text-l hover:text-gray-800 transition-colors font-medium"
+                className=""
                 role="menuitem"
               >
                 Grocery Lists
               </Link>
               <Link
                 to="/"
-                className="text-gray-700 text-l hover:text-gray-800 transition-colors font-medium"
+                className=""
                 role="menuitem"
               >
                 Instagram
               </Link>
               <Link
                 to="/create"
-                className="text-gray-700 text-l hover:text-gray-800 transition-colors font-medium"
+                className=""
               >
                 {/* <SquarePlus size={24} strokeWidth={1.75}  /> */}
                 Create
@@ -77,7 +77,7 @@ export const Navbar = () => {
                   >
                     Sign in
                   </Link>
-                  <span className="text-slate-600 select-none">|</span>
+                  <span className="text-gray-700 select-none">|</span>
                   <Link
                     to="/sign-up"
                     className="bg-amber-200 hover:bg-amber-300 text-amber-800 hover:text-amber-900 px-1.5 rounded transition-colors font-medium"
