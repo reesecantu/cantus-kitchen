@@ -62,12 +62,9 @@ export const Navbar = () => {
             <div className="hidden md:flex items-center space-x-4 pl-12">
               {user ? (
                 <div className="flex items-center space-x-3">
-                  <span className="text-slate-700 font-medium">
-                    Welcome {user?.user_metadata.username ? `, ${user?.user_metadata.username}`  : ""} 
-                  </span>
                   <button
                     onClick={signOut}
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-1.5 rounded transition-colors font-medium"
                   >
                     Logout
                   </button>
