@@ -4,6 +4,7 @@ import { Navbar } from "./components/Navbar";
 import { SignIn } from "./pages/SignIn";
 import { SignUp } from "./pages/SignUp";
 import { RecipesPage } from "./pages/RecipesPage";
+import { CreatePage } from "./pages/CreatePage";
 
 function App() {
   const location = useLocation();
@@ -20,6 +21,7 @@ function App() {
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/recipes" element={<RecipesPage />} />
+          <Route path="/create" element={<CreatePage />} />
         </Routes>
       </div>
     </div>

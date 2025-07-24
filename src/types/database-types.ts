@@ -71,6 +71,8 @@ export type Database = {
           ingredient_id: number
           note: string | null
           recipe_id: number
+          unit_amount: number | null
+          unit_id: string | null
         }
         Insert: {
           created_at?: string
@@ -78,6 +80,8 @@ export type Database = {
           ingredient_id: number
           note?: string | null
           recipe_id: number
+          unit_amount?: number | null
+          unit_id?: string | null
         }
         Update: {
           created_at?: string
@@ -85,6 +89,8 @@ export type Database = {
           ingredient_id?: number
           note?: string | null
           recipe_id?: number
+          unit_amount?: number | null
+          unit_id?: string | null
         }
         Relationships: [
           {
@@ -101,6 +107,13 @@ export type Database = {
             referencedRelation: "recipes"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "recipe_ingredients_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
         ]
       }
       recipes: {
@@ -109,24 +122,57 @@ export type Database = {
           created_by: string | null
           id: number
           image_url: string | null
-          instructions: string
           name: string
+          steps: string[]
         }
         Insert: {
           created_at?: string
           created_by?: string | null
           id?: number
           image_url?: string | null
-          instructions: string
           name: string
+          steps: string[]
         }
         Update: {
           created_at?: string
           created_by?: string | null
           id?: number
           image_url?: string | null
-          instructions?: string
           name?: string
+          steps?: string[]
+        }
+        Relationships: []
+      }
+      units: {
+        Row: {
+          abbreviation: string
+          base_conversion_factor: number | null
+          created_at: string | null
+          display_order: number | null
+          id: string
+          name: string
+          system: string
+          type: string
+        }
+        Insert: {
+          abbreviation: string
+          base_conversion_factor?: number | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          name: string
+          system: string
+          type: string
+        }
+        Update: {
+          abbreviation?: string
+          base_conversion_factor?: number | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          name?: string
+          system?: string
+          type?: string
         }
         Relationships: []
       }
