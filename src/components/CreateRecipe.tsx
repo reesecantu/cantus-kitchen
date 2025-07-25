@@ -81,21 +81,32 @@ export const CreateRecipe = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Recipe Name */}
         <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Recipe Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Enter recipe name"
-            required
-          />
+          <div className="flex justify-between items-center mb-2">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Recipe Name
+            </label>
+          </div>
+            <div>
+              <input
+                type="text"
+                id="name"
+                maxLength={100}
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                autoComplete="off"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Enter recipe name"
+                required
+              />
+              <div className="text-right mr-1">
+                <span className="text-xs text-gray-500">
+                  {formData.name.length}/100
+                </span>
+              </div>
+            </div>
         </div>
 
         {/* Image Upload - Replaced URL input */}
