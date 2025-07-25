@@ -29,6 +29,13 @@ export const Navbar = () => {
               role="menu"
               aria-label="Main navigation"
             >
+               <Link
+                to="/"
+                className=""
+                role="menuitem"
+              >
+                Home
+              </Link>
               <Link
                 to="/recipes"
                 className=""
@@ -42,13 +49,6 @@ export const Navbar = () => {
                 role="menuitem"
               >
                 Grocery Lists
-              </Link>
-              <Link
-                to="/"
-                className=""
-                role="menuitem"
-              >
-                Instagram
               </Link>
               <Link
                 to="/create"
