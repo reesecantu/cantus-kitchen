@@ -193,7 +193,7 @@ export const IngredientMultiSelect = ({
                   </label>
                   <input
                     type="number"
-                    step="0.1"
+                    step="0.01"
                     min="0"
                     placeholder=""
                     value={ingredient.unit_amount || ""}
@@ -223,7 +223,7 @@ export const IngredientMultiSelect = ({
                     <option value=""></option>
                     {units.map((unit) => (
                       <option key={unit.id} value={unit.id}>
-                        {unit.name} ({unit.abbreviation})
+                        {unit.abbreviation ? `${unit.name} (${unit.abbreviation})` : unit.name}
                       </option>
                     ))}
                   </select>
