@@ -58,8 +58,8 @@ export const useGroceryLists = () => {
         .from('grocery_lists')
         .select(`
           *,
-          grocery_list_recipes(count),
-          grocery_list_items(count, is_checked)
+          grocery_list_recipes(*),
+          grocery_list_items(is_checked)
         `)
         .order('created_at', { ascending: false });
 
@@ -68,12 +68,18 @@ export const useGroceryLists = () => {
         throw error;
       }
 
-      return (data || []).map(list => ({
-        ...list,
-        recipe_count: list.grocery_list_recipes?.[0]?.count || 0,
-        item_count: list.grocery_list_items?.length || 0,
-        completed_item_count: list.grocery_list_items?.filter((item: GroceryListItemForStats) => item.is_checked)?.length || 0
-      }));
+      return (data || []).map(list => {
+        const recipes = list.grocery_list_recipes || [];
+        const items = list.grocery_list_items || [];
+        const completedItems = items.filter((item: GroceryListItemForStats) => item.is_checked === true);
+        
+        return {
+          ...list,
+          recipe_count: recipes.length,
+          item_count: items.length,
+          completed_item_count: completedItems.length
+        };
+      });
     },
   });
 };
