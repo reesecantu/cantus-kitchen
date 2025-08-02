@@ -26,7 +26,7 @@ export const GroceryListList = () => {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="text-gray-500">
-          No grocery lists found. Create your first grocery list!
+          Create your first grocery list!
         </div>
       </div>
     );
@@ -35,10 +35,10 @@ export const GroceryListList = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {groceryLists.map((list) => (
-        <Link key={list.id} to={`/grocery-lists/${list.id}`}>
-          <div className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow cursor-pointer">
+        <Link key={list.id} to={`/grocery-list/${list.id}`}>
+          <div className="bg-white rounded-lg border transition-transform duration-200 cursor-pointer hover:-translate-y-1 group">
             <div className="p-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:underline group-hover:decoration-2 group-hover:decoration-gray-700">
                 {list.name}
               </h3>
               {list.description && (
