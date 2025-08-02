@@ -35,24 +35,160 @@ export type Database = {
         }
         Relationships: []
       }
+      grocery_list_items: {
+        Row: {
+          created_at: string | null
+          grocery_list_id: string | null
+          id: string
+          ingredient_id: number | null
+          is_checked: boolean | null
+          is_manual: boolean | null
+          notes: string | null
+          quantity: number
+          source_recipes: string[] | null
+          unit_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          grocery_list_id?: string | null
+          id?: string
+          ingredient_id?: number | null
+          is_checked?: boolean | null
+          is_manual?: boolean | null
+          notes?: string | null
+          quantity: number
+          source_recipes?: string[] | null
+          unit_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          grocery_list_id?: string | null
+          id?: string
+          ingredient_id?: number | null
+          is_checked?: boolean | null
+          is_manual?: boolean | null
+          notes?: string | null
+          quantity?: number
+          source_recipes?: string[] | null
+          unit_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grocery_list_items_grocery_list_id_fkey"
+            columns: ["grocery_list_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grocery_list_items_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "ingredients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grocery_list_items_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grocery_list_recipes: {
+        Row: {
+          added_at: string | null
+          grocery_list_id: string | null
+          id: string
+          recipe_id: string | null
+          servings_multiplier: number | null
+        }
+        Insert: {
+          added_at?: string | null
+          grocery_list_id?: string | null
+          id?: string
+          recipe_id?: string | null
+          servings_multiplier?: number | null
+        }
+        Update: {
+          added_at?: string | null
+          grocery_list_id?: string | null
+          id?: string
+          recipe_id?: string | null
+          servings_multiplier?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grocery_list_recipes_grocery_list_id_fkey"
+            columns: ["grocery_list_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grocery_list_recipes_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grocery_lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_completed: boolean
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_completed?: boolean
+          name: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_completed?: boolean
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ingredients: {
         Row: {
           created_at: string
           grocery_aisle_id: number | null
           id: number
           name: string
+          recipe_id: string | null
         }
         Insert: {
           created_at?: string
           grocery_aisle_id?: number | null
           id?: number
           name: string
+          recipe_id?: string | null
         }
         Update: {
           created_at?: string
           grocery_aisle_id?: number | null
           id?: number
           name?: string
+          recipe_id?: string | null
         }
         Relationships: [
           {
@@ -60,6 +196,13 @@ export type Database = {
             columns: ["grocery_aisle_id"]
             isOneToOne: false
             referencedRelation: "grocery_aisles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ingredients_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
             referencedColumns: ["id"]
           },
         ]
@@ -70,7 +213,7 @@ export type Database = {
           id: number
           ingredient_id: number
           note: string | null
-          recipe_id: number
+          recipe_id: string | null
           unit_amount: number | null
           unit_id: string | null
         }
@@ -79,7 +222,7 @@ export type Database = {
           id?: number
           ingredient_id: number
           note?: string | null
-          recipe_id: number
+          recipe_id?: string | null
           unit_amount?: number | null
           unit_id?: string | null
         }
@@ -88,7 +231,7 @@ export type Database = {
           id?: number
           ingredient_id?: number
           note?: string | null
-          recipe_id?: number
+          recipe_id?: string | null
           unit_amount?: number | null
           unit_id?: string | null
         }
@@ -120,25 +263,28 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
-          id: number
+          id: string
           image_url: string | null
           name: string
+          servings: number | null
           steps: string[]
         }
         Insert: {
           created_at?: string
           created_by?: string | null
-          id?: number
+          id?: string
           image_url?: string | null
           name: string
+          servings?: number | null
           steps: string[]
         }
         Update: {
           created_at?: string
           created_by?: string | null
-          id?: number
+          id?: string
           image_url?: string | null
           name?: string
+          servings?: number | null
           steps?: string[]
         }
         Relationships: []
@@ -181,9 +327,43 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_manual_item_to_grocery_list: {
+        Args: {
+          list_id: string
+          ingredient_name: string
+          quantity: number
+          unit_name: string
+          notes?: string
+        }
+        Returns: string
+      }
+      add_recipe_to_grocery_list: {
+        Args: {
+          list_id: string
+          p_recipe_id: number
+          servings_multiplier?: number
+        }
+        Returns: boolean
+      }
+      find_best_unit_for_quantity: {
+        Args: {
+          p_base_quantity: number
+          p_unit_type: string
+          p_preferred_system?: string
+        }
+        Returns: string
+      }
       generate_simple_anonymous_username: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      regenerate_grocery_list_items: {
+        Args: { list_id: string }
+        Returns: undefined
+      }
+      remove_recipe_from_grocery_list: {
+        Args: { list_id: string; recipe_id: number }
+        Returns: boolean
       }
     }
     Enums: {

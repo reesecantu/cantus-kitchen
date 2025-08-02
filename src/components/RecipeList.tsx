@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { useRecipes } from "../hooks/useRecipes";
 import { RecipeTile } from "./RecipeTile";
 
@@ -41,7 +42,11 @@ export const RecipeList = () => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {recipes.map((recipe) => (
-        <RecipeTile key={recipe.id} recipe={recipe} />
+        <div key={recipe.id}>
+          <Link to={`/recipe/${recipe.id}`}>
+            <RecipeTile recipe={recipe} />
+          </Link>
+        </div>
       ))}
     </div>
   );

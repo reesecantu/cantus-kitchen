@@ -179,7 +179,7 @@ export const useAddRecipeToGroceryList = () => {
     }) => {
       const { data, error } = await supabase.rpc('add_recipe_to_grocery_list', {
         list_id: listId,
-        recipe_id: recipeId,
+        p_recipe_id: recipeId,
         servings_multiplier: servingsMultiplier
       });
 
