@@ -34,10 +34,10 @@ export const GroceryListTile = ({ list }: GroceryListTileProps) => {
               )}
             </div>
           </div>
-          <div className="mt-3">
+          <div className="mt-1">
             <div className="flex items-center justify-between text-xs text-gray-400">
-              <span>{list.is_completed ? "Completed" : "Active"}</span>
               <span>{new Date(list.created_at).toLocaleDateString()}</span>
+              <span>{list.is_completed ? "Completed" : "Not Completed"}</span>
             </div>
             {list.item_count > 0 && (
               <div className="mt-2 w-full bg-gray-200 rounded-full h-2">

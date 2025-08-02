@@ -174,21 +174,18 @@ export type Database = {
           grocery_aisle_id: number | null
           id: number
           name: string
-          recipe_id: string | null
         }
         Insert: {
           created_at?: string
           grocery_aisle_id?: number | null
           id?: number
           name: string
-          recipe_id?: string | null
         }
         Update: {
           created_at?: string
           grocery_aisle_id?: number | null
           id?: number
           name?: string
-          recipe_id?: string | null
         }
         Relationships: [
           {
@@ -196,13 +193,6 @@ export type Database = {
             columns: ["grocery_aisle_id"]
             isOneToOne: false
             referencedRelation: "grocery_aisles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ingredients_recipe_id_fkey"
-            columns: ["recipe_id"]
-            isOneToOne: false
-            referencedRelation: "recipes"
             referencedColumns: ["id"]
           },
         ]
@@ -322,6 +312,39 @@ export type Database = {
         }
         Relationships: []
       }
+      units_backup_before_fix: {
+        Row: {
+          abbreviation: string | null
+          base_conversion_factor: number | null
+          created_at: string | null
+          display_order: number | null
+          id: string | null
+          name: string | null
+          system: string | null
+          type: string | null
+        }
+        Insert: {
+          abbreviation?: string | null
+          base_conversion_factor?: number | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string | null
+          name?: string | null
+          system?: string | null
+          type?: string | null
+        }
+        Update: {
+          abbreviation?: string | null
+          base_conversion_factor?: number | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string | null
+          name?: string | null
+          system?: string | null
+          type?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -340,7 +363,7 @@ export type Database = {
       add_recipe_to_grocery_list: {
         Args: {
           list_id: string
-          p_recipe_id: number
+          p_recipe_id: string
           servings_multiplier?: number
         }
         Returns: boolean

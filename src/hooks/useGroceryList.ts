@@ -266,7 +266,7 @@ export const useAddManualItem = () => {
       ingredientName: string; 
       quantity: number; 
       unitName: string; 
-      notes?: string; 
+      notes?: string | null;
     }) => {
       const { data, error } = await supabase.rpc('add_manual_item_to_grocery_list', {
         list_id: listId,
@@ -282,6 +282,38 @@ export const useAddManualItem = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ 
         queryKey: GROCERY_LIST_QUERY_KEYS.groceryList(variables.listId) 
+      });
+    },
+  });
+};
+
+export const useUpdateGroceryList = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      listId, 
+      updates 
+    }: { 
+      listId: string; 
+      updates: { name?: string; description?: string } 
+    }) => {
+      const { data, error } = await supabase
+        .from('grocery_lists')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', listId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ 
+        queryKey: GROCERY_LIST_QUERY_KEYS.groceryList(data.id) 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: GROCERY_LIST_QUERY_KEYS.groceryLists 
       });
     },
   });
