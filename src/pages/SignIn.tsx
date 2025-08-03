@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import chef from "../assets/chef-blue.svg";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -9,24 +9,56 @@ export const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).signInWithGoogle = async (response: {
-      credential: string;
-    }) => {
+  // Define the Google Sign-In callback function
+  const handleGoogleSignIn = useCallback(
+    async (response: { credential: string }) => {
       try {
         await signInWithGoogle(response);
         navigate("/");
       } catch (error) {
         console.error("Google sign-in failed:", error);
       }
+    },
+    [signInWithGoogle, navigate]
+  );
+
+  useEffect(() => {
+    // Load Google Sign-In script
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      // Initialize Google Sign-In after script loads
+      if (window.google) {
+        window.google.accounts.id.initialize({
+          client_id:
+            "262316464839-uc3ev77rilr4dh04lo2m1b9un5aia081.apps.googleusercontent.com",
+          callback: handleGoogleSignIn, // Use the local function directly
+        });
+
+        window.google.accounts.id.renderButton(
+          document.getElementById("google-signin-button"),
+          {
+            type: "standard",
+            shape: "rectangular",
+            theme: "filled_blue",
+            text: "signin_with",
+            size: "large",
+            logo_alignment: "left",
+          }
+        );
+      }
     };
 
+    // Cleanup
     return () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (window as any).signInWithGoogle;
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
     };
-  }, [signInWithGoogle, navigate]);
+  }, [handleGoogleSignIn]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,26 +83,7 @@ export const SignIn = () => {
           </a>
         </div>
         <div className="flex-1">
-          <script src="https://accounts.google.com/gsi/client" async></script>
-          <div
-            id="g_id_onload"
-            data-client_id="262316464839-uc3ev77rilr4dh04lo2m1b9un5aia081.apps.googleusercontent.com"
-            data-context="signin"
-            data-ux_mode="popup"
-            data-callback="signInWithGoogle"
-            data-auto_prompt="false"
-            data-use_fedcm_for_prompt="true"
-          ></div>
-
-          <div
-            className="g_id_signin"
-            data-type="standard"
-            data-shape="rectangular"
-            data-theme="filled_blue"
-            data-text="signin_with"
-            data-size="large"
-            data-logo_alignment="left"
-          ></div>
+          <div id="google-signin-button"></div>
           <div className="my-5 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-neutral-300 after:mt-0.5 after:flex-1 after:border-t after:border-neutral-300">
             <p className="mx-4 mb-0 text-center font-semibold text-slate-500">
               Or
