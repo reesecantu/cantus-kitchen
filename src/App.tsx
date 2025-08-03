@@ -8,6 +8,9 @@ import { CreatePage } from "./pages/CreatePage";
 import { RecipeDetailsPage } from "./pages/RecipeDetailsPage";
 import { GroceryListsPage } from "./pages/GroceryListsPage";
 import { GroceryListDetailsPage } from "./pages/GroceryListDetailsPage";
+import { ForgotPassword } from "./pages/ForgotPassword";
+import { ResetPassword } from "./pages/ResetPassword";
+
 
 function App() {
   const location = useLocation();
@@ -27,7 +30,12 @@ function App() {
           <Route path="/create" element={<CreatePage />} />
           <Route path="/recipe/:id" element={<RecipeDetailsPage />} />
           <Route path="/grocery-lists" element={<GroceryListsPage />} />
-          <Route path="/grocery-list/:id" element={<GroceryListDetailsPage />} />
+          <Route
+            path="/grocery-list/:id"
+            element={<GroceryListDetailsPage />}
+          />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </div>
     </div>
