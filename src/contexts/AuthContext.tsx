@@ -9,6 +9,8 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signInAnonymously: () => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,7 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
-   async function signUpWithEmail(email: string, password: string) {
+  async function signUpWithEmail(email: string, password: string) {
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -70,8 +72,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { error } = await supabase.auth.signInAnonymously();
 
     if (error) {
-      console.error("Error signing in anonymously: ", error)
-      throw error
+      console.error("Error signing in anonymously: ", error);
+      throw error;
     }
   }
 
@@ -84,9 +86,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("Reset password error:", error);
+      throw error;
+    }
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("Update password error:", error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, signInWithGoogle, signUpWithEmail, signInWithEmail, signInAnonymously, signOut }}
+      value={{
+        user,
+        signInWithGoogle,
+        signUpWithEmail,
+        signInWithEmail,
+        signInAnonymously,
+        signOut,
+        resetPassword,
+        updatePassword,
+      }}
     >
       {" "}
       {children}{" "}

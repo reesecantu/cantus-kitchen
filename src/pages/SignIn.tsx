@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { useEffect, useCallback, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import chef from "../assets/chef-blue.svg";
@@ -32,6 +32,7 @@ const isSupabaseError = (error: unknown): error is SupabaseError => {
 export const SignIn = () => {
   const { signInWithGoogle, signInWithEmail, signInAnonymously } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Form state
   const [email, setEmail] = useState("");
@@ -42,6 +43,9 @@ export const SignIn = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
+
+  // Get success message from location state
+  const successMessage = location.state?.message;
 
   // Form validation
   const validateForm = (): boolean => {
@@ -227,19 +231,23 @@ export const SignIn = () => {
 
         {/* Right side - Form */}
         <div className="flex-1 w-full max-w-md">
-          <div className="text-center mb-8">
+          <div className="text-center mb-4">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Welcome Back
             </h1>
-            <p className="text-gray-600">
-              Sign in to continue cooking amazing meals!
-            </p>
           </div>
 
           {/* General Error Message */}
           {errors.general && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
               {errors.general}
+            </div>
+          )}
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
+              {successMessage}
             </div>
           )}
 
@@ -376,7 +384,7 @@ export const SignIn = () => {
           </form>
 
           {/* Sign Up Link */}
-          <div className="mt-6 text-center">
+          <div className="mt-4 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}
               <Link
@@ -389,7 +397,7 @@ export const SignIn = () => {
           </div>
 
           {/* Guest Account Option */}
-          <div className="mt-4 text-center">
+          <div className="mt-1 text-center">
             <p className="text-sm text-gray-600">
               Just browsing?{" "}
               <button
