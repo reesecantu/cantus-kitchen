@@ -11,17 +11,19 @@ import { GroceryListDetailsPage } from "./pages/GroceryListDetailsPage";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
 
-
 function App() {
   const location = useLocation();
-  const hideNavbar = ["/sign-in", "/sign-up", "/forgot-password"].includes(
-    location.pathname
-  );
+  const hideNavbar = [
+    "/sign-in",
+    "/sign-up",
+    "/forgot-password",
+    "/reset-password",
+  ].includes(location.pathname);
 
   return (
     <div>
       {!hideNavbar && <Navbar />}
-      <div className={hideNavbar ? "" : "pt-20"}>
+      <div className={hideNavbar ? "pb-20" : "pt-20 pb-20"}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/sign-in" element={<SignIn />} />
