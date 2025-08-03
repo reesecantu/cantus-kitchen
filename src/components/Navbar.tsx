@@ -136,7 +136,7 @@ export const Navbar = () => {
                     <span className="text-gray-700 select-none">|</span>
                     <Link
                       to="/sign-up"
-                      className="bg-amber-200 hover:bg-amber-300 text-amber-800 hover:text-amber-900 px-4 py-2 rounded transition-colors font-medium"
+                      className="text-lg bg-amber-200 hover:bg-amber-300 text-amber-800 px-1 rounded transition-colors font-medium"
                     >
                       Sign up
                     </Link>
