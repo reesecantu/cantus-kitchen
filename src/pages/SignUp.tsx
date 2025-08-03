@@ -85,7 +85,7 @@ export const SignUp = () => {
 
       try {
         await signInWithGoogle(response);
-        navigate("/dashboard", { replace: true });
+        navigate("/", { replace: true });
       } catch (error: unknown) {
         console.error("Google sign-up failed:", error);
 
@@ -119,7 +119,7 @@ export const SignUp = () => {
 
     try {
       await signUpWithEmail(email, password);
-      navigate("/dashboard", { replace: true });
+      navigate("/", { replace: true });
     } catch (error: unknown) {
       console.error("Email sign-up failed:", error);
 
