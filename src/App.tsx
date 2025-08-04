@@ -10,6 +10,7 @@ import { GroceryListsPage } from "./pages/GroceryListsPage";
 import { GroceryListDetailsPage } from "./pages/GroceryListDetailsPage";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
+import { Footer } from "./components/Footer"
 
 function App() {
   const location = useLocation();
@@ -40,6 +41,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </div>
+      <Footer />
     </div>
   );
 }
