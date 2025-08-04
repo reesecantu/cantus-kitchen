@@ -32,7 +32,7 @@ export const Navbar = () => {
   return (
     <>
       <nav className="fixed top-0 z-40 w-full backdrop-blur-lg shadow-md bg-slate-50 border-b border-gray-500">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-7xl md:-mb-3">
           <div className="flex items-center mt-1.5 justify-between px-4 md:px-8">
             {/* Mobile Left - Hamburger Menu */}
             <div className="md:hidden">
