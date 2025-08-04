@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { useState } from "react";
-import logoLongBlue from "../assets/logo_long_blue.png";
+import logoLongBlue from "../assets/long_logo_blue.png";
+import stackedLogoBlue from "../assets/stacked_logo_blue.png";
 import { useAuth } from "../contexts/AuthContext";
 
 export const Navbar = () => {
@@ -32,7 +33,7 @@ export const Navbar = () => {
     <>
       <nav className="fixed top-0 z-40 w-full backdrop-blur-lg shadow-md bg-slate-50 border-b border-gray-500">
         <div className="mx-auto max-w-7xl">
-          <div className="flex items-center h-20 justify-between px-4 md:px-8">
+          <div className="flex items-center mt-1.5 justify-between px-4 md:px-8">
             {/* Mobile Left - Hamburger Menu */}
             <div className="md:hidden">
               <button
@@ -68,23 +69,23 @@ export const Navbar = () => {
             </div>
 
             {/* Desktop Left - Logo */}
-            <div className="hidden md:flex flex-shrink-0">
+            <div className="hidden md:flex flex-shrink-0 mb-7 -mx-4">
               <Link to="/">
                 <img
                   src={logoLongBlue}
                   alt="Cantus Kitchen Logo"
-                  className="h-12"
+                  className="h-21"
                 />
               </Link>
             </div>
 
             {/* Mobile Center - Logo */}
-            <div className="md:hidden flex-1 flex justify-center">
+            <div className="md:hidden flex-1 flex justify-center mb-3">
               <Link to="/" onClick={closeMobileMenu}>
                 <img
-                  src={logoLongBlue}
+                  src={stackedLogoBlue}
                   alt="Cantus Kitchen Logo"
-                  className="h-10"
+                  className="h-15"
                 />
               </Link>
             </div>
