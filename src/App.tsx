@@ -1,4 +1,5 @@
 import { Route, Routes, useLocation } from "react-router";
+import { useEffect } from "react";
 import { Home } from "./pages/Home";
 import { Navbar } from "./components/Navbar";
 import { SignIn } from "./pages/SignIn";
@@ -10,7 +11,7 @@ import { GroceryListsPage } from "./pages/GroceryListsPage";
 import { GroceryListDetailsPage } from "./pages/GroceryListDetailsPage";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
-import { Footer } from "./components/Footer"
+import { Footer } from "./components/Footer";
 
 function App() {
   const location = useLocation();
@@ -21,10 +22,21 @@ function App() {
     "/reset-password",
   ].includes(location.pathname);
 
+  const ScrollToTop = () => {
+    const { pathname } = useLocation();
+
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, [pathname]);
+
+    return null;
+  };
+
   return (
     <div>
+      <ScrollToTop /> 
       {!hideNavbar && <Navbar />}
-      <div className={hideNavbar ? "" : "pt-20"}>
+      <div className={hideNavbar ? "min-h-screen" : "min-h-screen pt-20"}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/sign-in" element={<SignIn />} />
