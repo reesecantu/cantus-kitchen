@@ -6,12 +6,12 @@ export const Home = () => {
       {/* First Block */}
       <div className="bg-blue-500 flex flex-col md:flex-row">
         <div className="flex-1 flex flex-col justify-center px-6 sm:px-10 lg:px-20 py-12 lg:py-0">
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-semibold text-white leading-tight">
+          <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-semibold text-slate-50 leading-tight">
             Hello <br />
             Friends!
           </h1>
-          <p className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-medium text-white whitespace-nowrap">
-            Welcome to <span className="italic">Cantu's Kitchen</span>
+          <p className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-medium text-slate-50 whitespace-nowrap">
+            Welcome to <span className="italic underline decoration-amber-400 decoration-4">Cantu's Kitchen</span>
           </p>
         </div>
         {/* Image Section */}
