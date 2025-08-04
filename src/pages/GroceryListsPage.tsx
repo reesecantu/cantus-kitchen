@@ -3,11 +3,13 @@ import { GroceryListList } from "../components/GroceryListList";
 import { useState } from "react";
 import { useCreateGroceryList } from "../hooks/useGroceryList";
 import { Plus } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
 export const GroceryListsPage = () => {
   const createGroceryListMutation = useCreateGroceryList();
   const [isCreating, setIsCreating] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleCreateGroceryList = async () => {
     setIsCreating(true);
@@ -37,14 +39,17 @@ export const GroceryListsPage = () => {
             lists
           </p>
         </div>
-        <button
-          onClick={handleCreateGroceryList}
-          disabled={isCreating}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Plus className="h-5 w-5" />
-          {isCreating ? "Creating..." : "New List"}
-        </button>
+        {user &&
+        (
+          <button
+            onClick={handleCreateGroceryList}
+            disabled={isCreating}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Plus className="h-5 w-5" />
+            {isCreating ? "Creating..." : "New List"}
+          </button>
+        )}
       </div>
 
       <div className="mt-3 w-full text-center text-lg font-bold text-red-400">
@@ -53,7 +58,7 @@ export const GroceryListsPage = () => {
       <div className="w-full h-2 bg-amber-400 rounded-full border-2 border-gray-700 mb-8" />
 
       {/* My Grocery Lists */}
-      <GroceryListList />
+      {user ? <GroceryListList /> : <p className="text-lg text-gray-900 text-center"> Coming Soon: Featured Grocery Lists. Sign in to create your own custom grocery lists!</p>}
     </div>
   );
 };
