@@ -8,7 +8,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:pl-0 pl-6">
           {/* Logo and Description */}
           <div className="md:col-span-2">
-            <Link to="/" className="inline-block mb-4 -ml-3 -mt-6">
+            <Link to="/" className="inline-block mb-4 -ml-3 md:-mt-6">
               <img
                 src={logoLongBlue}
                 alt="Cantus Kitchen Logo"

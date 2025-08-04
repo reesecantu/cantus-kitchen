@@ -24,7 +24,7 @@ function App() {
   return (
     <div>
       {!hideNavbar && <Navbar />}
-      <div className={hideNavbar ? "pb-20" : "pt-20 pb-20"}>
+      <div className={hideNavbar ? "" : "pt-20"}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/sign-in" element={<SignIn />} />
