@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../supabase/supabase-client';
 import type { GroceryListWithStats, GroceryListFull } from '../types/grocery-list';
+import type { Tables } from '../types/database-types';
 
 export const GROCERY_LIST_QUERY_KEYS = {
   groceryLists: ['grocery-lists'] as const,
@@ -20,33 +21,15 @@ type GroceryListRecipeWithRecipe = {
   } | null;
 };
 
-type GroceryListItemWithRelations = {
-  id: string;
-  grocery_list_id: string | null;
-  ingredient_id: number | null;
-  quantity: number;
-  unit_id: string | null;
-  notes: string | null;
-  is_checked: boolean | null;
-  is_manual: boolean | null;
-  source_recipes: string[] | null;
-  created_at: string | null;
-  updated_at: string | null;
-  ingredients: {
-    name: string;
-    grocery_aisle_id: number | null;
-    grocery_aisles: {
-      name: string;
-    } | null;
-  } | null;
-  units: {
-    name: string;
-    abbreviation: string;
-  } | null;
-};
-
 type GroceryListItemForStats = {
   is_checked: boolean | null;
+};
+
+type GroceryListItemWithRelations = Tables<'grocery_list_items'> & {
+  ingredients: Tables<'ingredients'> & {
+    grocery_aisles: Tables<'grocery_aisles'> | null;
+  } | null;
+  units: Tables<'units'> | null;
 };
 
 // Fetch all user's grocery lists
@@ -102,7 +85,7 @@ export const useGroceryList = (listId: string) => {
             ingredients (
               name,
               grocery_aisle_id,
-              grocery_aisles (name)
+              grocery_aisles (name, display_order)
             ),
             units (name, abbreviation)
           )
@@ -127,7 +110,8 @@ export const useGroceryList = (listId: string) => {
           unit_name: item.units?.name || '',
           unit_abbreviation: item.units?.abbreviation || '',
           grocery_aisle_id: item.ingredients?.grocery_aisle_id || 0,
-          grocery_aisle_name: item.ingredients?.grocery_aisles?.name || 'Other'
+          grocery_aisle_name: item.ingredients?.grocery_aisles?.name || 'Other',
+          grocery_aisle_display_order: item.ingredients?.grocery_aisles?.display_order || 999
         }))
       };
     },
