@@ -61,13 +61,13 @@ export const useCreateRecipe = () => {
           steps: recipe.steps,
           image_url: imageUrl,
           created_by: recipe.created_by,
+          servings: recipe.servings
         })
         .select()
         .single();
 
       if (recipeError) throw recipeError;
 
-      // Create recipe ingredients if any
       if (ingredients.length > 0) {
         const recipeIngredients = ingredients.map(ing => ({
           recipe_id: recipeData.id,
@@ -82,6 +82,8 @@ export const useCreateRecipe = () => {
           .insert(recipeIngredients);
 
         if (ingredientsError) throw ingredientsError;
+      } else {
+        throw Error("There should be at least one ingredient in the recipe")
       }
 
       return recipeData;

@@ -256,7 +256,7 @@ export type Database = {
           id: string
           image_url: string | null
           name: string
-          servings: number | null
+          servings: number
           steps: string[]
         }
         Insert: {
@@ -265,7 +265,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           name: string
-          servings?: number | null
+          servings: number
           steps: string[]
         }
         Update: {
@@ -274,7 +274,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           name?: string
-          servings?: number | null
+          servings?: number
           steps?: string[]
         }
         Relationships: []

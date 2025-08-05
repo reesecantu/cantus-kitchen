@@ -12,6 +12,7 @@ export const CreateRecipe = () => {
     steps: [],
     image_file: undefined,
     ingredients: [],
+    servings: 1,
   });
 
   const { data: ingredients = [], isLoading: ingredientsLoading } =
@@ -33,11 +34,18 @@ export const CreateRecipe = () => {
       return;
     }
 
+    // validate servings
+    if (formData.servings < 1 || formData.servings > 300) {
+      alert("Servings must be between 1 and 300");
+      return;
+    }
+
     try {
       await createRecipeMutation.mutateAsync({
         recipe: {
           name: formData.name.trim(),
           steps: formData.steps.filter((step) => step.trim()),
+          servings: formData.servings,
         },
         ingredients: formData.ingredients.map((ing) => ({
           ingredient_id: ing.ingredient_id,
@@ -55,6 +63,7 @@ export const CreateRecipe = () => {
         steps: [],
         image_file: undefined,
         ingredients: [],
+        servings: 1,
       });
 
       alert("Recipe created successfully!");
@@ -89,24 +98,26 @@ export const CreateRecipe = () => {
               Recipe Name
             </label>
           </div>
-            <div>
-              <input
-                type="text"
-                id="name"
-                maxLength={100}
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                autoComplete="off"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter recipe name"
-                required
-              />
-              <div className="text-right mr-1">
-                <span className="text-xs text-gray-500">
-                  {formData.name.length}/100
-                </span>
-              </div>
+          <div>
+            <input
+              type="text"
+              id="name"
+              maxLength={100}
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              autoComplete="off"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter recipe name"
+              required
+            />
+            <div className="text-right mr-1">
+              <span className="text-xs text-gray-500">
+                {formData.name.length}/100
+              </span>
             </div>
+          </div>
         </div>
 
         {/* Image Upload - Replaced URL input */}
@@ -116,6 +127,32 @@ export const CreateRecipe = () => {
             setFormData({ ...formData, image_file: file })
           }
         />
+
+        {/* Servings Input */}
+        <div>
+          <label
+            htmlFor="servings"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Servings
+          </label>
+          <input
+            type="number"
+            id="servings"
+            min="1"
+            max="300"
+            value={formData.servings}
+            onChange={(e) => {
+              const value = parseInt(e.target.value) || 1;
+              setFormData({
+                ...formData,
+                servings: Math.max(1, Math.min(300, value)),
+              });
+            }}
+            className="w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
 
         {/* Ingredients Multi-Select */}
         <IngredientMultiSelect

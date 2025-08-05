@@ -12,4 +12,5 @@ export interface RecipeFormData {
   steps: string[];     
   image_file?: File; 
   ingredients: RecipeIngredient[];
+  servings: number
 }
