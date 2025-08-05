@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
+import { RecipeDetails } from "../components/RecipeDetails";
 
 export const RecipeDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
-
   const navigate = useNavigate();
 
-  //   not super necessary because /recipes already exists and id: string will accept anything
   useEffect(() => {
     if (!id) {
       navigate("/recipes");
@@ -16,8 +15,8 @@ export const RecipeDetailsPage = () => {
   if (!id) return null;
 
   return (
-    <div className="pt-10 md:pt-20 ml-20">
-      Recipe details for recipe id #{id}.
+    <div className="mx-10 md:mx-20 lg:mx-40 my-10">
+      <RecipeDetails recipeId={id} />
     </div>
   );
 };
