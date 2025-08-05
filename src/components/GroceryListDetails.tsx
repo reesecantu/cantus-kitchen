@@ -1,12 +1,24 @@
 import { useState } from "react";
-import { Edit3, Check, X } from "lucide-react";
+import { Edit3, Check, X, ArrowLeft } from "lucide-react";
 import { useGroceryList, useUpdateGroceryList } from "../hooks/useGroceryList";
 import { GroceryListRecipes } from "./GroceryListRecipes";
 import { GroceryListItems } from "./GroceryListItems";
+import { Link } from "react-router";
 
 interface GroceryListDetailsProps {
   listId: string;
 }
+
+const BackButton = () => {
+  return (
+    <Link
+      to={"/grocery-lists"}
+      className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors cursor-pointer w-fit"
+    >
+      <ArrowLeft className="h-4 w-4" /> Back to Recipes
+    </Link>
+  );
+};
 
 export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
   const { data: groceryList, isLoading } = useGroceryList(listId);
@@ -90,6 +102,7 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-12">
+        <BackButton />
         <div className="text-gray-500">Loading grocery list...</div>
       </div>
     );
@@ -98,6 +111,7 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
   if (!groceryList) {
     return (
       <div className="flex justify-center items-center py-12">
+        <BackButton />
         <div className="text-gray-500">Grocery list not found.</div>
       </div>
     );
@@ -105,6 +119,7 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      <BackButton />
       {/* Header */}
       <div className="mb-8">
         {/* Editable Name */}

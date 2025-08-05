@@ -16,6 +16,7 @@ export interface GroceryListItemWithDetails extends GroceryListItem {
   unit_abbreviation: string;
   grocery_aisle_id: number;
   grocery_aisle_name: string;
+  grocery_aisle_display_order: number;
 }
 
 export interface GroceryListFull extends GroceryList {

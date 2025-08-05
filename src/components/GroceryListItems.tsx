@@ -76,12 +76,23 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
 
   // Group items by grocery aisle
   const itemsByAisle = groupBy(groceryList.items, "grocery_aisle_name");
-  const sortedAisles = Object.keys(itemsByAisle).sort();
+
+  // Sort aisles by display order
+  const sortedAisles = Object.keys(itemsByAisle).sort((a, b) => {
+    const aisleBItems = itemsByAisle[b];
+    const aisleAItems = itemsByAisle[a];
+    const orderA = aisleAItems[0]?.grocery_aisle_display_order || 999;
+    const orderB = aisleBItems[0]?.grocery_aisle_display_order || 999;
+    return orderA - orderB;
+  });
 
   // Calculate stats
   const totalItems = groceryList.items.length;
-  const checkedItems = groceryList.items.filter(item => item.is_checked).length;
-  const completionPercentage = totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
+  const checkedItems = groceryList.items.filter(
+    (item) => item.is_checked
+  ).length;
+  const completionPercentage =
+    totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
 
   return (
     <div>
@@ -92,7 +103,7 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
         </h2>
         <div className="flex items-center gap-4">
           <div className="flex-1 bg-gray-200 rounded-full h-2">
-            <div 
+            <div
               className="bg-green-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${completionPercentage}%` }}
             />
@@ -104,97 +115,99 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
       </div>
 
       {/* Items grouped by aisle */}
-        {groceryList.items.length > 0 ? (
-          <div className="space-y-4 mb-8">
-            {sortedAisles.map((aisleName) => {
-              const items = itemsByAisle[aisleName];
-              const aisleCheckedCount = items.filter(item => item.is_checked).length;
-        
-              return (
-                <div
-                  key={aisleName}
-                  className="overflow-hidden"
-                >
-                    <div className="px-2 py-1.5 flex justify-between items-center">
-                      <h3 className="text-sm font-medium text-gray-900">
-                        {aisleName}
-                      </h3>
-                      <span className="text-xs text-gray-500">
-                        {aisleCheckedCount} / {items.length}
-                      </span>
-                    </div>
-                    <div className="divide-y divide-gray-100 rounded-lg overflow-hidden border border-gray-700 ">
-                    {items.map((item) => (
-                      <div
+      {groceryList.items.length > 0 ? (
+        <div className="space-y-4 mb-8">
+          {sortedAisles.map((aisleName) => {
+            const items = itemsByAisle[aisleName];
+            const aisleCheckedCount = items.filter(
+              (item) => item.is_checked
+            ).length;
+
+            return (
+              <div key={aisleName} className="overflow-hidden">
+                <div className="px-2 py-1.5 flex justify-between items-center">
+                  <h3 className="text-sm font-medium text-gray-900">
+                    {aisleName}
+                  </h3>
+                  <span className="text-xs text-gray-500">
+                    {aisleCheckedCount} / {items.length}
+                  </span>
+                </div>
+                <div className="divide-y divide-gray-100 rounded-lg overflow-hidden border border-gray-700 ">
+                  {items.map((item) => (
+                    <div
                       key={item.id}
                       className={`flex items-center gap-3 px-4 py-3 transition-colors group ${
                         item.is_checked
-                        ? "bg-green-50 opacity-75"
-                        : "bg-white hover:bg-gray-50"
+                          ? "bg-green-50 opacity-75"
+                          : "bg-white hover:bg-gray-50"
                       }`}
-                      >
+                    >
                       <input
                         type="checkbox"
                         checked={!!item.is_checked}
                         onChange={() =>
-                        handleToggleItem(item.id, item.is_checked)
+                          handleToggleItem(item.id, item.is_checked)
                         }
                         className="w-3 h-3 text-green-600 rounded focus:ring-green-500 cursor-pointer"
                       />
                       <div
                         className={`flex-1 text-sm ${
-                        item.is_checked ? "line-through text-gray-500" : ""
+                          item.is_checked ? "line-through text-gray-500" : ""
                         }`}
                       >
                         <div className="flex items-baseline gap-2">
-                        <span className="font-medium text-gray-900">
-                          {item.quantity} {item.unit_abbreviation}
-                        </span>
-                        <span className="text-gray-700">
-                          {item.ingredient_name}
-                        </span>
+                          <span className="font-medium text-gray-900">
+                            {item.quantity} {item.unit_abbreviation}
+                          </span>
+                          <span className="text-gray-700">
+                            {item.ingredient_name}
+                          </span>
                         </div>
                         {item.notes && (
-                        <div className="text-sm text-gray-500 ">
-                          Note: {item.notes}
-                        </div>
+                          <div className="text-sm text-gray-500 ">
+                            Note: {item.notes}
+                          </div>
                         )}
                       </div>
                       {item.is_manual && (
                         <div className="flex items-center gap-2">
-                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                          Manual
-                        </span>
-                        <button
-                          onClick={() => handleRemoveItem(item.id)}
-                          className="p-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
-                          title="Remove item"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                            Manual
+                          </span>
+                          <button
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="p-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Remove item"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
                       )}
-                      </div>
-                    ))}
                     </div>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg mb-8">
-            {groceryList.recipes.length > 0 ? (
-              <div>
-                <div className="animate-pulse flex justify-center mb-4">
-                  <div className="h-8 w-8 bg-gray-300 rounded-full" />
-                </div>
-                <p>Generating items from recipes...</p>
               </div>
-            ) : (
-              <p>No items yet. Add recipes above to automatically generate your shopping list.</p>
-            )}
-          </div>
-        )}
+            );
+          })}
+        </div>
+      ) : (
+        <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg mb-8">
+          {groceryList.recipes.length > 0 ? (
+            <div>
+              <div className="animate-pulse flex justify-center mb-4">
+                <div className="h-8 w-8 bg-gray-300 rounded-full" />
+              </div>
+              <p>Generating items from recipes...</p>
+            </div>
+          ) : (
+            <p>
+              No items yet. Add recipes above to automatically generate your
+              shopping list.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Add Manual Item Section at the bottom */}
       <div className="border-t pt-6">
