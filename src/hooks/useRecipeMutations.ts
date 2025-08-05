@@ -10,20 +10,25 @@ interface RecipeIngredientForDB {
 }
 
 interface RecipeWithIngredients {
-  recipe: Omit<TablesInsert<'recipes'>, 'id' | 'image_url'>; // Remove image_url from recipe
+  recipe: Omit<TablesInsert<'recipes'>, 'id' | 'image_url'>;
   ingredients: RecipeIngredientForDB[];
-  imageFile?: File; // Add imageFile separately
+  imageFile?: File;
+  imageUrl?: string; // Add imageUrl parameter
 }
 
 export const useCreateRecipe = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ recipe, ingredients, imageFile }: RecipeWithIngredients) => {
-      let imageUrl: string | null = null;
+    mutationFn: async ({ recipe, ingredients, imageFile, imageUrl }: RecipeWithIngredients) => {
+      let finalImageUrl: string | null = null;
 
-      // Upload image if provided
-      if (imageFile) {
+      // if imageUrl is provided, use it directly
+      if (imageUrl) {
+        finalImageUrl = imageUrl;
+      } 
+      // Otherwise, upload file if provided
+      else if (imageFile) {
         // Clean the filename and recipe name for the path
         const cleanFileName = imageFile.name
           .replace(/[^a-zA-Z0-9.-]/g, "_")
@@ -50,16 +55,16 @@ export const useCreateRecipe = () => {
           .from("recipe-images")
           .getPublicUrl(filePath);
 
-        imageUrl = publicUrlData.publicUrl;
+        finalImageUrl = publicUrlData.publicUrl;
       }
 
-      // Create the recipe with the image URL
+      // Create the recipe with the final image URL
       const { data: recipeData, error: recipeError } = await supabase
         .from('recipes')
         .insert({
           name: recipe.name,
           steps: recipe.steps,
-          image_url: imageUrl,
+          image_url: finalImageUrl,
           created_by: recipe.created_by,
           servings: recipe.servings
         })

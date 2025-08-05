@@ -74,7 +74,7 @@ export const Navbar = () => {
                 <img
                   src={logoLongBlue}
                   alt="Cantus Kitchen Logo"
-                  className="h-20"
+                  className="h-18"
                 />
               </Link>
             </div>
@@ -83,7 +83,7 @@ export const Navbar = () => {
                 <img
                   src={stackedLogoBlue}
                   alt="Cantus Kitchen Logo"
-                  className="h-20"
+                  className="h-18"
                 />
               </Link>
             </div>

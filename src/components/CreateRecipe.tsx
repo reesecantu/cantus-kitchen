@@ -11,6 +11,7 @@ export const CreateRecipe = () => {
     name: "",
     steps: [],
     image_file: undefined,
+    image_url: undefined,
     ingredients: [],
     servings: 1,
   });
@@ -54,7 +55,8 @@ export const CreateRecipe = () => {
             ing.unit_amount && ing.unit_amount > 0 ? ing.unit_amount : null, // Changed this line
           note: ing.note?.trim() || null,
         })),
-        imageFile: formData.image_file, // Pass the file separately
+        imageFile: formData.image_file,
+        imageUrl: formData.image_url, // Pass URL separately
       });
 
       // Reset form on success
@@ -62,6 +64,7 @@ export const CreateRecipe = () => {
         name: "",
         steps: [],
         image_file: undefined,
+        image_url: undefined, // Reset URL too
         ingredients: [],
         servings: 1,
       });
@@ -120,11 +123,15 @@ export const CreateRecipe = () => {
           </div>
         </div>
 
-        {/* Image Upload - Replaced URL input */}
+        {/* Image Upload - Url or file */}
         <ImageUpload
           imageFile={formData.image_file}
+          imageUrl={formData.image_url}
           onImageChange={(file) =>
             setFormData({ ...formData, image_file: file })
+          }
+          onImageUrlChange={(url) =>
+            setFormData({ ...formData, image_url: url })
           }
         />
 
