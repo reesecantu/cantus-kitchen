@@ -69,12 +69,21 @@ export const Navbar = () => {
             </div>
 
             {/* Desktop Left - Logo */}
-            <div className="hidden md:flex flex-shrink-0 mb-7 -mx-4">
+            <div className="hidden lg:flex flex-shrink-0 mb-7 -mx-4">
               <Link to="/">
                 <img
                   src={logoLongBlue}
                   alt="Cantus Kitchen Logo"
-                  className="h-21"
+                  className="h-20"
+                />
+              </Link>
+            </div>
+            <div className="hidden md:flex lg:hidden flex-shrink-0 mb-7 -mx-4">
+              <Link to="/">
+                <img
+                  src={stackedLogoBlue}
+                  alt="Cantus Kitchen Logo"
+                  className="h-20"
                 />
               </Link>
             </div>
@@ -91,7 +100,7 @@ export const Navbar = () => {
             </div>
 
             {/* Desktop Center - Navigation */}
-            <div className="hidden md:flex items-center space-x-12 text-gray-700 text-lg font-semibold">
+            <div className="hidden md:flex items-center md:space-x-6 lg:space-x-12 text-gray-700 text-lg font-semibold">
               <Link to="/" className="hover:text-gray-900 transition-colors">
                 Home
               </Link>
