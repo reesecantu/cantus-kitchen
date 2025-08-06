@@ -24,7 +24,7 @@ export const Home = () => {
             Welcome to{" "}
             <button
               onClick={scrollToAbout}
-              className="italic underline decoration-amber-400 decoration-4 hover:decoration-amber-300 transition-colors cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
+              className="italic underline decoration-amber-400 decoration-2 md:decoration-4 hover:decoration-amber-300 transition-colors cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
             >
               Cantu's Kitchen
             </button>

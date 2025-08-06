@@ -43,6 +43,7 @@ export type Database = {
           ingredient_id: number | null
           is_checked: boolean | null
           is_manual: boolean | null
+          manual_name: string | null
           notes: string | null
           quantity: number
           source_recipes: string[] | null
@@ -56,6 +57,7 @@ export type Database = {
           ingredient_id?: number | null
           is_checked?: boolean | null
           is_manual?: boolean | null
+          manual_name?: string | null
           notes?: string | null
           quantity: number
           source_recipes?: string[] | null
@@ -69,6 +71,7 @@ export type Database = {
           ingredient_id?: number | null
           is_checked?: boolean | null
           is_manual?: boolean | null
+          manual_name?: string | null
           notes?: string | null
           quantity?: number
           source_recipes?: string[] | null
@@ -291,7 +294,7 @@ export type Database = {
           type: string
         }
         Insert: {
-          abbreviation: string
+          abbreviation?: string
           base_conversion_factor?: number | null
           created_at?: string | null
           display_order?: number | null
