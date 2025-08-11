@@ -31,7 +31,7 @@ const isSupabaseError = (error: unknown): error is SupabaseError => {
 };
 
 export const SignUp = () => {
-  const { signInWithGoogle, signUpWithEmail } = useAuth();
+  const { signInWithGoogle, signUpWithEmail, signInAnonymously } = useAuth();
   const navigate = useNavigate();
 
   // Form state
@@ -127,6 +127,30 @@ export const SignUp = () => {
 
       if (isSupabaseError(error)) {
         // Handle Supabase errors
+        errorMessage = error.message;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      setErrors({ general: errorMessage });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAnonymousSignIn = async () => {
+    setLoading(true);
+    setErrors({});
+
+    try {
+      await signInAnonymously();
+      navigate("/", { replace: true });
+    } catch (error: unknown) {
+      console.error("Anonymous sign-in failed:", error);
+
+      let errorMessage = "Guest sign-in failed. Please try again.";
+
+      if (isSupabaseError(error)) {
         errorMessage = error.message;
       } else if (error instanceof Error) {
         errorMessage = error.message;
@@ -383,6 +407,20 @@ export const SignUp = () => {
               >
                 Sign in here
               </Link>
+            </p>
+          </div>
+
+          {/* Guest Account Option */}
+          <div className="mt-1 text-center">
+            <p className="text-sm text-gray-600">
+              Just browsing?{" "}
+              <button
+                onClick={handleAnonymousSignIn}
+                disabled={loading || googleLoading}
+                className="text-blue-600 hover:text-blue-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Loading..." : "Use a guest account"}
+              </button>
             </p>
           </div>
         </div>
