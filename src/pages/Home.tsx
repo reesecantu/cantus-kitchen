@@ -1,5 +1,7 @@
 // import kitchen from "../assets/kitchen-amber.svg";
 
+import { Testimonials } from "../components/Testimonials";
+
 export const Home = () => {
   const scrollToAbout = () => {
     const aboutSection = document.getElementById("about-section");
@@ -32,10 +34,7 @@ export const Home = () => {
         </div>
       </div>
 
-      {/* testimonial section */}
-      <p className="py-40 flex px-6 sm:px-10 lg:px-20 justify-center text-red-500 font-bold text-4xl text-center">
-        testimonial section goes here
-      </p>
+      <Testimonials />
 
       {/* about section */}
       <div
