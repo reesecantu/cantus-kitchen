@@ -51,6 +51,7 @@ export const Testimonials = () => {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [transition, setTransition] = useState(true);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isAnimatingRef = useRef(false); // NEW: lock while a slide animation is running
 
   // Clone two items on each side for seamless adjacency during wrap
   const getExtendedTestimonials = () => {
@@ -88,23 +89,33 @@ export const Testimonials = () => {
     }
   }, []);
 
-  const handleTransition = useCallback(
-    (newIndex: number) => {
-      setTransition(true);
-      setCurrentIndex(newIndex);
-      clearLoopTimeout();
-    },
-    [clearLoopTimeout]
-  );
+  const handleTransition = useCallback((newIndex: number) => {
+    // Prevent re-entry while current slide is animating
+    if (isAnimatingRef.current) return;
+    isAnimatingRef.current = true;
+    setTransition(true);
+    setCurrentIndex(newIndex);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
 
   const handleContainerTransitionEnd = useCallback(() => {
+    // If we landed on a clone, jump instantly to the matching real slide (no animation)
     if (currentIndex === rightWrapIndex) {
       setTransition(false);
       setCurrentIndex(realStartIndex);
+      isAnimatingRef.current = false; // release lock immediately (no second transition)
+      return;
     } else if (currentIndex === leftWrapIndex) {
       setTransition(false);
       setCurrentIndex(lastRealExtendedIndex);
+      isAnimatingRef.current = false;
+      return;
     }
+    // Normal slide finished
+    isAnimatingRef.current = false;
   }, [
     currentIndex,
     rightWrapIndex,
@@ -123,6 +134,11 @@ export const Testimonials = () => {
 
   const goToSlide = useCallback(
     (index: number) => {
+      // Allow direct navigation even mid animation: first cancel any ongoing transition
+      if (isAnimatingRef.current) {
+        // Instant jump to normalized real index then start new transition next frame
+        isAnimatingRef.current = false;
+      }
       setTransition(true);
       setCurrentIndex(index + realStartIndex);
     },
