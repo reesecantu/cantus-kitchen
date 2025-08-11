@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import chef from "../assets/chef-blue.svg";
 
@@ -45,11 +45,14 @@ export const SignUp = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
 
+  // Hidden Google button refs
+  const googleWrapperRef = useRef<HTMLDivElement | null>(null);
+  const googleRealButtonRef = useRef<HTMLDivElement | null>(null);
+  const googleInitializedRef = useRef(false);
+
   // Form validation
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
       newErrors.email = "Email is required";
@@ -73,7 +76,6 @@ export const SignUp = () => {
     } else if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -162,54 +164,60 @@ export const SignUp = () => {
     }
   };
 
-  // Google Sign-In setup
+  // Load & init Google
   useEffect(() => {
-    // Check if script already exists
-    if (
-      document.querySelector(
-        'script[src="https://accounts.google.com/gsi/client"]'
-      )
-    ) {
-      return;
-    }
+    if (googleInitializedRef.current) return;
 
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    document.body.appendChild(script);
-
-    script.onload = () => {
-      setTimeout(() => {
-        if (window.google && document.getElementById("google-signin-button")) {
-          window.google.accounts.id.initialize({
-            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-            callback: handleGoogleSignIn,
-          });
-
-          const buttonElement = document.getElementById("google-signin-button");
-          if (buttonElement) {
-            window.google.accounts.id.renderButton(buttonElement, {
-              type: "standard",
-              shape: "rectangular",
-              theme: "filled_blue",
-              text: "signup_with",
-              size: "large",
-              logo_alignment: "left",
-            });
-          }
+    const ensureScript = () =>
+      new Promise<void>((resolve) => {
+        if (
+          document.querySelector(
+            'script[src="https://accounts.google.com/gsi/client"]'
+          )
+        ) {
+          return resolve();
         }
-      }, 100);
-    };
+        const script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.onload = () => resolve();
+        document.body.appendChild(script);
+      });
 
-    return () => {
-      const existingScript = document.querySelector(
-        'script[src="https://accounts.google.com/gsi/client"]'
-      );
-      if (existingScript?.parentNode) {
-        existingScript.parentNode.removeChild(existingScript);
-      }
-    };
+    ensureScript().then(() => {
+      if (!window.google || !googleWrapperRef.current) return;
+      if (googleInitializedRef.current) return;
+      window.google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        callback: handleGoogleSignIn,
+        // ux_mode: "popup",
+        // auto_select: false,
+        // itp_support: true,
+      });
+      window.google.accounts.id.renderButton(googleWrapperRef.current, {
+        theme: "filled_blue",
+        size: "large",
+        type: "standard",
+        shape: "rectangular",
+        text: "signup_with",
+        logo_alignment: "left",
+        // width: 300, // enforce consistent width
+      });
+      // Capture inner real button
+      googleRealButtonRef.current =
+        googleWrapperRef.current.querySelector("div[role=button]");
+      googleInitializedRef.current = true;
+    });
   }, [handleGoogleSignIn]);
+
+  const triggerGoogle = () => {
+    setErrors({});
+    setGoogleLoading(true);
+    // Defer click to ensure state updates
+    requestAnimationFrame(() => {
+      googleRealButtonRef.current?.click();
+    });
+  };
 
   return (
     <section className="bg-gray-100 min-h-screen flex flex-col md:flex-row justify-center items-center py-8">
@@ -244,17 +252,73 @@ export const SignUp = () => {
             </div>
           )}
 
-          {/* Google Sign-In Button */}
+          {/* Hidden real Google button */}
+          <div
+            ref={googleWrapperRef}
+            style={{ display: "none" }}
+            aria-hidden="true"
+          />
+
+          {/* Custom Google Button */}
           <div className="mb-6">
-            <div
-              id="google-signin-button"
-              className={googleLoading ? "opacity-50 pointer-events-none" : ""}
-            />
-            {googleLoading && (
-              <div className="text-center mt-2 text-sm text-gray-600">
-                Signing up with Google...
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={triggerGoogle}
+              disabled={googleLoading || loading}
+              className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 text-gray-700 font-medium py-3 px-4 rounded-lg shadow-sm transition-colors"
+            >
+              {googleLoading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-gray-500"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.37 0 0 5.37 0 12h4z"
+                    />
+                  </svg>
+                  Connecting...
+                </>
+              ) : (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 48 48"
+                    className="h-5 w-5"
+                  >
+                    <path
+                      fill="#EA4335"
+                      d="M24 9.5c3.54 0 6 1.54 7.38 2.84l5.4-5.4C33.46 3.34 28.94 1.5 24 1.5 14.82 1.5 7.09 6.98 3.69 14.41l6.91 5.36C12.43 13.72 17.74 9.5 24 9.5z"
+                    />
+                    <path
+                      fill="#4285F4"
+                      d="M46.5 24.5c0-1.57-.15-3.08-.38-4.5H24v9h12.7c-.55 2.82-2.2 5.2-4.7 6.8l7.27 5.64C43.86 37.52 46.5 31.5 46.5 24.5z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M10.6 28.77A14.47 14.47 0 019.5 24c0-1.66.29-3.27.79-4.77l-6.91-5.36A22.43 22.43 0 001.5 24c0 3.62.87 7.04 2.38 10.09l6.72-5.32z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M24 46.5c6.48 0 11.9-2.13 15.87-5.81l-7.27-5.64C30.52 36.52 27.5 37.5 24 37.5c-6.26 0-11.57-4.22-13.4-10.14l-6.91 5.36C7.09 41.02 14.82 46.5 24 46.5z"
+                    />
+                    <path fill="none" d="M1.5 1.5h45v45h-45z" />
+                  </svg>
+                  Sign up with Google
+                </>
+              )}
+            </button>
           </div>
 
           {/* Divider */}
@@ -363,7 +427,7 @@ export const SignUp = () => {
 
             {/* Submit Button */}
             <button
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               type="submit"
               disabled={loading || googleLoading}
             >
