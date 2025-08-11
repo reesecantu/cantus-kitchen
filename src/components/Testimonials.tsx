@@ -81,38 +81,23 @@ export const Testimonials = () => {
   const leftWrapIndex = 1; // clone of last
   const realStartIndex = 2; // first real
 
-  const clearLoopTimeout = () => {
+  const clearLoopTimeout = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-  };
+  }, []);
 
-//   const performLoopReset = (target: number) => {
-//     timeoutRef.current = setTimeout(() => {
-//       setTransition(false); // jump without animation
-//       setCurrentIndex(target);
-//     }, 700); // match your slide duration
-//   };
+  const handleTransition = useCallback(
+    (newIndex: number) => {
+      setTransition(true);
+      setCurrentIndex(newIndex);
+      clearLoopTimeout();
+    },
+    [clearLoopTimeout]
+  );
 
-  const handleTransition = (newIndex: number) => {
-    setTransition(true);
-    setCurrentIndex(newIndex);
-    clearLoopTimeout();
-
-    // // Wrap right (stepped onto clone of first)
-    // if (newIndex === rightWrapIndex) {
-    //   performLoopReset(realStartIndex);
-    //   return;
-    // }
-    // // Wrap left (stepped onto clone of last)
-    // if (newIndex === leftWrapIndex) {
-    //   performLoopReset(lastRealExtendedIndex);
-    //   return;
-    // }
-  };
-    const handleContainerTransitionEnd = () => {
-    // We just finished sliding onto a clone; instantly jump without animation
+  const handleContainerTransitionEnd = useCallback(() => {
     if (currentIndex === rightWrapIndex) {
       setTransition(false);
       setCurrentIndex(realStartIndex);
@@ -120,37 +105,42 @@ export const Testimonials = () => {
       setTransition(false);
       setCurrentIndex(lastRealExtendedIndex);
     }
-  };
+  }, [
+    currentIndex,
+    rightWrapIndex,
+    leftWrapIndex,
+    realStartIndex,
+    lastRealExtendedIndex,
+  ]);
 
   const goToNext = useCallback(() => {
     handleTransition(currentIndex + 1);
-  }, [currentIndex]);
+  }, [currentIndex, handleTransition]);
 
   const goToPrevious = useCallback(() => {
     handleTransition(currentIndex - 1);
-  }, [currentIndex]);
+  }, [currentIndex, handleTransition]);
 
-  const goToSlide = useCallback((index: number) => {
-    // index is real (0-based). Map to extended by +2
-    setTransition(true);
-    setCurrentIndex(index + realStartIndex);
-  }, []);
+  const goToSlide = useCallback(
+    (index: number) => {
+      setTransition(true);
+      setCurrentIndex(index + realStartIndex);
+    },
+    [realStartIndex]
+  );
 
   // Re-enable transitions AFTER an instant jump (next frame)
   useEffect(() => {
     if (!transition) {
       const id = requestAnimationFrame(() => {
         // Ensure we only re-enable when sitting on a real slide
-        if (
-          currentIndex !== rightWrapIndex &&
-          currentIndex !== leftWrapIndex
-        ) {
+        if (currentIndex !== rightWrapIndex && currentIndex !== leftWrapIndex) {
           setTransition(true);
         }
       });
       return () => cancelAnimationFrame(id);
     }
-  }, [transition, currentIndex]);
+  }, [transition, currentIndex, rightWrapIndex]);
 
   // Autoplay
   useEffect(() => {
@@ -196,8 +186,9 @@ export const Testimonials = () => {
                 const isCenter = index === currentIndex;
                 const isAdjacent = distance === 1;
                 // Disable inner transitions while we are doing the instant jump
-                const innerTransition =
-                  transition ? "transition-all duration-700 ease-in-out" : "";
+                const innerTransition = transition
+                  ? "transition-all duration-700 ease-in-out"
+                  : "";
                 return (
                   <div
                     key={`${testimonial.id}-${index}`}
