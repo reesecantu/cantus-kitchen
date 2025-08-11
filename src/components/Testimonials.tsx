@@ -51,7 +51,8 @@ export const Testimonials = () => {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [transition, setTransition] = useState(true);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isAnimatingRef = useRef(false); // NEW: lock while a slide animation is running
+  const isAnimatingRef = useRef(false);
+  const [slidesPerView, setSlidesPerView] = useState(3); // NEW
 
   // Clone two items on each side for seamless adjacency during wrap
   const getExtendedTestimonials = () => {
@@ -168,6 +169,14 @@ export const Testimonials = () => {
   // Cleanup
   useEffect(() => clearLoopTimeout, []);
 
+  // Responsive slides per view (1 on small screens)
+  useEffect(() => {
+    const update = () => setSlidesPerView(window.innerWidth < 640 ? 1 : 3);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   // Map extended index to real index
   const getRealIndex = () => {
     if (currentIndex === leftWrapIndex) return testimonials.length - 1;
@@ -185,7 +194,8 @@ export const Testimonials = () => {
     >
       <div className="max-w-7xl mx-auto px-4">
         <div className="relative">
-          <div className="relative h-80 mx-auto overflow-hidden">
+          {/* Responsive fixed height to prevent squashed images */}
+          <div className="relative mx-auto overflow-hidden h-[260px] sm:h-[320px] md:h-[420px] lg:h-[480px]">
             <div
               className={`flex items-center h-full ${
                 transition
@@ -193,7 +203,12 @@ export const Testimonials = () => {
                   : ""
               }`}
               style={{
-                transform: `translateX(calc(-33.333% * ${currentIndex} + 33.333%))`,
+                transform:
+                  slidesPerView === 1
+                    ? `translateX(calc(-100% * ${currentIndex}))`
+                    : `translateX(calc(-${
+                        100 / slidesPerView
+                      }% * ${currentIndex} + ${100 / slidesPerView}%))`,
               }}
               onTransitionEnd={handleContainerTransitionEnd}
             >
@@ -201,26 +216,39 @@ export const Testimonials = () => {
                 const distance = Math.abs(index - currentIndex);
                 const isCenter = index === currentIndex;
                 const isAdjacent = distance === 1;
-                // Disable inner transitions while we are doing the instant jump
                 const innerTransition = transition
                   ? "transition-all duration-700 ease-in-out"
                   : "";
+                const slideWidthClass =
+                  slidesPerView === 1 ? "w-full" : "w-1/3";
+                const scale = slidesPerView === 1 ? 1 : isCenter ? 1 : 0.75;
+                const opacity =
+                  slidesPerView === 1
+                    ? isCenter
+                      ? 1
+                      : 0.6
+                    : isCenter
+                    ? 1
+                    : isAdjacent
+                    ? 0.5
+                    : 0.3;
+
                 return (
                   <div
                     key={`${testimonial.id}-${index}`}
-                    className="w-1/3 flex-shrink-0 h-full px-4"
+                    className={`${slideWidthClass} flex-shrink-0 h-full px-4`}
                   >
                     <div
                       className={`h-full flex items-center justify-center ${innerTransition}`}
                       style={{
-                        transform: `scale(${isCenter ? 1 : 0.75})`,
-                        opacity: isCenter ? 1 : isAdjacent ? 0.5 : 0.3,
+                        transform: `scale(${scale})`,
+                        opacity,
                       }}
                     >
                       <img
                         src={testimonial.image}
                         alt={testimonial.alt}
-                        className="h-full w-auto object-contain"
+                        className="max-h-full h-full w-auto object-contain"
                         draggable={false}
                       />
                     </div>
