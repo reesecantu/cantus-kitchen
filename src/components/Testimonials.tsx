@@ -83,13 +83,6 @@ export const Testimonials = () => {
   const leftWrapIndex = 1; // clone of last
   const realStartIndex = 2; // first real
 
-  const clearLoopTimeout = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  }, []);
-
   const handleTransition = useCallback((newIndex: number) => {
     // Prevent re-entry while current slide is animating
     if (isAnimatingRef.current) return;
@@ -167,7 +160,14 @@ export const Testimonials = () => {
   }, [isAutoPlaying, goToNext]);
 
   // Cleanup
-  useEffect(() => clearLoopTimeout, []);
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
 
   // Responsive slides per view (1 on small screens)
   useEffect(() => {
