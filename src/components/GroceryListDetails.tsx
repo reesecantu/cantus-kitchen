@@ -1,9 +1,13 @@
 import { useState } from "react";
-import { Edit3, Check, X, ArrowLeft } from "lucide-react";
-import { useGroceryList, useUpdateGroceryList } from "../hooks/useGroceryList";
+import { Edit3, Check, X, ArrowLeft, Trash2 } from "lucide-react";
+import {
+  useGroceryList,
+  useUpdateGroceryList,
+  useDeleteGroceryList,
+} from "../hooks/useGroceryList";
 import { GroceryListRecipes } from "./GroceryListRecipes";
 import { GroceryListItems } from "./GroceryListItems";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 interface GroceryListDetailsProps {
   listId: string;
@@ -21,8 +25,10 @@ const BackButton = () => {
 };
 
 export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
+  const navigate = useNavigate();
   const { data: groceryList, isLoading } = useGroceryList(listId);
   const updateMutation = useUpdateGroceryList();
+  const deleteMutation = useDeleteGroceryList();
 
   // State for editing name
   const [isEditingName, setIsEditingName] = useState(false);
@@ -31,6 +37,9 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
   // State for editing description
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editedDescription, setEditedDescription] = useState("");
+
+  // State for delete confirmation
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Name editing handlers
   const handleStartEditName = () => {
@@ -99,6 +108,18 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
     }
   };
 
+  // Delete handlers
+  const handleDeleteList = async () => {
+    if (groceryList) {
+      try {
+        await deleteMutation.mutateAsync(groceryList.id);
+        navigate("/grocery-lists");
+      } catch (error) {
+        console.error("Failed to delete grocery list:", error);
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -122,48 +143,85 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
       <BackButton />
       {/* Header */}
       <div className="mb-8">
-        {/* Editable Name */}
-        <div className="mb-2">
-          {isEditingName ? (
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={editedName}
-                onChange={(e) => setEditedName(e.target.value)}
-                onKeyDown={handleNameKeyPress}
-                className="text-3xl font-bold text-gray-900 bg-transparent border-b-2 border-blue-500 focus:outline-none flex-1"
-                autoFocus
-                maxLength={100}
-                placeholder="Enter list name..."
-              />
-              <button
-                onClick={handleSaveName}
-                disabled={!editedName.trim() || updateMutation.isPending}
-                className="p-1 text-green-600 hover:bg-green-50 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Save (Enter)"
-              >
-                <Check className="h-5 w-5" />
-              </button>
-              <button
-                onClick={handleCancelEditName}
-                className="p-1 text-red-600 hover:bg-red-50 rounded"
-                title="Cancel (Escape)"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 group">
-              <h1 className="text-3xl font-bold text-gray-900">
-                {groceryList.name}
-              </h1>
-              <button
-                onClick={handleStartEditName}
-                className="p-1 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-gray-600 transition-all"
-                title="Edit name"
-              >
-                <Edit3 className="h-4 w-4" />
-              </button>
+        {/* Name and Delete Button Row */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex-1">
+            {/* Editable Name */}
+            {isEditingName ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  onKeyDown={handleNameKeyPress}
+                  className="text-3xl font-bold text-gray-900 bg-transparent border-b-2 border-blue-500 focus:outline-none flex-1"
+                  autoFocus
+                  maxLength={100}
+                  placeholder="Enter list name..."
+                />
+                <button
+                  onClick={handleSaveName}
+                  disabled={!editedName.trim() || updateMutation.isPending}
+                  className="p-1 text-green-600 hover:bg-green-50 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Save (Enter)"
+                >
+                  <Check className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={handleCancelEditName}
+                  className="p-1 text-red-600 hover:bg-red-50 rounded"
+                  title="Cancel (Escape)"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 group">
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {groceryList.name}
+                </h1>
+                <button
+                  onClick={handleStartEditName}
+                  className="p-1 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-gray-600 transition-all"
+                  title="Edit name"
+                >
+                  <Edit3 className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Delete Button */}
+          {!isEditingName && (
+            <div className="ml-4">
+              {showDeleteConfirm ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">
+                    Delete this list?
+                  </span>
+                  <button
+                    onClick={handleDeleteList}
+                    disabled={deleteMutation.isPending}
+                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  >
+                    {deleteMutation.isPending ? "Deleting..." : "Yes"}
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
+                  >
+                    No
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="p-2 text-white bg-red-500 hover:bg-red-600 rounded transition-colors"
+                  title="Delete grocery list"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
+              )}
             </div>
           )}
         </div>

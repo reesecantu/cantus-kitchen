@@ -302,3 +302,29 @@ export const useUpdateGroceryList = () => {
     },
   });
 };
+
+// Delete grocery list
+export const useDeleteGroceryList = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (listId: string) => {
+      const { error } = await supabase
+        .from("grocery_lists")
+        .delete()
+        .eq("id", listId);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    },
+    onSuccess: () => {
+      // Invalidate grocery lists query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ["grocery-lists"] });
+    },
+    onError: (error) => {
+      console.error("Error deleting grocery list:", error);
+    },
+  });
+};
+
