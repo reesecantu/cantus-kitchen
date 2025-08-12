@@ -213,7 +213,7 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
             Add Custom Item
           </button>
         ) : (
-          <div className="p-4 bg-gray-50 rounded-lg">
+          <div className="p-4 bg-white rounded-lg border border-gray-800">
             <div className="flex justify-between items-center mb-3">
               <h3 className="text-md font-medium">Add Custom Item</h3>
               <button
@@ -280,7 +280,7 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
               <button
                 type="submit"
                 disabled={addManualItemMutation.isPending}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {addManualItemMutation.isPending ? "Adding..." : "Add Item"}
               </button>
