@@ -43,7 +43,7 @@ const testimonials: Testimonial[] = [
   },
 ];
 
-const AUTOPLAY_INTERVAL = 3500;
+const AUTOPLAY_INTERVAL = 4500;
 
 export const Testimonials = () => {
   // Start at index 2 because we add two clones to the left
