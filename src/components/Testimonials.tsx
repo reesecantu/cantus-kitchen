@@ -288,7 +288,7 @@ export const Testimonials = () => {
               onClick={() => goToSlide(index)}
               className={`transition-all duration-300 ${
                 index === realIndex
-                  ? "w-8 h-2 bg-blue-600 rounded-full"
+                  ? "w-8 h-2 bg-blue-500 rounded-full"
                   : "w-2 h-2 bg-gray-300 hover:bg-gray-400 rounded-full"
               }`}
               aria-label={`Go to testimonial ${index + 1}`}
