@@ -64,9 +64,9 @@ export const GroceryListRecipes = ({
         </h2>
         <button
           onClick={() => setShowAddRecipe(!showAddRecipe)}
-          className="flex items-center gap-2 bg-amber-200 hover:bg-amber-300 text-amber-700 hover:text-amber-800 px-1.5 rounded transition-colors font-medium"
+          className="flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-white hover:text-gray-100 px-2 py-1 rounded transition-colors font-medium shadow-md"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4 stroke-3" />
           Add Recipe
         </button>
       </div>
@@ -119,7 +119,7 @@ export const GroceryListRecipes = ({
           {groceryList.recipes.map((recipe) => (
             <div
               key={recipe.recipe_id}
-              className="relative p-3 bg-blue-50 rounded-lg group"
+              className="relative p-3 bg-white rounded-lg group border border-gray-800"
             >
               <button
                 onClick={() => handleRemoveRecipe(recipe.recipe_id!)}
@@ -129,10 +129,10 @@ export const GroceryListRecipes = ({
               >
                 <X className="h-3 w-3" />
               </button>
-              <div className="font-medium text-blue-900 pr-6">
+              <div className="font-semibold text-gray-800 pr-6">
                 {recipe.recipe_name}
               </div>
-              <div className="text-sm text-blue-700">
+              <div className="text-sm font-medium text-blue-500">
                 Servings: {recipe.servings_multiplier}x
               </div>
             </div>

@@ -3,8 +3,9 @@ import { Plus, Trash2 } from "lucide-react";
 import {
   useToggleGroceryListItem,
   useAddManualItem,
-  useRemoveGroceryListItem, // Add this import
+  useRemoveGroceryListItem,
 } from "../hooks/useGroceryList";
+import { useUnits } from "../hooks/useUnits";
 import type { GroceryListFull } from "../types/grocery-list";
 
 interface GroceryListItemsProps {
@@ -26,7 +27,8 @@ const groupBy = <T,>(array: T[], key: keyof T): Record<string, T[]> => {
 export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
   const toggleItemMutation = useToggleGroceryListItem();
   const addManualItemMutation = useAddManualItem();
-  const removeItemMutation = useRemoveGroceryListItem(); // Add this
+  const removeItemMutation = useRemoveGroceryListItem();
+  const { data: units = [] } = useUnits();
 
   const [showAddItem, setShowAddItem] = useState(false);
   const [newItem, setNewItem] = useState({
@@ -114,7 +116,7 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
             ).length;
 
             return (
-              <div key={aisleName} className="overflow-hidden">
+              <div key={aisleName} className="">
                 <div className="px-2 py-1.5 flex justify-between items-center">
                   <h3 className="text-sm font-medium text-gray-900">
                     {aisleName}
@@ -123,7 +125,7 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
                     {aisleCheckedCount} / {items.length}
                   </span>
                 </div>
-                <div className="divide-y divide-gray-100 rounded-lg overflow-hidden border border-gray-700 ">
+                <div className="divide-y divide-gray-100 rounded-lg overflow-hidden border border-gray-700 shadow-md">
                   {items.map((item) => (
                     <div
                       key={item.id}
@@ -256,19 +258,13 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
                     }
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="piece">piece</option>
-                    <option value="cup">cup</option>
-                    <option value="tablespoon">tbsp</option>
-                    <option value="teaspoon">tsp</option>
-                    <option value="pound">lb</option>
-                    <option value="ounce">oz</option>
-                    <option value="gram">g</option>
-                    <option value="kilogram">kg</option>
-                    <option value="liter">L</option>
-                    <option value="milliliter">ml</option>
-                    <option value="can">can</option>
-                    <option value="package">pkg</option>
-                    <option value="bunch">bunch</option>
+                    {units.map((unit) => (
+                      <option key={unit.id} value={unit.name}>
+                        {unit.abbreviation
+                          ? `${unit.name} (${unit.abbreviation})`
+                          : unit.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

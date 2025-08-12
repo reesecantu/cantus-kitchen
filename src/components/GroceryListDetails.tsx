@@ -216,7 +216,7 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
               ) : (
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="p-2 text-white bg-red-500 hover:bg-red-600 rounded transition-colors"
+                  className="p-2 text-white bg-red-500 hover:bg-red-600 rounded transition-colors shadow-md"
                   title="Delete grocery list"
                 >
                   <Trash2 className="h-5 w-5" />
