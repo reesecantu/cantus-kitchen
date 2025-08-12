@@ -9,11 +9,19 @@ export const useUnits = () => {
       const { data, error } = await supabase
         .from('units')
         .select('*')
-        .order('display_order')
+        .order('type', { ascending: false })
+        .order('system', { ascending: false })
         .order('name');
       
       if (error) throw error;
-      return data || [];
+      
+      const units = data || [];
+      
+      // Move the empty string unit to the front
+      const emptyNameUnit = units.find(unit => unit.name === '');
+      const otherUnits = units.filter(unit => unit.name !== '');
+      
+      return emptyNameUnit ? [emptyNameUnit, ...otherUnits] : units;
     },
   });
 };
