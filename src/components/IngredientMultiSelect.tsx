@@ -220,7 +220,6 @@ export const IngredientMultiSelect = ({
                     }
                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value=""></option>
                     {units.map((unit) => (
                       <option key={unit.id} value={unit.id}>
                         {unit.abbreviation ? `${unit.name} (${unit.abbreviation})` : unit.name}
