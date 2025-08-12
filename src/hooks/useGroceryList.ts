@@ -106,7 +106,7 @@ export const useGroceryList = (listId: string) => {
         })),
         items: (data.grocery_list_items || []).map((item: GroceryListItemWithRelations) => ({
           ...item,
-          ingredient_name: item.ingredients?.name || 'Unknown Ingredient',
+          ingredient_name: item.ingredients?.name || item.manual_name || "Unknown Ingredient",
           unit_name: item.units?.name || '',
           unit_abbreviation: item.units?.abbreviation || '',
           grocery_aisle_id: item.ingredients?.grocery_aisle_id || 0,
@@ -327,4 +327,36 @@ export const useDeleteGroceryList = () => {
     },
   });
 };
+
+// Remove grocery list item
+export const useRemoveGroceryListItem = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (itemId: string) => {
+      const { error } = await supabase
+        .from('grocery_list_items')
+        .delete()
+        .eq('id', itemId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      // Find which grocery list this item belonged to and invalidate its cache
+      queryClient.invalidateQueries({ 
+        queryKey: GROCERY_LIST_QUERY_KEYS.groceryLists 
+      });
+      
+      // Also invalidate all grocery list detail queries since we don't know which list this item was from
+      queryClient.invalidateQueries({ 
+        queryKey: ['grocery-list'] 
+      });
+    },
+    onError: (error) => {
+      console.error("Error removing grocery list item", error);
+    },
+  });
+};
+
+
 

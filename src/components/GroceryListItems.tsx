@@ -3,8 +3,8 @@ import { Plus, Trash2 } from "lucide-react";
 import {
   useToggleGroceryListItem,
   useAddManualItem,
+  useRemoveGroceryListItem, // Add this import
 } from "../hooks/useGroceryList";
-import { supabase } from "../../supabase/supabase-client";
 import type { GroceryListFull } from "../types/grocery-list";
 
 interface GroceryListItemsProps {
@@ -26,6 +26,7 @@ const groupBy = <T,>(array: T[], key: keyof T): Record<string, T[]> => {
 export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
   const toggleItemMutation = useToggleGroceryListItem();
   const addManualItemMutation = useAddManualItem();
+  const removeItemMutation = useRemoveGroceryListItem(); // Add this
 
   const [showAddItem, setShowAddItem] = useState(false);
   const [newItem, setNewItem] = useState({
@@ -59,19 +60,8 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
     }
   };
 
-  const handleRemoveItem = async (itemId: string) => {
-    try {
-      const { error } = await supabase
-        .from("grocery_list_items")
-        .delete()
-        .eq("id", itemId);
-
-      if (error) {
-        console.error("Failed to remove item:", error);
-      }
-    } catch (error) {
-      console.error("Failed to remove item:", error);
-    }
+  const handleRemoveItem = (itemId: string) => {
+    removeItemMutation.mutate(itemId);
   };
 
   // Group items by grocery aisle
@@ -177,7 +167,8 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
                           </span>
                           <button
                             onClick={() => handleRemoveItem(item.id)}
-                            className="p-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                            disabled={removeItemMutation.isPending}
+                            className="p-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
                             title="Remove item"
                           >
                             <Trash2 className="h-4 w-4" />
