@@ -131,7 +131,7 @@ export const Navbar = () => {
                 {user ? (
                   <button
                     onClick={signOut}
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors font-medium"
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-2 py-.5 rounded transition-colors text-lg font-medium"
                   >
                     Logout
                   </button>
