@@ -255,7 +255,7 @@ export type Database = {
       recipes: {
         Row: {
           created_at: string
-          created_by: string | null
+          created_by: string
           id: string
           image_url: string | null
           name: string
@@ -264,7 +264,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           id?: string
           image_url?: string | null
           name: string
@@ -273,7 +273,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           id?: string
           image_url?: string | null
           name?: string
@@ -371,6 +371,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      delete_old_anonymous_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          deleted_count: number
+        }[]
+      }
       find_best_unit_for_quantity: {
         Args: {
           p_base_quantity: number
@@ -383,6 +389,30 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_public_and_user_recipes: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          name: string
+          image_url: string
+          created_by: string
+          steps: string[]
+          servings: number
+          created_at: string
+        }[]
+      }
+      get_public_recipes: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          name: string
+          image_url: string
+          created_by: string
+          steps: string[]
+          servings: number
+          created_at: string
+        }[]
+      }
       regenerate_grocery_list_items: {
         Args: { list_id: string }
         Returns: undefined
@@ -390,6 +420,10 @@ export type Database = {
       remove_recipe_from_grocery_list: {
         Args: { list_id: string; recipe_id: number }
         Returns: boolean
+      }
+      trigger_delete_old_anonymous_users: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
