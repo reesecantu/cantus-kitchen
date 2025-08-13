@@ -173,7 +173,7 @@ export const IngredientMultiSelect = ({
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g., 'diced', 'chopped fine'"
+                      placeholder="e.g., 'diced', 'finely chopped'"
                       value={ingredient.note || ""}
                       onChange={(e) =>
                         updateIngredient(ingredient.ingredient_id, {
