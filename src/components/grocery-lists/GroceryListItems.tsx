@@ -5,9 +5,9 @@ import {
   useAddManualItem,
   useRemoveGroceryListItem,
   useAutoUpdateCompletion,
-} from "../hooks/grocery-lists";
-import { useUnits } from "../hooks/useUnits";
-import type { GroceryListFull } from "../types/grocery-list";
+} from "../../hooks/grocery-lists";
+import { useUnits } from "../../hooks/useUnits";
+import type { GroceryListFull } from "../../types/grocery-list";
 
 interface GroceryListItemsProps {
   groceryList: GroceryListFull;

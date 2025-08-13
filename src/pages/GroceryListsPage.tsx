@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
-import { GroceryListList } from "../components/GroceryListList";
+import { GroceryListList } from "../components/grocery-lists/GroceryListList";
 import { useState } from "react";
-import { useCreateGroceryList } from "../hooks/grocery-lists/useGroceryList";
+import { useCreateGroceryList } from "../hooks/grocery-lists";
 import { Plus } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 

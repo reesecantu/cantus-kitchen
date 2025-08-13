@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
-import { GroceryListDetails } from "../components/GroceryListDetails";
+import { GroceryListDetails } from "../components/grocery-lists/GroceryListDetails";
 
 export const GroceryListDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
 
   const navigate = useNavigate();
-
 
   useEffect(() => {
     if (!id) {
@@ -16,7 +15,5 @@ export const GroceryListDetailsPage = () => {
 
   if (!id) return null;
 
-  return (
-    <GroceryListDetails listId={id} />
-  );
+  return <GroceryListDetails listId={id} />;
 };

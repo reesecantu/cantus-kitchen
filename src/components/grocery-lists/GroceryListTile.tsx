@@ -1,5 +1,6 @@
 import { Link } from "react-router";
-import type { GroceryListWithStats } from "../types/grocery-list";
+import type { GroceryListWithStats } from "../../types/grocery-list";
+
 
 interface GroceryListTileProps {
   list: GroceryListWithStats;

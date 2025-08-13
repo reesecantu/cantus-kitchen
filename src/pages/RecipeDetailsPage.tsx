@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
-import { RecipeDetails } from "../components/RecipeDetails";
+import { RecipeDetails } from "../components/recipes/RecipeDetails";
 
 export const RecipeDetailsPage = () => {
   const { id } = useParams<{ id: string }>();

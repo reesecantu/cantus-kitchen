@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { useIngredients } from "../hooks/useIngredients";
-import { useCreateRecipe } from "../hooks/useRecipeMutations";
-import { IngredientMultiSelect } from "./IngredientMultiSelect";
-import { StepsInput } from "./StepsInput";
-import { ImageUpload } from "./ImageUpload";
-import type { RecipeFormData } from "../types/recipe-form";
+import { useIngredients } from "../../hooks/useIngredients";
+import { useCreateRecipe } from "../../hooks/useRecipeMutations";
+import { IngredientMultiSelect } from "../form-inputs/IngredientMultiSelect";
+import { StepsInput } from "../form-inputs/StepsInput";
+import { ImageUpload } from "../form-inputs/ImageUpload";
+import type { RecipeFormData } from "../../types/recipe-form";
 
 const FORM_STORAGE_KEY = "createRecipeFormData";
 

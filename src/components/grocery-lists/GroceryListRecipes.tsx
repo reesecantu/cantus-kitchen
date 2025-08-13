@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
-import { useRecipes } from "../hooks/useRecipes";
+import { useRecipes } from "../../hooks/useRecipes";
 import {
   useAddRecipeToGroceryList,
   useRemoveRecipeFromGroceryList,
-} from "../hooks/grocery-lists";
-import type { GroceryListFull } from "../types/grocery-list";
+} from "../../hooks/grocery-lists";
+import type { GroceryListFull } from "../../types/grocery-list";
 
 interface GroceryListRecipesProps {
   groceryList: GroceryListFull;

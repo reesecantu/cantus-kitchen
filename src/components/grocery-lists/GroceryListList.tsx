@@ -1,4 +1,4 @@
-import { useGroceryListList } from "../hooks/grocery-lists";
+import { useGroceryListList } from "../../hooks/grocery-lists";
 import { GroceryListTile } from "./GroceryListTile";
 
 export const GroceryListList = () => {

@@ -4,7 +4,7 @@ import {
   useGroceryList,
   useUpdateGroceryList,
   useDeleteGroceryList,
-} from "../hooks/grocery-lists/useGroceryList";
+} from "../../hooks/grocery-lists/useGroceryList";
 import { GroceryListRecipes } from "./GroceryListRecipes";
 import { GroceryListItems } from "./GroceryListItems";
 import { Link, useNavigate } from "react-router";
