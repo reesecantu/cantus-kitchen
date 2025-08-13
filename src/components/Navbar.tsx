@@ -31,7 +31,7 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 z-40 w-full backdrop-blur-lg shadow-md bg-slate-50 border-b border-gray-500">
+      <nav className="fixed top-0 z-40 w-full backdrop-blur-lg shadow-md bg-slate-50 border-b-2 border-gray-600">
         <div className="mx-auto max-w-7xl md:-mb-3">
           <div className="flex items-center mt-1.5 justify-between px-4 md:px-8">
             {/* Mobile Left - Hamburger Menu */}
@@ -100,26 +100,17 @@ export const Navbar = () => {
             </div>
 
             {/* Desktop Center - Navigation */}
-            <div className="hidden md:flex items-center md:space-x-6 lg:space-x-12 text-gray-700 text-lg font-semibold">
-              <Link to="/" className="hover:text-gray-900 transition-colors">
+            <div className="hidden md:flex items-center md:space-x-6 lg:space-x-12 text-gray-600 hover:text-gray-700 text-lg font-semibold">
+              <Link to="/" className=" transition-colors">
                 Home
               </Link>
-              <Link
-                to="/recipes"
-                className="hover:text-gray-900 transition-colors"
-              >
+              <Link to="/recipes" className="transition-colors">
                 Recipes
               </Link>
-              <Link
-                to="/grocery-lists"
-                className="hover:text-gray-900 transition-colors"
-              >
+              <Link to="/grocery-lists" className="transition-colors">
                 Grocery Lists
               </Link>
-              <Link
-                to="/create"
-                className="hover:text-gray-900 transition-colors"
-              >
+              <Link to="/create" className=" transition-colors">
                 Create
               </Link>
             </div>
@@ -139,11 +130,11 @@ export const Navbar = () => {
                   <div className="flex items-center space-x-2">
                     <Link
                       to="/sign-in"
-                      className="text-lg text-gray-700 hover:text-gray-900 transition-colors font-medium"
+                      className="text-lg text-gray-600 hover:text-gray-700 transition-colors font-medium"
                     >
                       Sign in
                     </Link>
-                    <span className="text-gray-700 select-none">|</span>
+                    <span className="text-gray-600 select-none">|</span>
                     <Link
                       to="/sign-up"
                       className="text-lg bg-amber-200 hover:bg-amber-300 text-amber-800 px-1 rounded transition-colors font-medium"
@@ -158,7 +149,7 @@ export const Navbar = () => {
               <div className="md:hidden relative">
                 <button
                   onClick={toggleUserMenu}
-                  className="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                  className="p-2 rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
                   aria-label="User menu"
                 >
                   <svg
@@ -178,14 +169,14 @@ export const Navbar = () => {
 
                 {/* Mobile User Dropdown */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border overflow-hidden">
                     {user ? (
                       <button
                         onClick={() => {
                           signOut();
                           closeUserMenu();
                         }}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
                       >
                         Logout
                       </button>
@@ -194,14 +185,14 @@ export const Navbar = () => {
                         <Link
                           to="/sign-in"
                           onClick={closeUserMenu}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
                         >
                           Sign in
                         </Link>
                         <Link
                           to="/sign-up"
                           onClick={closeUserMenu}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
                         >
                           Sign up
                         </Link>
@@ -217,32 +208,32 @@ export const Navbar = () => {
         {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-200">
-            <div className="px-2 pt-2 pb-3 space-y-1">
+            <div className="px-2 space-y-1 text-gray-600font-medium">
               <Link
                 to="/"
                 onClick={closeMobileMenu}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                className="block px-3 py-2 rounded-md text-base hover:text-gray-700 hover:bg-gray-50 "
               >
                 Home
               </Link>
               <Link
                 to="/recipes"
                 onClick={closeMobileMenu}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                className="block px-3 py-2 rounded-md text-base hover:text-gray-700 hover:bg-gray-50 "
               >
                 Recipes
               </Link>
               <Link
                 to="/grocery-lists"
                 onClick={closeMobileMenu}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                className="block px-3 py-2 rounded-md text-base hover:text-gray-700 hover:bg-gray-50 "
               >
                 Grocery Lists
               </Link>
               <Link
                 to="/create"
                 onClick={closeMobileMenu}
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                className="block px-3 py-2 rounded-md text-base hover:text-gray-700 hover:bg-gray-50 "
               >
                 Create
               </Link>
