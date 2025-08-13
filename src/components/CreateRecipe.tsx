@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useIngredients } from "../hooks/useIngredients";
 import { useCreateRecipe } from "../hooks/useRecipeMutations";
 import { IngredientMultiSelect } from "./IngredientMultiSelect";
@@ -6,19 +6,74 @@ import { StepsInput } from "./StepsInput";
 import { ImageUpload } from "./ImageUpload";
 import type { RecipeFormData } from "../types/recipe-form";
 
+const FORM_STORAGE_KEY = "createRecipeFormData";
+
 export const CreateRecipe = () => {
-  const [formData, setFormData] = useState<RecipeFormData>({
-    name: "",
-    steps: [],
-    image_file: undefined,
-    image_url: undefined,
-    ingredients: [],
-    servings: 1,
+  // Initialize form data from localStorage or defaults
+  const [formData, setFormData] = useState<RecipeFormData>(() => {
+    try {
+      const savedData = localStorage.getItem(FORM_STORAGE_KEY);
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        // Validate the parsed data has required structure
+        return {
+          name: parsed.name || "",
+          steps: Array.isArray(parsed.steps) ? parsed.steps : [],
+          image_file: undefined, // Files can't be persisted
+          image_url: parsed.image_url || undefined,
+          ingredients: Array.isArray(parsed.ingredients)
+            ? parsed.ingredients
+            : [],
+          servings: parsed.servings || 1,
+        };
+      }
+    } catch (error) {
+      console.warn("Failed to parse saved form data:", error);
+    }
+
+    // Return defaults if no saved data or parsing failed
+    return {
+      name: "",
+      steps: [],
+      image_file: undefined,
+      image_url: undefined,
+      ingredients: [],
+      servings: 1,
+    };
   });
 
   const { data: ingredients = [], isLoading: ingredientsLoading } =
     useIngredients();
   const createRecipeMutation = useCreateRecipe();
+
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      // Only save if there's meaningful data to persist
+      if (
+        formData.name ||
+        formData.steps.length > 0 ||
+        formData.ingredients.length > 0 ||
+        formData.image_url
+      ) {
+        const dataToSave = {
+          name: formData.name,
+          steps: formData.steps,
+          image_url: formData.image_url,
+          ingredients: formData.ingredients,
+          servings: formData.servings,
+        };
+        localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(dataToSave));
+      }
+    } catch (error) {
+      console.warn("Failed to save form data:", error);
+    }
+  }, [formData]);
+
+  // Clear saved data helper
+  const clearSavedData = () => {
+    localStorage.removeItem(FORM_STORAGE_KEY);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,27 +107,46 @@ export const CreateRecipe = () => {
           ingredient_id: ing.ingredient_id,
           unit_id: ing.unit_id || null,
           unit_amount:
-            ing.unit_amount && ing.unit_amount > 0 ? ing.unit_amount : null, // Changed this line
+            ing.unit_amount && ing.unit_amount > 0 ? ing.unit_amount : null,
           note: ing.note?.trim() || null,
         })),
         imageFile: formData.image_file,
-        imageUrl: formData.image_url, // Pass URL separately
+        imageUrl: formData.image_url,
       });
 
       // Reset form on success
-      setFormData({
+      const resetData = {
         name: "",
         steps: [],
         image_file: undefined,
-        image_url: undefined, // Reset URL too
+        image_url: undefined,
         ingredients: [],
         servings: 1,
-      });
+      };
+
+      setFormData(resetData);
+      clearSavedData(); // Clear localStorage
 
       alert("Recipe created successfully!");
     } catch (error) {
       console.error("Error creating recipe:", error);
       alert("Failed to create recipe. Please try again.");
+    }
+  };
+
+  // Optional: Clear form handler
+  const handleClearForm = () => {
+    if (confirm("Are you sure you want to clear all form data?")) {
+      const resetData = {
+        name: "",
+        steps: [],
+        image_file: undefined,
+        image_url: undefined,
+        ingredients: [],
+        servings: 1,
+      };
+      setFormData(resetData);
+      clearSavedData();
     }
   };
 
@@ -86,9 +160,22 @@ export const CreateRecipe = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md my-10">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
-        Create New Recipe
-      </h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Create New Recipe</h2>
+
+        {/* Optional: Show clear button if there's saved data */}
+        {(formData.name ||
+          formData.steps.length > 0 ||
+          formData.ingredients.length > 0) && (
+          <button
+            type="button"
+            onClick={handleClearForm}
+            className="text-sm text-gray-500 hover:text-red-600 transition-colors"
+          >
+            Clear Form
+          </button>
+        )}
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Recipe Name */}
