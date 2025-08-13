@@ -109,20 +109,111 @@ export const IngredientMultiSelect = ({
           Ingredients
         </label>
 
+        {/* Selected ingredients*/}
+        {selectedIngredients.length > 0 && (
+          <div className="space-y-2">
+            {selectedIngredients.map((ingredient) => (
+              <div
+                key={ingredient.ingredient_id}
+                className="p-2 bg-white rounded-lg border border-gray-300 shadow-sm"
+              >
+                <div className="flex-1 min-w-0">
+                  <span className="font-medium text-sm text-gray-900">
+                    {ingredient.ingredient_name}
+                  </span>
+                </div>
+                {/* Amount, Unit, notes and Remove button all on one row */}
+                <div className="grid grid-cols-12 gap-3 items-end">
+                  <div className="col-span-2">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Amount
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder=""
+                      value={ingredient.unit_amount || ""}
+                      onChange={(e) =>
+                        updateIngredient(ingredient.ingredient_id, {
+                          unit_amount: parseFloat(e.target.value) || 0,
+                        })
+                      }
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                  </div>
+
+                  <div className="col-span-3">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Unit
+                    </label>
+                    <select
+                      value={ingredient.unit_id || ""}
+                      onChange={(e) =>
+                        updateIngredientUnit(
+                          ingredient.ingredient_id,
+                          e.target.value || null
+                        )
+                      }
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      {units.map((unit) => (
+                        <option key={unit.id} value={unit.id}>
+                          {unit.abbreviation
+                            ? `${unit.name} (${unit.abbreviation})`
+                            : unit.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="col-span-6">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Notes
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g., 'diced', 'chopped fine'"
+                      value={ingredient.note || ""}
+                      onChange={(e) =>
+                        updateIngredient(ingredient.ingredient_id, {
+                          note: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="col-span-1 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => removeIngredient(ingredient.ingredient_id)}
+                      className="text-red-500 hover:text-red-700 p-1 flex-shrink-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                {/* ^^^ end of row ^^^ */}
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Conditional rendering: Button OR Search bar */}
         {!isOpen ? (
           /* Dropdown trigger button */
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full flex items-center justify-between px-3 py-2 mt-2 border border-gray-300 rounded-md shadow-sm bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            <span className="text-gray-500">Add ingredients...</span>
+            <span className="text-gray-500 text-sm">Add ingredients...</span>
             <ChevronDown className="h-5 w-5 text-gray-400" />
           </button>
         ) : (
           /* Search bar with close button */
-          <div className="flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500">
+          <div className="flex items-center px-3 py-1 mt-2 border border-gray-300 rounded-md shadow-sm bg-white focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500">
             <input
               ref={searchInputRef}
               type="text"
@@ -168,98 +259,6 @@ export const IngredientMultiSelect = ({
           </div>
         )}
       </div>
-
-      {/* Selected ingredients*/}
-      {selectedIngredients.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="text-sm font-medium text-gray-700">
-            Selected Ingredients:
-          </h4>
-          {selectedIngredients.map((ingredient) => (
-            <div
-              key={ingredient.ingredient_id}
-              className="p-3 bg-gray-50 rounded-md space-y-2"
-            >
-              <div className="flex-1 min-w-0">
-                <span className="font-medium text-sm text-gray-900">
-                  {ingredient.ingredient_name}
-                </span>
-              </div>
-              {/* Amount, Unit, notes and Remove button all on one row */}
-              <div className="grid grid-cols-12 gap-3 items-end">
-                <div className="col-span-2">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Amount
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder=""
-                    value={ingredient.unit_amount || ""}
-                    onChange={(e) =>
-                      updateIngredient(ingredient.ingredient_id, {
-                        unit_amount: parseFloat(e.target.value) || 0,
-                      })
-                    }
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                </div>
-
-                <div className="col-span-3">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Unit
-                  </label>
-                  <select
-                    value={ingredient.unit_id || ""}
-                    onChange={(e) =>
-                      updateIngredientUnit(
-                        ingredient.ingredient_id,
-                        e.target.value || null
-                      )
-                    }
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {units.map((unit) => (
-                      <option key={unit.id} value={unit.id}>
-                        {unit.abbreviation ? `${unit.name} (${unit.abbreviation})` : unit.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="col-span-6">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Notes
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., 'diced', 'chopped fine'"
-                    value={ingredient.note || ""}
-                    onChange={(e) =>
-                      updateIngredient(ingredient.ingredient_id, {
-                        note: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="col-span-1 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => removeIngredient(ingredient.ingredient_id)}
-                    className="text-red-500 hover:text-red-700 p-1 flex-shrink-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-              {/* ^^^ end of row ^^^ */}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
