@@ -73,6 +73,25 @@ export const RecipeDetails = ({ recipeId }: RecipeDetailsProps) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
         {/* Recipe Content */}
+        
+        {/* Mobile Recipe Image */}
+        <div className="block lg:hidden max-w-2xl aspect-[3/2]">
+          <div className="w-full bg-gray-200 rounded-lg overflow-hidden">
+            {recipe.image_url ? (
+              <img
+                src={recipe.image_url}
+                alt={recipe.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                <ImageIcon className="w-16 h-16 mb-2" />
+                <span>No Image</span>
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="space-y-8">
           {/* Ingredients */}
           <div>
@@ -118,8 +137,8 @@ export const RecipeDetails = ({ recipeId }: RecipeDetailsProps) => {
           </div>
         </div>
 
-        {/* Recipe Image */}
-        <div className="aspect-[3/2]">
+        {/* Desktop Recipe Image */}
+        <div className="hidden lg:block aspect-[3/2]">
           <div className="w-full bg-gray-200 rounded-lg overflow-hidden">
             {recipe.image_url ? (
               <img
@@ -138,7 +157,7 @@ export const RecipeDetails = ({ recipeId }: RecipeDetailsProps) => {
       </div>
 
       {/* Instructions */}
-          <div>
+          <div className="my-6">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">
               Instructions
             </h2>
@@ -149,7 +168,7 @@ export const RecipeDetails = ({ recipeId }: RecipeDetailsProps) => {
                     key={index}
                     className="flex gap-4 p-4 bg-white border border-gray-200 rounded-lg"
                   >
-                    <div className="flex-shrink-0 w-8 h-8 bg-amber-200 text-amber-600 rounded-full flex items-center justify-center font-semibold text-sm">
+                    <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-semibold text-sm">
                       {index + 1}
                     </div>
                     <div className="flex-1 text-gray-700 leading-relaxed">
