@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../supabase/supabase-client';
 import type { GroceryListWithStats, GroceryListFull } from '../types/grocery-list';
 import type { Tables } from '../types/database-types';
+import { useEffect } from 'react';
 
 export const GROCERY_LIST_QUERY_KEYS = {
   groceryLists: ['grocery-lists'] as const,
@@ -200,7 +201,7 @@ export const useRemoveRecipeFromGroceryList = () => {
   });
 };
 
-// Toggle grocery list item checked status
+// Toggle grocery list item checked status with optimistic updates
 export const useToggleGroceryListItem = () => {
   const queryClient = useQueryClient();
 
@@ -216,20 +217,55 @@ export const useToggleGroceryListItem = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) => {
-      // Update cache optimistically
-      queryClient.setQueryData(
-        GROCERY_LIST_QUERY_KEYS.groceryList(data.grocery_list_id!),
+    onMutate: async ({ itemId, isChecked }) => {
+      // Cancel any outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ 
+        queryKey: ['grocery-list'] 
+      });
+
+      // Snapshot the previous value for rollback
+      const previousData = queryClient.getQueriesData({
+        queryKey: ['grocery-list']
+      });
+
+      // Optimistically update all relevant grocery list queries
+      queryClient.setQueriesData(
+        { queryKey: ['grocery-list'] },
         (old: GroceryListFull | undefined) => {
           if (!old) return old;
+          
+          // Preserve original order by updating in place
+          const updatedItems = old.items.map(item =>
+            item.id === itemId ? { ...item, is_checked: isChecked } : item
+          );
+
+          // Also optimistically update completion status
+          const totalItems = updatedItems.length;
+          const checkedItems = updatedItems.filter(item => item.is_checked).length;
+          const shouldBeCompleted = totalItems > 0 && checkedItems === totalItems;
+
           return {
             ...old,
-            items: old.items.map(item =>
-              item.id === data.id ? { ...item, is_checked: data.is_checked } : item
-            )
+            items: updatedItems, // This maintains the original order
+            is_completed: shouldBeCompleted
           };
         }
       );
+
+      // Return context for rollback
+      return { previousData };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+    },
+    onSettled: () => {
+      // Always refetch after mutation (success or error) to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ['grocery-list'] });
     },
   });
 };
@@ -356,6 +392,131 @@ export const useRemoveGroceryListItem = () => {
       console.error("Error removing grocery list item", error);
     },
   });
+};
+
+// Update grocery list completion status with optimistic updates
+export const useUpdateGroceryListCompletion = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ listId, isCompleted }: { listId: string; isCompleted: boolean }) => {
+      const { data, error } = await supabase
+        .from('grocery_lists')
+        .update({ 
+          is_completed: isCompleted, 
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', listId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onMutate: async ({ listId, isCompleted }) => {
+      // Cancel outgoing queries
+      await queryClient.cancelQueries({ 
+        queryKey: GROCERY_LIST_QUERY_KEYS.groceryList(listId) 
+      });
+      await queryClient.cancelQueries({ 
+        queryKey: GROCERY_LIST_QUERY_KEYS.groceryLists 
+      });
+
+      // Snapshot previous values
+      const previousListData = queryClient.getQueryData(
+        GROCERY_LIST_QUERY_KEYS.groceryList(listId)
+      );
+      const previousListsData = queryClient.getQueryData(
+        GROCERY_LIST_QUERY_KEYS.groceryLists
+      );
+
+      // Optimistically update the specific grocery list
+      queryClient.setQueryData(
+        GROCERY_LIST_QUERY_KEYS.groceryList(listId),
+        (old: GroceryListFull | undefined) => {
+          if (!old) return old;
+          return { ...old, is_completed: isCompleted };
+        }
+      );
+
+      // Optimistically update the grocery lists overview
+      queryClient.setQueryData(
+        GROCERY_LIST_QUERY_KEYS.groceryLists,
+        (old: GroceryListWithStats[] | undefined) => {
+          if (!old) return old;
+          return old.map(list =>
+            list.id === listId ? { ...list, is_completed: isCompleted } : list
+          );
+        }
+      );
+
+      return { previousListData, previousListsData, listId };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousListData) {
+        queryClient.setQueryData(
+          GROCERY_LIST_QUERY_KEYS.groceryList(context.listId),
+          context.previousListData
+        );
+      }
+      if (context?.previousListsData) {
+        queryClient.setQueryData(
+          GROCERY_LIST_QUERY_KEYS.groceryLists,
+          context.previousListsData
+        );
+      }
+    },
+    onSettled: (data) => {
+      // Refetch to ensure consistency
+      if (data) {
+        queryClient.invalidateQueries({ 
+          queryKey: GROCERY_LIST_QUERY_KEYS.groceryList(data.id) 
+        });
+      }
+      queryClient.invalidateQueries({ 
+        queryKey: GROCERY_LIST_QUERY_KEYS.groceryLists 
+      });
+    },
+  });
+};
+
+// Hook to automatically manage completion status (with debouncing)
+export const useAutoUpdateCompletion = (groceryList: GroceryListFull) => {
+  const updateCompletionMutation = useUpdateGroceryListCompletion();
+
+  useEffect(() => {
+    const totalItems = groceryList.items.length;
+    const checkedItems = groceryList.items.filter(item => item.is_checked).length;
+    
+    // Only update if there are items to check
+    if (totalItems === 0) return;
+    
+    const shouldBeCompleted = checkedItems === totalItems;
+    
+    // Only update if the status actually needs to change
+    if (groceryList.is_completed !== shouldBeCompleted) {
+      // Debounce the completion update to avoid rapid API calls
+      const timeoutId = setTimeout(() => {
+        updateCompletionMutation.mutate({
+          listId: groceryList.id,
+          isCompleted: shouldBeCompleted
+        });
+      }, 300); // 300ms debounce
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [
+    groceryList.items, 
+    groceryList.is_completed, 
+    groceryList.id, 
+    updateCompletionMutation
+  ]);
+
+  return {
+    isUpdatingCompletion: updateCompletionMutation.isPending,
+    updateCompletionError: updateCompletionMutation.error
+  };
 };
 
 

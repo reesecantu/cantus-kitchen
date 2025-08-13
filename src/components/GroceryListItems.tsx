@@ -4,6 +4,7 @@ import {
   useToggleGroceryListItem,
   useAddManualItem,
   useRemoveGroceryListItem,
+  useAutoUpdateCompletion, // Add this import
 } from "../hooks/useGroceryList";
 import { useUnits } from "../hooks/useUnits";
 import type { GroceryListFull } from "../types/grocery-list";
@@ -29,6 +30,9 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
   const addManualItemMutation = useAddManualItem();
   const removeItemMutation = useRemoveGroceryListItem();
   const { data: units = [] } = useUnits();
+
+  // Auto-update completion status
+  const { isUpdatingCompletion } = useAutoUpdateCompletion(groceryList);
 
   const [showAddItem, setShowAddItem] = useState(false);
   const [newItem, setNewItem] = useState({
@@ -90,19 +94,32 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
     <div>
       {/* Header with stats */}
       <div className="mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">
-          Grocery List
-        </h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-semibold text-gray-900">Grocery List</h2>
+          {/* Optional: Show completion status */}
+          {groceryList.is_completed && (
+            <div className="flex items-center gap-2 text-green-600 text-sm">
+              <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+              Completed
+            </div>
+          )}
+        </div>
         <div className="flex items-center gap-4">
           <div className="flex-1 bg-gray-200 rounded-full h-2">
             <div
-              className="bg-green-600 h-2 rounded-full transition-all duration-300"
+              className={`h-2 rounded-full transition-all duration-300 ${
+                groceryList.is_completed ? "bg-green-600" : "bg-blue-600"
+              }`}
               style={{ width: `${completionPercentage}%` }}
             />
           </div>
           <span className="text-sm text-gray-600">
             {checkedItems} of {totalItems} items ({completionPercentage}%)
           </span>
+          {/* Show updating status */}
+          {isUpdatingCompletion && (
+            <div className="text-xs text-gray-400">Updating...</div>
+          )}
         </div>
       </div>
 
