@@ -19,7 +19,7 @@ const BackButton = () => {
       to={"/grocery-lists"}
       className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors cursor-pointer w-fit"
     >
-      <ArrowLeft className="h-4 w-4" /> Back to Recipes
+      <ArrowLeft className="h-4 w-4" /> Back to Grocery Lists
     </Link>
   );
 };
