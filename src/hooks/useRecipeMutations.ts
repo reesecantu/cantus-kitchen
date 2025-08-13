@@ -42,7 +42,7 @@ export const useCreateRecipe = () => {
 
         // Upload to Supabase storage
         const { error: uploadError } = await supabase.storage
-          .from("recipe-images")
+          .from("recipe-photos")
           .upload(filePath, imageFile);
 
         if (uploadError) {
@@ -52,7 +52,7 @@ export const useCreateRecipe = () => {
 
         // Get the public URL
         const { data: publicUrlData } = supabase.storage
-          .from("recipe-images")
+          .from("recipe-photos")
           .getPublicUrl(filePath);
 
         finalImageUrl = publicUrlData.publicUrl;
