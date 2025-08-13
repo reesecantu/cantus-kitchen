@@ -1,9 +1,8 @@
-import { useGroceryLists } from "../hooks/useGroceryList";
+import { useGroceryListList } from "../hooks/grocery-lists";
 import { GroceryListTile } from "./GroceryListTile";
 
-
 export const GroceryListList = () => {
-  const { data: groceryLists = [], isLoading, error } = useGroceryLists();
+  const { data: groceryLists = [], isLoading, error } = useGroceryListList();
 
   if (isLoading) {
     return (

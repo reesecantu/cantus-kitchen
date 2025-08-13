@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { GroceryListList } from "../components/GroceryListList";
 import { useState } from "react";
-import { useCreateGroceryList } from "../hooks/useGroceryList";
+import { useCreateGroceryList } from "../hooks/grocery-lists/useGroceryList";
 import { Plus } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -39,8 +39,7 @@ export const GroceryListsPage = () => {
             lists
           </p>
         </div>
-        {user &&
-        (
+        {user && (
           <button
             onClick={handleCreateGroceryList}
             disabled={isCreating}
@@ -58,7 +57,15 @@ export const GroceryListsPage = () => {
       <div className="w-full h-2 bg-amber-400 rounded-full border-2 border-gray-700 mb-8" />
 
       {/* My Grocery Lists */}
-      {user ? <GroceryListList /> : <p className="text-lg text-gray-900 text-center"> Coming Soon: Featured Grocery Lists. Sign in to create your own custom grocery lists!</p>}
+      {user ? (
+        <GroceryListList />
+      ) : (
+        <p className="text-lg text-gray-900 text-center">
+          {" "}
+          Coming Soon: Featured Grocery Lists. Sign in to create your own custom
+          grocery lists!
+        </p>
+      )}
     </div>
   );
 };

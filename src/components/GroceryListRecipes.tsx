@@ -4,7 +4,7 @@ import { useRecipes } from "../hooks/useRecipes";
 import {
   useAddRecipeToGroceryList,
   useRemoveRecipeFromGroceryList,
-} from "../hooks/useGroceryList";
+} from "../hooks/grocery-lists";
 import type { GroceryListFull } from "../types/grocery-list";
 
 interface GroceryListRecipesProps {

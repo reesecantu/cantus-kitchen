@@ -4,8 +4,8 @@ import {
   useToggleGroceryListItem,
   useAddManualItem,
   useRemoveGroceryListItem,
-  useAutoUpdateCompletion, // Add this import
-} from "../hooks/useGroceryList";
+  useAutoUpdateCompletion,
+} from "../hooks/grocery-lists";
 import { useUnits } from "../hooks/useUnits";
 import type { GroceryListFull } from "../types/grocery-list";
 
@@ -46,6 +46,7 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
     toggleItemMutation.mutate({
       itemId,
       isChecked: !currentStatus,
+      listId: groceryList.id,
     });
   };
 
