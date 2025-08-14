@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -45,7 +45,7 @@ export type Database = {
           is_manual: boolean | null
           manual_name: string | null
           notes: string | null
-          quantity: number
+          quantity: number | null
           source_recipes: string[] | null
           unit_id: string | null
           updated_at: string | null
@@ -59,7 +59,7 @@ export type Database = {
           is_manual?: boolean | null
           manual_name?: string | null
           notes?: string | null
-          quantity: number
+          quantity?: number | null
           source_recipes?: string[] | null
           unit_id?: string | null
           updated_at?: string | null
@@ -73,7 +73,7 @@ export type Database = {
           is_manual?: boolean | null
           manual_name?: string | null
           notes?: string | null
-          quantity?: number
+          quantity?: number | null
           source_recipes?: string[] | null
           unit_id?: string | null
           updated_at?: string | null
@@ -177,21 +177,21 @@ export type Database = {
           grocery_aisle_id: number | null
           id: number
           name: string
-          subaisle_position: number
+          subaisle_position_id: number | null
         }
         Insert: {
           created_at?: string
           grocery_aisle_id?: number | null
           id?: number
           name: string
-          subaisle_position?: number
+          subaisle_position_id?: number | null
         }
         Update: {
           created_at?: string
           grocery_aisle_id?: number | null
           id?: number
           name?: string
-          subaisle_position?: number
+          subaisle_position_id?: number | null
         }
         Relationships: [
           {
@@ -199,6 +199,13 @@ export type Database = {
             columns: ["grocery_aisle_id"]
             isOneToOne: false
             referencedRelation: "grocery_aisles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ingredients_subaisle_position_id_fkey"
+            columns: ["subaisle_position_id"]
+            isOneToOne: false
+            referencedRelation: "subaisle_positions"
             referencedColumns: ["id"]
           },
         ]
@@ -211,7 +218,7 @@ export type Database = {
           note: string | null
           recipe_id: string | null
           unit_amount: number | null
-          unit_id: string | null
+          unit_id: string
         }
         Insert: {
           created_at?: string
@@ -220,7 +227,7 @@ export type Database = {
           note?: string | null
           recipe_id?: string | null
           unit_amount?: number | null
-          unit_id?: string | null
+          unit_id?: string
         }
         Update: {
           created_at?: string
@@ -229,7 +236,7 @@ export type Database = {
           note?: string | null
           recipe_id?: string | null
           unit_amount?: number | null
-          unit_id?: string | null
+          unit_id?: string
         }
         Relationships: [
           {
@@ -284,6 +291,38 @@ export type Database = {
           steps?: string[]
         }
         Relationships: []
+      }
+      subaisle_positions: {
+        Row: {
+          created_at: string | null
+          grocery_aisle_id: number
+          id: number
+          name: string
+          position: number
+        }
+        Insert: {
+          created_at?: string | null
+          grocery_aisle_id: number
+          id?: never
+          name: string
+          position: number
+        }
+        Update: {
+          created_at?: string | null
+          grocery_aisle_id?: number
+          id?: never
+          name?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subaisle_positions_grocery_aisle_id_fkey"
+            columns: ["grocery_aisle_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_aisles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       units: {
         Row: {
@@ -355,11 +394,11 @@ export type Database = {
     Functions: {
       add_manual_item_to_grocery_list: {
         Args: {
-          list_id: string
           ingredient_name: string
+          list_id: string
+          notes?: string
           quantity: number
           unit_name: string
-          notes?: string
         }
         Returns: string
       }
@@ -380,8 +419,8 @@ export type Database = {
       find_best_unit_for_quantity: {
         Args: {
           p_base_quantity: number
-          p_unit_type: string
           p_preferred_system?: string
+          p_unit_type: string
         }
         Returns: string
       }
@@ -392,25 +431,25 @@ export type Database = {
       get_public_and_user_recipes: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          name: string
-          image_url: string
-          created_by: string
-          steps: string[]
-          servings: number
           created_at: string
+          created_by: string
+          id: string
+          image_url: string
+          name: string
+          servings: number
+          steps: string[]
         }[]
       }
       get_public_recipes: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          name: string
-          image_url: string
-          created_by: string
-          steps: string[]
-          servings: number
           created_at: string
+          created_by: string
+          id: string
+          image_url: string
+          name: string
+          servings: number
+          steps: string[]
         }[]
       }
       regenerate_grocery_list_items: {

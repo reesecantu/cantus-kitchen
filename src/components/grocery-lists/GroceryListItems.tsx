@@ -42,8 +42,8 @@ const sortItemsInAisle = (
     }
 
     // For non-manual items, sort by subaisle_position first
-    const subaisleA = a.subaisle_position ?? 999; // Default to end if null
-    const subaisleB = b.subaisle_position ?? 999;
+    const subaisleA = a.subaisle_position.position ?? 999; // Default to end if null
+    const subaisleB = b.subaisle_position.position ?? 999;
 
     if (subaisleA !== subaisleB) {
       return subaisleA - subaisleB;

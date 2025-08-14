@@ -28,7 +28,7 @@ export const useGroceryList = (listId: string) => {
               name,
               grocery_aisle_id,
               grocery_aisles (name, display_order),
-              subaisle_position
+              subaisle_positions (name, position)
             ),
             units (name, abbreviation)
           )
@@ -71,6 +71,10 @@ export const useGroceryList = (listId: string) => {
                 item.ingredients?.grocery_aisles?.name || "Other",
               grocery_aisle_display_order:
                 item.ingredients?.grocery_aisles?.display_order || 999,
+              subaisle_position:
+                item.ingredients?.subaisle_positions?.position || 999,
+              subaisle_position_name:
+                item.ingredients?.subaisle_positions?.name, 
             })
           )
           .sort(

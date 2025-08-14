@@ -1,8 +1,8 @@
-import type { Tables } from './database-types';
+import type { Tables } from "./database-types";
 
-export type GroceryList = Tables<'grocery_lists'>;
-export type GroceryListRecipe = Tables<'grocery_list_recipes'>;
-export type GroceryListItem = Tables<'grocery_list_items'>;
+export type GroceryList = Tables<"grocery_lists">;
+export type GroceryListRecipe = Tables<"grocery_list_recipes">;
+export type GroceryListItem = Tables<"grocery_list_items">;
 
 export interface GroceryListWithStats extends GroceryList {
   recipe_count: number;
@@ -17,7 +17,8 @@ export interface GroceryListItemWithDetails extends GroceryListItem {
   grocery_aisle_id: number;
   grocery_aisle_name: string;
   grocery_aisle_display_order: number;
-  subaisle_position: number;
+  subaisle_position: number | null; 
+  subaisle_position_name?: string; 
 }
 
 export interface GroceryListFull extends GroceryList {
@@ -44,6 +45,7 @@ export type GroceryListItemWithRelations = Tables<"grocery_list_items"> & {
   ingredients:
     | (Tables<"ingredients"> & {
         grocery_aisles: Tables<"grocery_aisles"> | null;
+        subaisle_positions: Tables<"subaisle_positions"> | null; // Add this
       })
     | null;
   units: Tables<"units"> | null;
@@ -56,4 +58,6 @@ export type GroceryListItemTransformed = GroceryListItemWithRelations & {
   grocery_aisle_id: number;
   grocery_aisle_name: string;
   grocery_aisle_display_order: number;
+  subaisle_position: number | null; // Changed to allow null
+  subaisle_position_name?: string; // Add optional subaisle name
 };
