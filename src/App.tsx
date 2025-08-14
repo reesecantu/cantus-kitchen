@@ -13,15 +13,11 @@ import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
 import { Footer } from "./components/Footer";
 import { ROUTES } from "./utils/constants";
+import { isAuthRoute } from "./utils/routeHelper";
 
 function App() {
   const location = useLocation();
-  const hideNavbar = [
-    ROUTES.SIGN_IN,
-    ROUTES.SIGN_UP,
-    ROUTES.FORGOT_PASSWORD,
-    ROUTES.RESET_PASSWORD,
-  ].includes(location.pathname);
+  const hideNavbar = isAuthRoute(location.pathname);
 
   const ScrollToTop = () => {
     const { pathname } = useLocation();
