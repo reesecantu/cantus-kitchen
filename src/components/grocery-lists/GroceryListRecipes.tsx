@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
-import { useRecipes } from "../../hooks/useRecipes";
+import { useRecipes } from "../../hooks/recipes";
 import {
   useAddRecipeToGroceryList,
   useRemoveRecipeFromGroceryList,

@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { useRecipes } from "../../hooks/useRecipes";
+import { useRecipes } from "../../hooks/recipes";
 import { RecipeTile } from "./RecipeTile";
 
 export const RecipeList = () => {

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../../supabase/supabase-client'
-import type { TablesInsert } from '../types/database-types';
+import { supabase } from '../../../supabase/supabase-client'
+import type { TablesInsert } from '../../types/database-types';
 
 interface RecipeIngredientForDB {
   ingredient_id: number;

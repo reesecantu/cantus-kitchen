@@ -1,6 +1,6 @@
 import { ArrowLeft, Clock, Users, Image as ImageIcon } from "lucide-react";
 import { Link } from "react-router";
-import { useRecipeDetails } from "../../hooks/useRecipeDetails";
+import { useRecipeDetails } from "../../hooks/recipes";
 
 interface RecipeDetailsProps {
   recipeId: string;

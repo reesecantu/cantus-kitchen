@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import logoLongBlue from "../assets/long_logo_blue.png";
+import logoLongBlue from "../assets/logos/long_logo_blue.png";
 
 export const Footer = () => {
   return (

@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { useState } from "react";
-import logoLongBlue from "../assets/long_logo_blue.png";
-import stackedLogoBlue from "../assets/stacked_logo_blue.png";
+import logoLongBlue from "../assets/logos/long_logo_blue.png";
+import stackedLogoBlue from "../assets/logos/stacked_logo_blue.png";
 import { useAuth } from "../contexts/AuthContext";
 
 export const Navbar = () => {

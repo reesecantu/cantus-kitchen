@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import type { Tables } from '../types/database-types';
-import { supabase } from '../../supabase/supabase-client';
+import type { Tables } from '../../types/database-types';
+import { supabase } from '../../../supabase/supabase-client';
 
 export const useRecipes = () => {
   return useQuery({
