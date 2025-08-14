@@ -64,7 +64,7 @@ export const GroceryListRecipes = ({
         </h2>
         <button
           onClick={() => setShowAddRecipe(!showAddRecipe)}
-          className="flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-white hover:text-gray-100 px-2 py-1 rounded transition-colors font-medium shadow-md"
+          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white hover:text-gray-100 px-2 py-1 rounded transition-colors font-medium shadow-md"
         >
           <Plus className="h-4 w-4 stroke-3" />
           Add Recipe

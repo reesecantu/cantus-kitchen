@@ -126,7 +126,6 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-semibold text-gray-900">Grocery List</h2>
-          {/* Optional: Show completion status */}
           {groceryList.is_completed && (
             <div className="flex items-center gap-2 text-green-600 text-sm">
               <div className="w-2 h-2 bg-green-600 rounded-full"></div>
@@ -174,63 +173,59 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
                   </span>
                 </div>
                 <div className="divide-y divide-gray-100 rounded-lg overflow-hidden border border-gray-700 shadow-md">
-                  {sortedItems.map(
-                    (
-                      item // Use sortedItems instead of items
-                    ) => (
+                  {sortedItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className={`flex items-center gap-3 px-4 py-3 transition-colors group ${
+                        item.is_checked
+                          ? "bg-green-50 opacity-75"
+                          : "bg-white hover:bg-gray-50"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={!!item.is_checked}
+                        onChange={() =>
+                          handleToggleItem(item.id, item.is_checked)
+                        }
+                        className="w-3.5 h-3.5 text-green-600 rounded focus:ring-green-500 cursor-pointer"
+                      />
                       <div
-                        key={item.id}
-                        className={`flex items-center gap-3 px-4 py-3 transition-colors group ${
-                          item.is_checked
-                            ? "bg-green-50 opacity-75"
-                            : "bg-white hover:bg-gray-50"
+                        className={`flex-1 text-sm ${
+                          item.is_checked ? "line-through text-gray-500" : ""
                         }`}
                       >
-                        <input
-                          type="checkbox"
-                          checked={!!item.is_checked}
-                          onChange={() =>
-                            handleToggleItem(item.id, item.is_checked)
-                          }
-                          className="w-3 h-3 text-green-600 rounded focus:ring-green-500 cursor-pointer"
-                        />
-                        <div
-                          className={`flex-1 text-sm ${
-                            item.is_checked ? "line-through text-gray-500" : ""
-                          }`}
-                        >
-                          <div className="flex items-baseline gap-1">
-                            <span className="font-medium text-gray-900">
-                              {item.quantity} {item.unit_name}
-                            </span>
-                            <span className="text-gray-700">
-                              {item.ingredient_name}
-                            </span>
-                          </div>
-                          {item.notes && (
-                            <div className="text-sm text-gray-500 ">
-                              Note: {item.notes}
-                            </div>
-                          )}
+                        <div className="flex items-baseline gap-1">
+                          <span className="font-medium text-gray-900">
+                            {item.quantity} {item.unit_name}
+                          </span>
+                          <span className="text-gray-700">
+                            {item.ingredient_name}
+                          </span>
                         </div>
-                        {item.is_manual && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                              Manual
-                            </span>
-                            <button
-                              onClick={() => handleRemoveItem(item.id)}
-                              disabled={removeItemMutation.isPending}
-                              className="p-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
-                              title="Remove item"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                        {item.notes && (
+                          <div className="text-sm text-gray-500 ">
+                            Note: {item.notes}
                           </div>
                         )}
                       </div>
-                    )
-                  )}
+                      {item.is_manual && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                            Manual
+                          </span>
+                          <button
+                            onClick={() => handleRemoveItem(item.id)}
+                            disabled={removeItemMutation.isPending}
+                            className="p-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                            title="Remove item"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             );
