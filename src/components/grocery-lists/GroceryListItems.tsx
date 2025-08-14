@@ -7,7 +7,10 @@ import {
   useAutoUpdateCompletion,
 } from "../../hooks/grocery-lists";
 import { useUnits } from "../../hooks/useUnits";
-import type { GroceryListFull } from "../../types/grocery-list";
+import type {
+  GroceryListFull,
+  GroceryListItemWithDetails,
+} from "../../types/grocery-list";
 
 interface GroceryListItemsProps {
   groceryList: GroceryListFull;
@@ -23,6 +26,32 @@ const groupBy = <T,>(array: T[], key: keyof T): Record<string, T[]> => {
     groups[groupKey].push(item);
     return groups;
   }, {} as Record<string, T[]>);
+};
+
+// Sort function for items within an aisle
+const sortItemsInAisle = (
+  items: GroceryListItemWithDetails[]
+): GroceryListItemWithDetails[] => {
+  return items.sort((a, b) => {
+    // Manual items go to the bottom of their aisle
+    if (a.is_manual && !b.is_manual) return 1;
+    if (!a.is_manual && b.is_manual) return -1;
+    if (a.is_manual && b.is_manual) {
+      // Sort manual items alphabetically by ingredient name
+      return a.ingredient_name.localeCompare(b.ingredient_name);
+    }
+
+    // For non-manual items, sort by subaisle_position first
+    const subaisleA = a.subaisle_position ?? 999; // Default to end if null
+    const subaisleB = b.subaisle_position ?? 999;
+
+    if (subaisleA !== subaisleB) {
+      return subaisleA - subaisleB;
+    }
+
+    // Then sort by ingredient name
+    return a.ingredient_name.localeCompare(b.ingredient_name);
+  });
 };
 
 export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
@@ -129,6 +158,7 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
         <div className="space-y-4 mb-8">
           {sortedAisles.map((aisleName) => {
             const items = itemsByAisle[aisleName];
+            const sortedItems = sortItemsInAisle(items); // Sort items within aisle
             const aisleCheckedCount = items.filter(
               (item) => item.is_checked
             ).length;
@@ -144,59 +174,63 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
                   </span>
                 </div>
                 <div className="divide-y divide-gray-100 rounded-lg overflow-hidden border border-gray-700 shadow-md">
-                  {items.map((item) => (
-                    <div
-                      key={item.id}
-                      className={`flex items-center gap-3 px-4 py-3 transition-colors group ${
-                        item.is_checked
-                          ? "bg-green-50 opacity-75"
-                          : "bg-white hover:bg-gray-50"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={!!item.is_checked}
-                        onChange={() =>
-                          handleToggleItem(item.id, item.is_checked)
-                        }
-                        className="w-3 h-3 text-green-600 rounded focus:ring-green-500 cursor-pointer"
-                      />
+                  {sortedItems.map(
+                    (
+                      item // Use sortedItems instead of items
+                    ) => (
                       <div
-                        className={`flex-1 text-sm ${
-                          item.is_checked ? "line-through text-gray-500" : ""
+                        key={item.id}
+                        className={`flex items-center gap-3 px-4 py-3 transition-colors group ${
+                          item.is_checked
+                            ? "bg-green-50 opacity-75"
+                            : "bg-white hover:bg-gray-50"
                         }`}
                       >
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-medium text-gray-900">
-                            {item.quantity} {item.unit_abbreviation}
-                          </span>
-                          <span className="text-gray-700">
-                            {item.ingredient_name}
-                          </span>
+                        <input
+                          type="checkbox"
+                          checked={!!item.is_checked}
+                          onChange={() =>
+                            handleToggleItem(item.id, item.is_checked)
+                          }
+                          className="w-3 h-3 text-green-600 rounded focus:ring-green-500 cursor-pointer"
+                        />
+                        <div
+                          className={`flex-1 text-sm ${
+                            item.is_checked ? "line-through text-gray-500" : ""
+                          }`}
+                        >
+                          <div className="flex items-baseline gap-1">
+                            <span className="font-medium text-gray-900">
+                              {item.quantity} {item.unit_name}
+                            </span>
+                            <span className="text-gray-700">
+                              {item.ingredient_name}
+                            </span>
+                          </div>
+                          {item.notes && (
+                            <div className="text-sm text-gray-500 ">
+                              Note: {item.notes}
+                            </div>
+                          )}
                         </div>
-                        {item.notes && (
-                          <div className="text-sm text-gray-500 ">
-                            Note: {item.notes}
+                        {item.is_manual && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                              Manual
+                            </span>
+                            <button
+                              onClick={() => handleRemoveItem(item.id)}
+                              disabled={removeItemMutation.isPending}
+                              className="p-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                              title="Remove item"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
                           </div>
                         )}
                       </div>
-                      {item.is_manual && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                            Manual
-                          </span>
-                          <button
-                            onClick={() => handleRemoveItem(item.id)}
-                            disabled={removeItemMutation.isPending}
-                            className="p-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
-                            title="Remove item"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               </div>
             );
