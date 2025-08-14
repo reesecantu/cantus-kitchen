@@ -174,24 +174,24 @@ export type Database = {
       ingredients: {
         Row: {
           created_at: string
-          display_order: number | null
           grocery_aisle_id: number | null
           id: number
           name: string
+          subaisle_position: number
         }
         Insert: {
           created_at?: string
-          display_order?: number | null
           grocery_aisle_id?: number | null
           id?: number
           name: string
+          subaisle_position?: number
         }
         Update: {
           created_at?: string
-          display_order?: number | null
           grocery_aisle_id?: number | null
           id?: number
           name?: string
+          subaisle_position?: number
         }
         Relationships: [
           {

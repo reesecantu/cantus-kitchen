@@ -27,7 +27,8 @@ export const useGroceryList = (listId: string) => {
             ingredients (
               name,
               grocery_aisle_id,
-              grocery_aisles (name, display_order)
+              grocery_aisles (name, display_order),
+              subaisle_position
             ),
             units (name, abbreviation)
           )
