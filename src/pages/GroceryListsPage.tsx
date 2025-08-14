@@ -51,8 +51,8 @@ export const GroceryListsPage = () => {
         )}
       </div>
 
-      <div className="mt-3 w-full text-center text-lg font-bold text-red-400">
-        Filters and search bar go here
+      <div className="mt-3 w-full text-center text-lg font-bold text-amber-400">
+        Filters and search bar coming soon!
       </div>
       <div className="w-full h-2 bg-amber-400 rounded-full border-2 border-gray-700 mb-8" />
 
@@ -62,8 +62,8 @@ export const GroceryListsPage = () => {
       ) : (
         <p className="text-lg text-gray-900 text-center">
           {" "}
-          Coming Soon: Featured Grocery Lists. Sign in to create your own custom
-          grocery lists!
+          Sign in to create your own custom grocery lists! Coming Soon: Featured
+          Grocery Lists.
         </p>
       )}
     </div>

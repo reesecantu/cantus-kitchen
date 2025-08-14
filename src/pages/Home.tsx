@@ -39,9 +39,9 @@ export const Home = () => {
       {/* about section */}
       <div
         id="about-section"
-        className="py-40 flex px-6 sm:px-10 lg:px-20 justify-center text-red-500 font-bold text-4xl text-center"
+        className="py-40 flex px-6 sm:px-10 lg:px-20 justify-center text-amber-400 font-bold text-4xl text-center"
       >
-        about section goes here
+        about section coming soon!
       </div>
     </div>
   );

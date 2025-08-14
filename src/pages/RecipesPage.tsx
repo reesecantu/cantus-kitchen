@@ -12,9 +12,8 @@ export const RecipesPage = () => {
         find here. Every recipe can be used in the grocery list generator. Check
         it out!
       </p>
-      <div className="mt-3 w-full text-center text-lg font-bold text-red-400">
-        {" "}
-        Filters and search bar go here{" "}
+      <div className="mt-3 w-full text-center text-lg font-bold text-amber-400">
+        Filters and search bar coming soon!
       </div>
       <div className="w-full h-2 bg-amber-400 rounded-full border-2 border-gray-700 mb-8" />
       {/* TODO MY Recipes list */}
