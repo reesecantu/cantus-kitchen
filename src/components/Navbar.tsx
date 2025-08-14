@@ -3,6 +3,7 @@ import { useState } from "react";
 import logoLongBlue from "../assets/logos/long_logo_blue.png";
 import stackedLogoBlue from "../assets/logos/stacked_logo_blue.png";
 import { useAuth } from "../contexts/AuthContext";
+import { ROUTES } from "../utils/constants";
 
 export const Navbar = () => {
   const { user, signOut } = useAuth();
@@ -70,7 +71,7 @@ export const Navbar = () => {
 
             {/* Desktop Left - Logo */}
             <div className="hidden lg:flex flex-shrink-0 mb-7 -mx-4">
-              <Link to="/">
+              <Link to={ROUTES.HOME}>
                 <img
                   src={logoLongBlue}
                   alt="Cantus Kitchen Logo"
@@ -79,7 +80,7 @@ export const Navbar = () => {
               </Link>
             </div>
             <div className="hidden md:flex lg:hidden flex-shrink-0 mb-7 -mx-4">
-              <Link to="/">
+              <Link to={ROUTES.HOME}>
                 <img
                   src={stackedLogoBlue}
                   alt="Cantus Kitchen Logo"
@@ -90,7 +91,7 @@ export const Navbar = () => {
 
             {/* Mobile Center - Logo */}
             <div className="md:hidden flex-1 flex justify-center mb-3">
-              <Link to="/" onClick={closeMobileMenu}>
+              <Link to={ROUTES.HOME} onClick={closeMobileMenu}>
                 <img
                   src={stackedLogoBlue}
                   alt="Cantus Kitchen Logo"
@@ -101,16 +102,16 @@ export const Navbar = () => {
 
             {/* Desktop Center - Navigation */}
             <div className="hidden md:flex items-center md:space-x-6 lg:space-x-12 text-gray-600 hover:text-gray-700 text-lg font-semibold">
-              <Link to="/" className=" transition-colors">
+              <Link to={ROUTES.HOME} className=" transition-colors">
                 Home
               </Link>
-              <Link to="/recipes" className="transition-colors">
+              <Link to={ROUTES.RECIPES} className="transition-colors">
                 Recipes
               </Link>
-              <Link to="/grocery-lists" className="transition-colors">
+              <Link to={ROUTES.GROCERY_LISTS} className="transition-colors">
                 Grocery Lists
               </Link>
-              <Link to="/create" className=" transition-colors">
+              <Link to={ROUTES.CREATE_RECIPE} className=" transition-colors">
                 Create
               </Link>
             </div>
@@ -129,14 +130,14 @@ export const Navbar = () => {
                 ) : (
                   <div className="flex items-center space-x-2">
                     <Link
-                      to="/sign-in"
+                      to={ROUTES.SIGN_IN}
                       className="text-lg text-gray-600 hover:text-gray-700 transition-colors font-medium"
                     >
                       Sign in
                     </Link>
                     <span className="text-gray-600 select-none">|</span>
                     <Link
-                      to="/sign-up"
+                      to={ROUTES.SIGN_UP}
                       className="text-lg bg-amber-200 hover:bg-amber-300 text-amber-800 px-1 rounded transition-colors font-medium"
                     >
                       Sign up
@@ -183,14 +184,14 @@ export const Navbar = () => {
                     ) : (
                       <>
                         <Link
-                          to="/sign-in"
+                          to={ROUTES.SIGN_IN}
                           onClick={closeUserMenu}
                           className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
                         >
                           Sign in
                         </Link>
                         <Link
-                          to="/sign-up"
+                          to={ROUTES.SIGN_UP}
                           onClick={closeUserMenu}
                           className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
                         >
@@ -210,28 +211,28 @@ export const Navbar = () => {
           <div className="md:hidden bg-white border-t border-gray-200">
             <div className="px-2 space-y-1 text-gray-600font-medium">
               <Link
-                to="/"
+                to={ROUTES.HOME}
                 onClick={closeMobileMenu}
                 className="block px-3 py-2 rounded-md text-base hover:text-gray-700 hover:bg-gray-50 "
               >
                 Home
               </Link>
               <Link
-                to="/recipes"
+                to={ROUTES.RECIPES}
                 onClick={closeMobileMenu}
                 className="block px-3 py-2 rounded-md text-base hover:text-gray-700 hover:bg-gray-50 "
               >
                 Recipes
               </Link>
               <Link
-                to="/grocery-lists"
+                to={ROUTES.GROCERY_LISTS}
                 onClick={closeMobileMenu}
                 className="block px-3 py-2 rounded-md text-base hover:text-gray-700 hover:bg-gray-50 "
               >
                 Grocery Lists
               </Link>
               <Link
-                to="/create"
+                to={ROUTES.CREATE_RECIPE}
                 onClick={closeMobileMenu}
                 className="block px-3 py-2 rounded-md text-base hover:text-gray-700 hover:bg-gray-50 "
               >

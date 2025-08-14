@@ -1,6 +1,4 @@
-import { Link } from "react-router";
 import type { GroceryListWithStats } from "../../types/grocery-list";
-
 
 interface GroceryListTileProps {
   list: GroceryListWithStats;
@@ -8,7 +6,6 @@ interface GroceryListTileProps {
 
 export const GroceryListTile = ({ list }: GroceryListTileProps) => {
   return (
-    <Link key={list.id} to={`/grocery-list/${list.id}`}>
       <div className="bg-white rounded-lg border transition-transform duration-200 cursor-pointer hover:-translate-y-1 group">
         <div className="p-4">
           <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:underline group-hover:decoration-2 group-hover:decoration-gray-700">
@@ -55,6 +52,5 @@ export const GroceryListTile = ({ list }: GroceryListTileProps) => {
           </div>
         </div>
       </div>
-    </Link>
   );
 };

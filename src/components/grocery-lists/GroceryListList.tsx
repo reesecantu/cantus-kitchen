@@ -1,5 +1,7 @@
 import { useGroceryListList } from "../../hooks/grocery-lists";
 import { GroceryListTile } from "./GroceryListTile";
+import { ROUTES } from "../../utils/constants";
+import { Link } from "react-router";
 
 export const GroceryListList = () => {
   const { data: groceryLists = [], isLoading, error } = useGroceryListList();
@@ -33,7 +35,9 @@ export const GroceryListList = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {groceryLists.map((list) => (
-        <GroceryListTile key={list.id} list={list} />
+        <Link to={ROUTES.GROCERY_LIST_DETAILS(list.id)}>
+          <GroceryListTile key={list.id} list={list} />
+        </Link>
       ))}
     </div>
   );

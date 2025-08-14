@@ -1,7 +1,11 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../contexts/AuthContext";
-import { isSupabaseError, type GoogleCredentialResponse } from "../../types/auth";
+import {
+  isSupabaseError,
+  type GoogleCredentialResponse,
+} from "../../types/auth";
+import { ROUTES } from "../../utils/constants";
 
 export const useGoogleAuth = () => {
   const { signInWithGoogle } = useAuth();
@@ -17,7 +21,7 @@ export const useGoogleAuth = () => {
       setGoogleLoading(true);
       try {
         await signInWithGoogle(response);
-        navigate("/", { replace: true });
+        navigate(ROUTES.HOME, { replace: true });
       } catch (error: unknown) {
         console.error("Google sign-in failed:", error);
         let errorMessage = "Google sign-in failed. Please try again.";

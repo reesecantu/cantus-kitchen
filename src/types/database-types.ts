@@ -174,18 +174,21 @@ export type Database = {
       ingredients: {
         Row: {
           created_at: string
+          display_order: number | null
           grocery_aisle_id: number | null
           id: number
           name: string
         }
         Insert: {
           created_at?: string
+          display_order?: number | null
           grocery_aisle_id?: number | null
           id?: number
           name: string
         }
         Update: {
           created_at?: string
+          display_order?: number | null
           grocery_aisle_id?: number | null
           id?: number
           name?: string
@@ -287,7 +290,6 @@ export type Database = {
           abbreviation: string
           base_conversion_factor: number | null
           created_at: string | null
-          display_order: number | null
           id: string
           name: string
           system: string
@@ -297,7 +299,6 @@ export type Database = {
           abbreviation?: string
           base_conversion_factor?: number | null
           created_at?: string | null
-          display_order?: number | null
           id?: string
           name: string
           system: string
@@ -307,7 +308,6 @@ export type Database = {
           abbreviation?: string
           base_conversion_factor?: number | null
           created_at?: string | null
-          display_order?: number | null
           id?: string
           name?: string
           system?: string

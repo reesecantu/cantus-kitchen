@@ -33,22 +33,3 @@ export const usePublicRecipes = () => {
     }
   })
 }
-
-export const useRecipesByUser = () => {
-  return useQuery({
-    queryKey: ['recipes'],
-    queryFn: async (): Promise<Tables<'recipes'>[]> => {
-      const { data, error } = await supabase
-        .from('recipes')
-        .select('*')
-        .order('created_at', {ascending: false});
-      
-      if (error) {
-        console.error('Error fetching recipes:', error);
-        throw error;
-      }
-      
-      return data || [];
-    },
-  });
-};

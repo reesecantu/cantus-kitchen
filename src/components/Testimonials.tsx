@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Lily from "../assets/testimonials/Lily.png";
 import Fam from "../assets/testimonials/Fam.png";
+import { ANIMATION_CONSTANTS } from "../utils/constants"
 
 interface Testimonial {
   id: string;
@@ -43,7 +44,7 @@ const testimonials: Testimonial[] = [
   },
 ];
 
-const AUTOPLAY_INTERVAL = 4500;
+const AUTOPLAY_INTERVAL = ANIMATION_CONSTANTS.TESTIMONIALS_AUTOPLAY_INTERVAL;
 
 export const Testimonials = () => {
   // Start at index 2 because we add two clones to the left

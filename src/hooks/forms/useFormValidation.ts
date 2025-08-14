@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormErrors } from "../../types/auth";
-
+import { VALIDATION_MESSAGES, VALIDATION_RULES } from "../../utils/constants";
 
 interface ValidationRules {
   email?: boolean;
@@ -12,18 +12,18 @@ export const useFormValidation = () => {
   const [errors, setErrors] = useState<FormErrors>({});
 
   const validateEmail = (email: string): string | undefined => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) return "Email is required";
-    if (!emailRegex.test(email)) return "Please enter a valid email address";
+    if (!email) return VALIDATION_MESSAGES.EMAIL_REQUIRED;
+    if (!VALIDATION_RULES.EMAIL_REGEX.test(email))
+      return VALIDATION_MESSAGES.EMAIL_INVALID;
     return undefined;
   };
 
   const validatePassword = (password: string): string | undefined => {
-    if (!password) return "Password is required";
-    if (password.length < 8) return "Password must be at least 8 characters";
-    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-      return "Password must contain uppercase, lowercase, and number";
-    }
+    if (!password) return VALIDATION_MESSAGES.PASSWORD_REQUIRED;
+    if (password.length < VALIDATION_RULES.PASSWORD_MIN_LENGTH)
+      return VALIDATION_MESSAGES.PASSWORD_TOO_SHORT;
+    if (!VALIDATION_RULES.PASSWORD_REGEX.test(password))
+      return VALIDATION_MESSAGES.PASSWORD_COMPLEXITY;
     return undefined;
   };
 
@@ -31,8 +31,8 @@ export const useFormValidation = () => {
     password: string,
     confirmPassword: string
   ): string | undefined => {
-    if (!confirmPassword) return "Please confirm your password";
-    if (password !== confirmPassword) return "Passwords do not match";
+    if (!confirmPassword) return VALIDATION_MESSAGES.CONFIRM_PASSWORD_REQUIRED;
+    if (password !== confirmPassword) return VALIDATION_MESSAGES.PASSWORDS_DONT_MATCH;
     return undefined;
   };
 

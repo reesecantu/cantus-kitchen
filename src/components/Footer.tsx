@@ -1,14 +1,15 @@
 import { Link } from "react-router";
 import logoLongBlue from "../assets/logos/long_logo_blue.png";
+import { ROUTES } from "../utils/constants";
 
 export const Footer = () => {
   return (
-    <footer className="bg-gray-700 text-white ">
+    <footer className="bg-gray-700 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:pl-0 pl-6">
           {/* Logo and Description */}
           <div className="md:col-span-2">
-            <Link to="/" className="inline-block mb-4 -ml-3 md:-mt-6">
+            <Link to={ROUTES.HOME} className="inline-block mb-4 -ml-3 md:-mt-6">
               <img
                 src={logoLongBlue}
                 alt="Cantus Kitchen Logo"
@@ -26,7 +27,7 @@ export const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <Link
-                  to="/"
+                  to={ROUTES.HOME}
                   className="text-gray-300 hover:text-white transition-colors text-sm"
                 >
                   Home
@@ -34,7 +35,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/recipes"
+                  to={ROUTES.RECIPES}
                   className="text-gray-300 hover:text-white transition-colors text-sm"
                 >
                   Recipes
@@ -42,7 +43,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/grocery-lists"
+                  to={ROUTES.GROCERY_LISTS}
                   className="text-gray-300 hover:text-white transition-colors text-sm"
                 >
                   Grocery Lists
@@ -50,7 +51,7 @@ export const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/create"
+                  to={ROUTES.CREATE_RECIPE}
                   className="text-gray-300 hover:text-white transition-colors text-sm"
                 >
                   Create Recipe

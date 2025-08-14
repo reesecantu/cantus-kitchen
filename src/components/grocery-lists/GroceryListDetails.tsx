@@ -8,6 +8,7 @@ import {
 import { GroceryListRecipes } from "./GroceryListRecipes";
 import { GroceryListItems } from "./GroceryListItems";
 import { Link, useNavigate } from "react-router";
+import { ROUTES } from "../../utils/constants";
 
 interface GroceryListDetailsProps {
   listId: string;
@@ -16,7 +17,7 @@ interface GroceryListDetailsProps {
 const BackButton = () => {
   return (
     <Link
-      to={"/grocery-lists"}
+      to={ROUTES.GROCERY_LISTS}
       className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors cursor-pointer w-fit"
     >
       <ArrowLeft className="h-4 w-4" /> Back to Grocery Lists

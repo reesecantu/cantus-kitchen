@@ -7,6 +7,7 @@ import { GoogleSignInButton } from "../components/ui/GoogleSignInButton";
 import { isSupabaseError } from "../types/auth";
 import { AuthLayout } from "../components/layouts/AuthLayout";
 import { LoadingSpinner } from "../components/ui/LoadingSpinner";
+import { ROUTES } from "../utils/constants";
 
 export const SignIn = () => {
   const { signInWithEmail, signInAnonymously } = useAuth();
@@ -36,7 +37,7 @@ export const SignIn = () => {
 
     try {
       await signInWithEmail(email, password);
-      navigate("/", { replace: true });
+      navigate(ROUTES.HOME, { replace: true });
     } catch (error: unknown) {
       console.error("Email sign-in failed:", error);
       let errorMessage = "Sign-in failed. Please try again.";
@@ -67,7 +68,7 @@ export const SignIn = () => {
 
     try {
       await signInAnonymously();
-      navigate("/", { replace: true });
+      navigate(ROUTES.HOME, { replace: true });
     } catch (error: unknown) {
       console.error("Anonymous sign-in failed:", error);
       let errorMessage = "Guest sign-in failed. Please try again.";
@@ -138,7 +139,7 @@ export const SignIn = () => {
 
         <div className="text-right">
           <Link
-            to="/forgot-password"
+            to={ROUTES.FORGOT_PASSWORD}
             className="text-sm text-blue-600 hover:text-blue-700"
           >
             Forgot password?
@@ -165,7 +166,7 @@ export const SignIn = () => {
         <p className="text-sm text-gray-600">
           Don't have an account?{" "}
           <Link
-            to="/sign-up"
+            to={ROUTES.SIGN_UP}
             className="text-blue-600 hover:text-blue-700 font-semibold"
           >
             Sign up here

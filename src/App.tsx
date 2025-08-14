@@ -12,14 +12,15 @@ import { GroceryListDetailsPage } from "./pages/GroceryListDetailsPage";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
 import { Footer } from "./components/Footer";
+import { ROUTES } from "./utils/constants";
 
 function App() {
   const location = useLocation();
   const hideNavbar = [
-    "/sign-in",
-    "/sign-up",
-    "/forgot-password",
-    "/reset-password",
+    ROUTES.SIGN_IN,
+    ROUTES.SIGN_UP,
+    ROUTES.FORGOT_PASSWORD,
+    ROUTES.RESET_PASSWORD,
   ].includes(location.pathname);
 
   const ScrollToTop = () => {
@@ -34,23 +35,26 @@ function App() {
 
   return (
     <div>
-      <ScrollToTop /> 
+      <ScrollToTop />
       {!hideNavbar && <Navbar />}
       <div className={hideNavbar ? "min-h-screen" : "min-h-screen pt-20"}>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/recipes" element={<RecipesPage />} />
-          <Route path="/create" element={<CreatePage />} />
-          <Route path="/recipe/:id" element={<RecipeDetailsPage />} />
-          <Route path="/grocery-lists" element={<GroceryListsPage />} />
+          <Route path={ROUTES.HOME} element={<Home />} />
+          <Route path={ROUTES.SIGN_IN} element={<SignIn />} />
+          <Route path={ROUTES.SIGN_UP} element={<SignUp />} />
+          <Route path={ROUTES.RECIPES} element={<RecipesPage />} />
+          <Route path={ROUTES.CREATE_RECIPE} element={<CreatePage />} />
           <Route
-            path="/grocery-list/:id"
+            path={ROUTES.RECIPE_DETAILS_PATTERN}
+            element={<RecipeDetailsPage />}
+          />
+          <Route path={ROUTES.GROCERY_LISTS} element={<GroceryListsPage />} />
+          <Route
+            path={ROUTES.GROCERY_LIST_DETAILS_PATTERN}
             element={<GroceryListDetailsPage />}
           />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
+          <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
         </Routes>
       </div>
       <Footer />

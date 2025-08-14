@@ -1,6 +1,7 @@
 import { ArrowLeft, Clock, Users, Image as ImageIcon } from "lucide-react";
 import { Link } from "react-router";
 import { useRecipeDetails } from "../../hooks/recipes";
+import { ROUTES } from "../../utils/constants";
 
 interface RecipeDetailsProps {
   recipeId: string;
@@ -9,7 +10,7 @@ interface RecipeDetailsProps {
 const BackButton = () => {
   return (
     <Link
-      to={"/recipes"}
+      to={ROUTES.RECIPES}
       className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors cursor-pointer w-fit"
     >
       <ArrowLeft className="h-4 w-4" /> Back to Recipes
