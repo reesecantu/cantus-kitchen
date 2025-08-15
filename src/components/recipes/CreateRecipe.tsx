@@ -82,21 +82,51 @@ export const CreateRecipe = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name.trim() || formData.steps.length === 0) {
-      alert("Please fill in recipe name and at least one step");
-      return;
+    // Collect all missing fields
+    const missingFields: string[] = [];
+
+    // Check recipe name
+    if (!formData.name.trim()) {
+      missingFields.push("Recipe name");
     }
 
-    // Check if any steps are empty
-    const hasEmptySteps = formData.steps.some((step) => !step.trim());
-    if (hasEmptySteps) {
-      alert("Please fill in all steps or remove empty ones");
-      return;
+    // Check ingredients
+    if (formData.ingredients.length === 0) {
+      missingFields.push("Ingredients");
     }
 
-    // validate servings
+    // Check steps
+    if (formData.steps.length === 0) {
+      missingFields.push("Steps");
+    } else {
+      // Check if any steps are empty
+      const hasEmptySteps = formData.steps.some((step) => !step.trim());
+      if (hasEmptySteps) {
+        missingFields.push("Complete all steps (some steps are empty)");
+      }
+    }
+
+    // Check servings (though this should be auto-handled by the input)
     if (formData.servings < 1 || formData.servings > 300) {
-      alert("Servings must be between 1 and 300");
+      missingFields.push("Valid servings (1-300)");
+    }
+
+    // Check for incomplete ingredients (optional but helpful)
+    const incompleteIngredients = formData.ingredients.filter(
+      (ing) => !ing.unit_id
+    );
+    if (incompleteIngredients.length > 0) {
+      missingFields.push(
+        `Unit for ${incompleteIngredients.length} ingredient(s)`
+      );
+    }
+
+    // If there are missing fields, show detailed alert
+    if (missingFields.length > 0) {
+      const message = `Missing the following fields:\n\n• ${missingFields.join(
+        "\n• "
+      )}`;
+      alert(message);
       return;
     }
 
