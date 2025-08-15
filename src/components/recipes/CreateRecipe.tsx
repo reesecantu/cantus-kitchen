@@ -42,6 +42,8 @@ export const CreateRecipe = () => {
     };
   });
 
+  const [formKey, setFormKey] = useState(0);
+
   const { data: ingredients = [], isLoading: ingredientsLoading } =
     useIngredients();
   const createRecipeMutation = useCreateRecipe();
@@ -54,11 +56,13 @@ export const CreateRecipe = () => {
         formData.name ||
         formData.steps.length > 0 ||
         formData.ingredients.length > 0 ||
-        formData.image_url
+        formData.image_url ||
+        formData.image_file
       ) {
         const dataToSave = {
           name: formData.name,
           steps: formData.steps,
+          image_file: formData.image_file,
           image_url: formData.image_url,
           ingredients: formData.ingredients,
           servings: formData.servings,
@@ -125,7 +129,8 @@ export const CreateRecipe = () => {
       };
 
       setFormData(resetData);
-      clearSavedData(); // Clear localStorage
+      clearSavedData();
+      setFormKey((prev) => prev + 1);
 
       alert("Recipe created successfully!");
     } catch (error) {
@@ -134,7 +139,6 @@ export const CreateRecipe = () => {
     }
   };
 
-  // Optional: Clear form handler
   const handleClearForm = () => {
     if (confirm("Are you sure you want to clear all form data?")) {
       const resetData = {
@@ -147,6 +151,7 @@ export const CreateRecipe = () => {
       };
       setFormData(resetData);
       clearSavedData();
+      setFormKey((prev) => prev + 1);
     }
   };
 
@@ -212,6 +217,7 @@ export const CreateRecipe = () => {
 
         {/* Image Upload - Url or file */}
         <ImageUpload
+          key={formKey}
           imageFile={formData.image_file}
           imageUrl={formData.image_url}
           onImageChange={(file) =>
