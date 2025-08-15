@@ -77,7 +77,7 @@ export const useCreateRecipe = () => {
         const recipeIngredients = ingredients.map(ing => ({
           recipe_id: recipeData.id,
           ingredient_id: ing.ingredient_id,
-          unit_id: ing.unit_id || null,
+          unit_id: ing.unit_id,
           unit_amount: ing.unit_amount || null, 
           note: ing.note || null,
         }));

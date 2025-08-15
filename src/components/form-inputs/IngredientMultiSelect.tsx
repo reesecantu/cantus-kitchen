@@ -18,7 +18,7 @@ export const IngredientMultiSelect = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null); // Add this ref
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const { data: units = [] } = useUnits();
 
@@ -45,7 +45,6 @@ export const IngredientMultiSelect = ({
   // Focus search input when dropdown opens
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
-      // Small delay to ensure the dropdown is rendered
       setTimeout(() => {
         searchInputRef.current?.focus();
       }, 0);
@@ -61,11 +60,14 @@ export const IngredientMultiSelect = ({
   );
 
   const addIngredient = (ingredient: Tables<"ingredients">) => {
+    // Set default unit to the first unit in the list
+    const defaultUnit = units[0];
+
     const newIngredient: RecipeIngredient = {
       ingredient_id: ingredient.id,
       ingredient_name: ingredient.name,
-      unit_id: null,
-      unit_name: "",
+      unit_id: defaultUnit?.id || null,
+      unit_name: defaultUnit?.name || "",
       unit_amount: undefined,
       note: "",
     };
