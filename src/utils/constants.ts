@@ -59,3 +59,41 @@ export const ROUTES = {
   RECIPE_DETAILS: (id: string) => `/recipe/${id}`,
   GROCERY_LIST_DETAILS: (id: string) => `/grocery-list/${id}`,
 } as const;
+
+export const COLORS = {
+  // Text colors
+  TEXT_PRIMARY: "text-gray-800",
+  TEXT_PRIMARY_HOVER: "hover:text-gray-900",
+  TEXT_SECONDARY: "text-gray-600",
+
+  // Background colors
+  BG_PRIMARY: "bg-slate-50",
+  BG_WHITE: "bg-white",
+  BG_GRAY_LIGHT: "bg-gray-50",
+  BG_GRAY_MEDIUM: "bg-gray-100",
+
+  // Button colors
+  BUTTON_PRIMARY: "bg-gray-600",
+  BUTTON_PRIMARY_HOVER: "hover:bg-gray-700",
+  BUTTON_SECONDARY: "bg-gray-100",
+  BUTTON_SECONDARY_HOVER: "hover:bg-gray-200",
+
+  // Accent colors
+  ACCENT_BG: "bg-amber-200",
+  ACCENT_BG_HOVER: "hover:bg-amber-300",
+  ACCENT_TEXT: "text-amber-800",
+
+  // Border colors
+  BORDER_PRIMARY: "border-gray-600",
+  BORDER_LIGHT: "border-gray-200",
+  BORDER_MEDIUM: "border-gray-300",
+
+  // State colors
+  SUCCESS: "bg-green-600",
+  SUCCESS_HOVER: "hover:bg-green-700",
+  WARNING: "bg-yellow-500",
+  ERROR: "bg-red-500",
+
+  // Focus states
+  FOCUS_RING: "focus:ring-2 focus:ring-blue-500",
+} as const;
