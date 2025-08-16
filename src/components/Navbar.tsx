@@ -209,7 +209,7 @@ export const Navbar = () => {
         {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-200">
-            <div className="px-2 space-y-1 text-gray-600font-medium">
+            <div className="px-2 space-y-1 text-gray-600 font-medium">
               <Link
                 to={ROUTES.HOME}
                 onClick={closeMobileMenu}
