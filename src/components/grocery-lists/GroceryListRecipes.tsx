@@ -75,40 +75,67 @@ export const GroceryListRecipes = ({
       {showAddRecipe && (
         <div className="mb-4 p-4 bg-gray-50 rounded-lg">
           <h3 className="text-md font-medium mb-3">Add Recipe to List</h3>
-          <form onSubmit={handleAddRecipe} className="flex gap-2 flex-wrap">
-            <select
-              value={selectedRecipeId}
-              onChange={(e) => setSelectedRecipeId(e.target.value)}
-              className="flex-1 min-w-[200px] px-3 py-2 border border-gray-300 rounded-md"
-              required
-            >
-              <option value="">Select a recipe...</option>
-              {availableRecipes.map((recipe) => (
-                <option key={recipe.id} value={recipe.id}>
-                  {recipe.name}
-                </option>
-              ))}
-            </select>
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600">Servings:</label>
-              <input
-                type="number"
-                step="1"
-                min="1"
-                value={servingsMultiplier}
-                onChange={(e) =>
-                  setServingsMultiplier(parseFloat(e.target.value) || 1)
-                }
-                className="w-20 px-3 py-2 border border-gray-300 rounded-md"
-              />
+          <form onSubmit={handleAddRecipe} className="space-y-4">
+            <div className="flex gap-4 flex-wrap items-end">
+              {/* Simple Select Dropdown */}
+              <div className="flex-1 min-w-[250px]">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Recipe
+                </label>
+                <select
+                  value={selectedRecipeId}
+                  onChange={(e) => setSelectedRecipeId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                >
+                  <option value="">Select a recipe...</option>
+                  {availableRecipes.map((recipe) => (
+                    <option key={recipe.id} value={recipe.id}>
+                      {recipe.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Servings Input */}
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-600 whitespace-nowrap">
+                  Servings:
+                </label>
+                <input
+                  type="number"
+                  step="1"
+                  min="1"
+                  value={servingsMultiplier}
+                  onChange={(e) =>
+                    setServingsMultiplier(parseFloat(e.target.value) || 1)
+                  }
+                  className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
-            <button
-              type="submit"
-              disabled={addRecipeMutation.isPending}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {addRecipeMutation.isPending ? "Adding..." : "Add"}
-            </button>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={addRecipeMutation.isPending || !selectedRecipeId}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {addRecipeMutation.isPending ? "Adding..." : "Add Recipe"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddRecipe(false);
+                  setSelectedRecipeId("");
+                  setServingsMultiplier(1);
+                }}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
           </form>
         </div>
       )}
