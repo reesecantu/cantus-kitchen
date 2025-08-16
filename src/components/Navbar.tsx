@@ -39,7 +39,7 @@ export const Navbar = () => {
             <div className="md:hidden">
               <button
                 onClick={toggleMobileMenu}
-                className="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                className="p-2 rounded-md text-gray-800 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
                 aria-label="Open main menu"
               >
                 <svg
