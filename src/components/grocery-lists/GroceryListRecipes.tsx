@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import { useRecipes } from "../../hooks/recipes";
 import {
   useAddRecipeToGroceryList,
   useRemoveRecipeFromGroceryList,
 } from "../../hooks/grocery-lists";
+import { SearchableDropdown } from "../form-inputs/SearchableDropdown";
 import type { GroceryListFull } from "../../types/grocery-list";
+import type { Tables } from "../../types/database-types";
 
 interface GroceryListRecipesProps {
   groceryList: GroceryListFull;
@@ -19,20 +21,31 @@ export const GroceryListRecipes = ({
   const removeRecipeMutation = useRemoveRecipeFromGroceryList();
 
   const [showAddRecipe, setShowAddRecipe] = useState(false);
-  const [selectedRecipeId, setSelectedRecipeId] = useState<string>("");
+  const [selectedRecipe, setSelectedRecipe] = useState<
+    Tables<"recipes"> | undefined
+  >();
   const [servingsMultiplier, setServingsMultiplier] = useState(1);
+
+  // Update servings when recipe is selected
+  useEffect(() => {
+    if (selectedRecipe && selectedRecipe.servings) {
+      setServingsMultiplier(selectedRecipe.servings);
+    } else {
+      setServingsMultiplier(1);
+    }
+  }, [selectedRecipe]);
 
   const handleAddRecipe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRecipeId) return;
+    if (!selectedRecipe) return;
 
     try {
       await addRecipeMutation.mutateAsync({
         listId: groceryList.id,
-        recipeId: selectedRecipeId,
+        recipeId: selectedRecipe.id,
         servingsMultiplier,
       });
-      setSelectedRecipeId("");
+      setSelectedRecipe(undefined);
       setServingsMultiplier(1);
       setShowAddRecipe(false);
     } catch (error) {
@@ -59,7 +72,7 @@ export const GroceryListRecipes = ({
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-gray-800">
           Recipes ({groceryList.recipes.length})
         </h2>
         <button
@@ -77,24 +90,19 @@ export const GroceryListRecipes = ({
           <h3 className="text-md font-medium mb-3">Add Recipe to List</h3>
           <form onSubmit={handleAddRecipe} className="space-y-4">
             <div className="flex gap-4 flex-wrap items-end">
-              {/* Simple Select Dropdown */}
+              {/* Searchable Recipe Dropdown */}
               <div className="flex-1 min-w-[250px]">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Recipe
-                </label>
-                <select
-                  value={selectedRecipeId}
-                  onChange={(e) => setSelectedRecipeId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  required
-                >
-                  <option value="">Select a recipe...</option>
-                  {availableRecipes.map((recipe) => (
-                    <option key={recipe.id} value={recipe.id}>
-                      {recipe.name}
-                    </option>
-                  ))}
-                </select>
+                <SearchableDropdown
+                  label="Recipe"
+                  placeholder="Select a recipe..."
+                  searchPlaceholder="Search recipes..."
+                  items={availableRecipes}
+                  selectedItem={selectedRecipe}
+                  onItemSelect={setSelectedRecipe}
+                  getItemId={(recipe) => recipe.id}
+                  getItemLabel={(recipe) => recipe.name}
+                  mode="single"
+                />
               </div>
 
               {/* Servings Input */}
@@ -119,7 +127,7 @@ export const GroceryListRecipes = ({
             <div className="flex gap-2">
               <button
                 type="submit"
-                disabled={addRecipeMutation.isPending || !selectedRecipeId}
+                disabled={addRecipeMutation.isPending || !selectedRecipe}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {addRecipeMutation.isPending ? "Adding..." : "Add Recipe"}
@@ -128,7 +136,7 @@ export const GroceryListRecipes = ({
                 type="button"
                 onClick={() => {
                   setShowAddRecipe(false);
-                  setSelectedRecipeId("");
+                  setSelectedRecipe(undefined);
                   setServingsMultiplier(1);
                 }}
                 className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
