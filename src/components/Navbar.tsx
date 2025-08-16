@@ -3,7 +3,7 @@ import { useState } from "react";
 import logoLongBlue from "../assets/logos/long_logo_blue.png";
 import stackedLogoBlue from "../assets/logos/stacked_logo_blue.png";
 import { useAuth } from "../contexts/AuthContext";
-import { ROUTES } from "../utils/constants";
+import { ROUTES, COLORS } from "../utils/constants";
 
 export const Navbar = () => {
   const { user, signOut } = useAuth();
@@ -32,14 +32,16 @@ export const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 z-40 w-full backdrop-blur-lg shadow-md bg-slate-50 border-b-2 border-gray-600">
+      <nav
+        className={`fixed top-0 z-40 w-full backdrop-blur-lg shadow-md ${COLORS.BG_PRIMARY} border-b-2 ${COLORS.BORDER_PRIMARY}`}
+      >
         <div className="mx-auto max-w-7xl md:-mb-3">
           <div className="flex items-center mt-1.5 justify-between px-4 md:px-8">
             {/* Mobile Left - Hamburger Menu */}
             <div className="md:hidden">
               <button
                 onClick={toggleMobileMenu}
-                className="p-2 rounded-md text-gray-800 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                className={`p-2 rounded-md ${COLORS.TEXT_PRIMARY} ${COLORS.TEXT_PRIMARY_HOVER} ${COLORS.BUTTON_SECONDARY_HOVER} focus:outline-none ${COLORS.FOCUS_RING} focus:ring-inset`}
                 aria-label="Open main menu"
               >
                 <svg
@@ -101,17 +103,31 @@ export const Navbar = () => {
             </div>
 
             {/* Desktop Center - Navigation */}
-            <div className="hidden md:flex items-center md:space-x-6 lg:space-x-12 text-gray-600 hover:text-gray-700 text-lg font-semibold">
-              <Link to={ROUTES.HOME} className=" transition-colors">
+            <div
+              className={`hidden md:flex items-center md:space-x-6 lg:space-x-12 ${COLORS.TEXT_PRIMARY} text-lg font-semibold`}
+            >
+              <Link
+                to={ROUTES.HOME}
+                className={`${COLORS.TEXT_PRIMARY_HOVER} transition-colors`}
+              >
                 Home
               </Link>
-              <Link to={ROUTES.RECIPES} className="transition-colors">
+              <Link
+                to={ROUTES.RECIPES}
+                className={`${COLORS.TEXT_PRIMARY_HOVER} transition-colors`}
+              >
                 Recipes
               </Link>
-              <Link to={ROUTES.GROCERY_LISTS} className="transition-colors">
+              <Link
+                to={ROUTES.GROCERY_LISTS}
+                className={`${COLORS.TEXT_PRIMARY_HOVER} transition-colors`}
+              >
                 Grocery Lists
               </Link>
-              <Link to={ROUTES.CREATE_RECIPE} className=" transition-colors">
+              <Link
+                to={ROUTES.CREATE_RECIPE}
+                className={`${COLORS.TEXT_PRIMARY_HOVER} transition-colors`}
+              >
                 Create
               </Link>
             </div>
@@ -123,7 +139,7 @@ export const Navbar = () => {
                 {user ? (
                   <button
                     onClick={signOut}
-                    className="bg-gray-600 hover:bg-gray-700 text-white px-2 py-.5 rounded transition-colors text-lg font-medium"
+                    className={`${COLORS.BUTTON_PRIMARY} ${COLORS.BUTTON_PRIMARY_HOVER} text-white px-2 py-.5 rounded transition-colors text-lg font-medium`}
                   >
                     Logout
                   </button>
@@ -131,14 +147,16 @@ export const Navbar = () => {
                   <div className="flex items-center space-x-2">
                     <Link
                       to={ROUTES.SIGN_IN}
-                      className="text-lg text-gray-600 hover:text-gray-700 transition-colors font-medium"
+                      className={`text-lg ${COLORS.TEXT_PRIMARY} ${COLORS.TEXT_PRIMARY_HOVER} transition-colors font-medium`}
                     >
                       Sign in
                     </Link>
-                    <span className="text-gray-600 select-none">|</span>
+                    <span className={`${COLORS.TEXT_PRIMARY} select-none`}>
+                      |
+                    </span>
                     <Link
                       to={ROUTES.SIGN_UP}
-                      className="text-lg bg-amber-200 hover:bg-amber-300 text-amber-800 px-1 rounded transition-colors font-medium"
+                      className={`text-lg ${COLORS.ACCENT_BG} ${COLORS.ACCENT_BG_HOVER} ${COLORS.ACCENT_TEXT} px-1 rounded transition-colors font-medium`}
                     >
                       Sign up
                     </Link>
@@ -150,7 +168,7 @@ export const Navbar = () => {
               <div className="md:hidden relative">
                 <button
                   onClick={toggleUserMenu}
-                  className="p-2 rounded-md text-gray-600 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                  className={`p-2 rounded-md ${COLORS.TEXT_PRIMARY} ${COLORS.TEXT_PRIMARY_HOVER} ${COLORS.BUTTON_SECONDARY_HOVER} focus:outline-none ${COLORS.FOCUS_RING} focus:ring-inset`}
                   aria-label="User menu"
                 >
                   <svg
@@ -170,14 +188,16 @@ export const Navbar = () => {
 
                 {/* Mobile User Dropdown */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border overflow-hidden">
+                  <div
+                    className={`absolute right-0 mt-2 w-48 ${COLORS.BG_WHITE} rounded-md shadow-lg z-50 border overflow-hidden`}
+                  >
                     {user ? (
                       <button
                         onClick={() => {
                           signOut();
                           closeUserMenu();
                         }}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                        className={`block w-full text-left px-4 py-2 text-sm ${COLORS.TEXT_PRIMARY} ${COLORS.BUTTON_SECONDARY_HOVER}`}
                       >
                         Logout
                       </button>
@@ -186,14 +206,14 @@ export const Navbar = () => {
                         <Link
                           to={ROUTES.SIGN_IN}
                           onClick={closeUserMenu}
-                          className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                          className={`block px-4 py-2 text-sm ${COLORS.TEXT_PRIMARY} ${COLORS.BUTTON_SECONDARY_HOVER}`}
                         >
                           Sign in
                         </Link>
                         <Link
                           to={ROUTES.SIGN_UP}
                           onClick={closeUserMenu}
-                          className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                          className={`block px-4 py-2 text-sm ${COLORS.TEXT_PRIMARY} ${COLORS.BUTTON_SECONDARY_HOVER}`}
                         >
                           Sign up
                         </Link>
@@ -208,33 +228,37 @@ export const Navbar = () => {
 
         {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200">
-            <div className="px-2 space-y-1 text-gray-600 font-medium">
+          <div
+            className={`md:hidden ${COLORS.BG_WHITE} border-t ${COLORS.BORDER_LIGHT}`}
+          >
+            <div
+              className={`px-2 space-y-1 ${COLORS.TEXT_PRIMARY} font-medium`}
+            >
               <Link
                 to={ROUTES.HOME}
                 onClick={closeMobileMenu}
-                className="block px-3 py-2 rounded-md text-base hover:text-gray-700 hover:bg-gray-50 "
+                className={`block px-3 py-2 rounded-md text-base ${COLORS.TEXT_PRIMARY_HOVER} ${COLORS.BUTTON_SECONDARY_HOVER}`}
               >
                 Home
               </Link>
               <Link
                 to={ROUTES.RECIPES}
                 onClick={closeMobileMenu}
-                className="block px-3 py-2 rounded-md text-base hover:text-gray-700 hover:bg-gray-50 "
+                className={`block px-3 py-2 rounded-md text-base ${COLORS.TEXT_PRIMARY_HOVER} ${COLORS.BUTTON_SECONDARY_HOVER}`}
               >
                 Recipes
               </Link>
               <Link
                 to={ROUTES.GROCERY_LISTS}
                 onClick={closeMobileMenu}
-                className="block px-3 py-2 rounded-md text-base hover:text-gray-700 hover:bg-gray-50 "
+                className={`block px-3 py-2 rounded-md text-base ${COLORS.TEXT_PRIMARY_HOVER} ${COLORS.BUTTON_SECONDARY_HOVER}`}
               >
                 Grocery Lists
               </Link>
               <Link
                 to={ROUTES.CREATE_RECIPE}
                 onClick={closeMobileMenu}
-                className="block px-3 py-2 rounded-md text-base hover:text-gray-700 hover:bg-gray-50 "
+                className={`block px-3 py-2 rounded-md text-base ${COLORS.TEXT_PRIMARY_HOVER} ${COLORS.BUTTON_SECONDARY_HOVER}`}
               >
                 Create
               </Link>
