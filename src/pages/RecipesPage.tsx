@@ -1,12 +1,17 @@
 import { RecipeList } from "../components/recipes/RecipeList";
+import { COLORS } from "../utils/constants";
 
 export const RecipesPage = () => {
   return (
     <div className="mx-10 md:mx-20 lg:mx-40 my-20">
-      <h1 className="text-4xl md:text-5xl font-bold text-gray-600 mb-2">
+      <h1
+        className={`text-4xl md:text-5xl font-bold ${COLORS.TEXT_PRIMARY} mb-2`}
+      >
         Recipes
       </h1>
-      <p className="text-md text-gray-600 font-medium w-full md:w-[80%]">
+      <p
+        className={`text-md ${COLORS.TEXT_SECONDARY} font-medium w-full md:w-[80%]`}
+      >
         Explore the recipes found on Cantu's Kitchen and used in my own life.
         Sign in to add and view your own recipes in addition to the ones you
         find here. Every recipe can be used in the grocery list generator. Check
