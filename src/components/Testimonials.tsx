@@ -276,13 +276,13 @@ export const Testimonials = () => {
           </button>
         </div>
 
-        <div className="mt-8 min-h-[3rem] flex items-center justify-center">
+        <div className="mt-3 min-h-[3rem] flex items-center justify-center">
           <blockquote className="text-center text-lg text-gray-700 font-medium max-w-2xl px-4 transition-all duration-500">
             {testimonials[realIndex]?.text}
           </blockquote>
         </div>
 
-        <div className="flex justify-center items-center gap-2 mt-6">
+        <div className="flex justify-center items-center gap-2 mt-3">
           {testimonials.map((_, index) => (
             <button
               key={index}
