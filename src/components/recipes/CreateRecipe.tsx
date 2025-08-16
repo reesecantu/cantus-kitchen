@@ -271,13 +271,34 @@ export const CreateRecipe = () => {
             id="servings"
             min="1"
             max="300"
-            value={formData.servings}
+            inputMode="numeric"
+            value={formData.servings === 0 ? "" : formData.servings}
             onChange={(e) => {
-              const value = parseInt(e.target.value) || 1;
-              setFormData({
-                ...formData,
-                servings: Math.max(1, Math.min(300, value)),
-              });
+              const value = e.target.value;
+              if (value === "") {
+                // Allow empty field temporarily
+                setFormData({
+                  ...formData,
+                  servings: 0, // Use 0 to represent empty state
+                });
+              } else {
+                const numValue = parseInt(value);
+                if (!isNaN(numValue)) {
+                  setFormData({
+                    ...formData,
+                    servings: Math.max(1, Math.min(300, numValue)),
+                  });
+                }
+              }
+            }}
+            onBlur={() => {
+              // Ensure valid value when field loses focus
+              if (formData.servings === 0) {
+                setFormData({
+                  ...formData,
+                  servings: 1,
+                });
+              }
             }}
             className="w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             required

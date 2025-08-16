@@ -101,6 +101,7 @@ export const IngredientMultiSelect = ({
                     type="number"
                     step="0.01"
                     min="0"
+                    inputMode="numeric"
                     placeholder=""
                     value={ingredient.unit_amount || ""}
                     onChange={(e) =>
@@ -108,7 +109,7 @@ export const IngredientMultiSelect = ({
                         unit_amount: parseFloat(e.target.value) || 0,
                       })
                     }
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full px-2 py-1 h-8 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
 
@@ -124,7 +125,7 @@ export const IngredientMultiSelect = ({
                         e.target.value || null
                       )
                     }
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-2 py-1 h-8 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {units.map((unit) => (
                       <option key={unit.id} value={unit.id}>
@@ -149,7 +150,7 @@ export const IngredientMultiSelect = ({
                         note: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-1 h-8 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
