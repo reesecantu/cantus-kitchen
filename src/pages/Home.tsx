@@ -1,5 +1,4 @@
-// import kitchen from "../assets/kitchen-amber.svg";
-
+import { useState, useEffect } from "react";
 import {
   CookingPot,
   NotepadText,
@@ -10,7 +9,30 @@ import { Link } from "react-router";
 import { Testimonials } from "../components/Testimonials";
 import { ROUTES, COLORS } from "../utils/constants";
 
+// Photos for about section
+import reesePhoto1 from "../assets/reese-squares/reese1.jpg";
+import reesePhoto2 from "../assets/reese-squares/reese2.jpg";
+import reesePhoto3 from "../assets/reese-squares/reese3.jpg";
+import reesePhoto4 from "../assets/reese-squares/reese4.jpg";
+import reesePhoto5 from "../assets/reese-squares/reese5.jpg";
+import reesePhoto6 from "../assets/reese-squares/reese6.jpg";
+
 export const Home = () => {
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+
+  const photos = [reesePhoto1, reesePhoto2, reesePhoto3, reesePhoto4, reesePhoto5, reesePhoto6]; 
+
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPhotoIndex((prevIndex) =>
+        prevIndex === photos.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 6000); 
+
+    return () => clearInterval(interval);
+  }, [photos.length]);
+
   const scrollToAbout = () => {
     const aboutSection = document.getElementById("about-section");
     if (aboutSection) {
@@ -104,8 +126,8 @@ export const Home = () => {
               <p
                 className={`${COLORS.TEXT_PRIMARY} text-center leading-relaxed`}
               >
-                Automatically create a shopping list from your
-                selected recipes with custom servings amounts
+                Automatically create a shopping list from your selected recipes
+                with custom servings amounts
               </p>
             </div>
 
@@ -124,8 +146,8 @@ export const Home = () => {
               <p
                 className={`${COLORS.TEXT_PRIMARY} text-center leading-relaxed`}
               >
-                Items organized by grocery store aisle and sub-aisle position for the most efficient
-                shopping experience
+                Items organized by grocery store aisle and sub-aisle position
+                for the most efficient shopping experience
               </p>
             </div>
           </div>
@@ -181,8 +203,8 @@ export const Home = () => {
                 Flexible Serving Sizes
               </h3>
               <p className={COLORS.TEXT_PRIMARY}>
-                No more math or measuring mishaps - simply select your serving size 
-                and we'll adjust every ingredient automatically
+                No more math or measuring mishaps - simply select your serving
+                size and we'll adjust every ingredient automatically
               </p>
             </div>
             <div className="text-left">
@@ -202,27 +224,46 @@ export const Home = () => {
 
       {/* About Section */}
       <div
-  id="about-section"
-  className="py-20 px-6 sm:px-10 lg:px-20 bg-gradient-to-br from-blue-400 to-blue-600"
->
-  <div className="max-w-4xl mx-auto text-center">
-    <h2 className="text-3xl lg:text-4xl font-bold text-white mb-8">
-      The Cantu Behind the Kitchen
-    </h2>
-    <p className="text-xl text-blue-50 leading-relaxed mb-8">
-      Born from my love of cooking and a desire to make meal planning
-      effortless, Cantu's Kitchen helps home cooks organize their recipes
-      and streamline their grocery shopping experience.
-    </p>
-    <p className="text-lg text-blue-100 leading-relaxed">
-      Whether you're meal prepping for the week or planning a special
-      dinner, our platform makes it easy to go from inspiration to
-      organized shopping list in minutes.
-    </p>
-  </div>
-</div>
+        id="about-section"
+        className="py-20 px-6 sm:px-10 lg:px-20 bg-gradient-to-br from-blue-400 to-blue-600"
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-8">
+            {/* Photo Slideshow - Shows on top on mobile, right side on desktop */}
+            <div className="order-1 lg:order-2 flex justify-center">
+              <div className="relative w-80 h-80 rounded-2xl overflow-hidden shadow-md">
+                {photos.map((photo, index) => (
+                  <img
+                    key={index}
+                    src={photo}
+                    alt={`Reese photo ${index + 1}`}
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+                      index === currentPhotoIndex ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
 
-
+            {/* Text Content - Shows on bottom on mobile, left side on desktop */}
+            <div className="order-2 lg:order-1 text-left">
+              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-8">
+                The Cantu Behind the Kitchen
+              </h2>
+              <p className="text-xl text-blue-50 leading-relaxed mb-8">
+                Born from my love of cooking and a desire to make meal planning
+                effortless, Cantu's Kitchen helps home cooks organize their
+                recipes and streamline their grocery shopping experience.
+              </p>
+              <p className="text-lg text-blue-100 leading-relaxed">
+                Whether you're meal prepping for the week or planning a special
+                dinner, our platform makes it easy to go from inspiration to
+                organized shopping list in minutes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
