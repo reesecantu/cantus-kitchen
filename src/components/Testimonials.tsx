@@ -196,7 +196,7 @@ export const Testimonials = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="relative">
           {/* Responsive fixed height to prevent squashed images */}
-          <div className="relative mx-auto overflow-hidden h-[260px] sm:h-[320px] md:h-[420px] lg:h-[480px]">
+          <div className="relative mx-auto overflow-hidden h-[260px] sm:h-[320px] md:h-[420px]">
             <div
               className={`flex items-center h-full ${
                 transition
