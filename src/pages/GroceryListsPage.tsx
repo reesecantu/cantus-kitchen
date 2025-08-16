@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useCreateGroceryList } from "../hooks/grocery-lists";
 import { Plus } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { COLORS } from "../utils/constants";
 
 export const GroceryListsPage = () => {
   const createGroceryListMutation = useCreateGroceryList();
@@ -31,10 +32,10 @@ export const GroceryListsPage = () => {
     <div className="mx-10 md:mx-20 lg:mx-40 mt-20">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-700 mb-2">
+          <h1 className={`text-4xl md:text-5xl font-bold ${COLORS.TEXT_PRIMARY} mb-2`}>
             Grocery Lists
           </h1>
-          <p className="text-md text-gray-600 font-medium w-full md:w-[80%]">
+          <p className={`text-md ${COLORS.TEXT_SECONDARY} font-medium w-full md:w-[80%]`}>
             On this page, you can access, edit, create, and delete your grocery
             lists
           </p>
