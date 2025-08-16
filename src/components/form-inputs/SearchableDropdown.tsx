@@ -1,4 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useImperativeHandle,
+} from "react";
 import { ChevronDown, Plus, Check } from "lucide-react";
 
 interface SearchableDropdownProps<T> {
@@ -17,25 +22,41 @@ interface SearchableDropdownProps<T> {
   renderSelectedItem?: (item: T, onRemove: () => void) => React.ReactNode;
 }
 
-export const SearchableDropdown = <T,>({
-  label,
-  placeholder = "Select item...",
-  searchPlaceholder = "Search items...",
-  items,
-  selectedItem,
-  selectedItems = [],
-  onItemSelect,
-  getItemId,
-  getItemLabel,
-  renderSelectedItem,
-  className = "",
-  disabled = false,
-  mode = "single",
-}: SearchableDropdownProps<T>) => {
+export interface SearchableDropdownRef {
+  openAndFocus: () => void;
+}
+
+export const SearchableDropdown = <T,>(
+  props: SearchableDropdownProps<T> & { ref?: React.Ref<SearchableDropdownRef> }
+) => {
+  const {
+    label,
+    placeholder = "Select item...",
+    searchPlaceholder = "Search items...",
+    items,
+    selectedItem,
+    selectedItems = [],
+    onItemSelect,
+    getItemId,
+    getItemLabel,
+    renderSelectedItem,
+    className = "",
+    disabled = false,
+    mode = "single",
+  } = props;
+
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Expose methods to parent component
+  useImperativeHandle(props.ref, () => ({
+    openAndFocus: () => {
+      setIsOpen(true);
+      // Focus will happen automatically due to the useEffect below
+    },
+  }));
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -204,3 +225,5 @@ export const SearchableDropdown = <T,>({
     </div>
   );
 };
+
+SearchableDropdown.displayName = "SearchableDropdown";
