@@ -20,15 +20,21 @@ import reesePhoto6 from "../assets/reese-squares/reese6.jpg";
 export const Home = () => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
-  const photos = [reesePhoto1, reesePhoto2, reesePhoto3, reesePhoto4, reesePhoto5, reesePhoto6]; 
-
+  const photos = [
+    reesePhoto1,
+    reesePhoto2,
+    reesePhoto3,
+    reesePhoto4,
+    reesePhoto5,
+    reesePhoto6,
+  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentPhotoIndex((prevIndex) =>
         prevIndex === photos.length - 1 ? 0 : prevIndex + 1
       );
-    }, 6000); 
+    }, 6000);
 
     return () => clearInterval(interval);
   }, [photos.length]);
@@ -247,18 +253,20 @@ export const Home = () => {
 
             {/* Text Content - Shows on bottom on mobile, left side on desktop */}
             <div className="order-2 lg:order-1 text-left">
-              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-8">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-8">
                 The Cantu Behind the Kitchen
               </h2>
-              <p className="text-xl text-blue-50 leading-relaxed mb-8">
+              <p className="text-md md:text-xl text-blue-50 leading-relaxed mb-8">
                 Born from my love of cooking and a desire to make meal planning
                 effortless, Cantu's Kitchen helps home cooks organize their
                 recipes and streamline their grocery shopping experience.
               </p>
-              <p className="text-lg text-blue-100 leading-relaxed">
-                Whether you're meal prepping for the week or planning a special
-                dinner, our platform makes it easy to go from inspiration to
-                organized shopping list in minutes.
+              <p className="text-md md:text-xl text-blue-50 leading-relaxed mb-8">
+                I found myself delaying my grocery trips because the barrior of
+                the 20 minutes it takes to build a comprehensive list. So, I
+                dedicated over two months of continuous work (plus I'll keep
+                tinkering with this) in order to fix it. I hope to spare you my
+                same fate.
               </p>
             </div>
           </div>
