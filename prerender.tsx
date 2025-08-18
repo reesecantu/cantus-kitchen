@@ -12,13 +12,20 @@ export async function prerender() {
     },
   });
 
-  const html = renderToString(
-    <QueryClientProvider client={queryClient}>
-      <StaticRouter location="/">
-        <Home />
-      </StaticRouter>
-    </QueryClientProvider>
-  );
+  try {
+    const html = renderToString(
+      <QueryClientProvider client={queryClient}>
+        <StaticRouter location="/">
+          <Home />
+        </StaticRouter>
+      </QueryClientProvider>
+    );
 
-  return { html };
+    queryClient.clear();
+
+    return { html };
+  } catch (error) {
+    console.error("Prerender error:", error);
+    return { html: "<div>Prerender failed</div>" };
+  }
 }

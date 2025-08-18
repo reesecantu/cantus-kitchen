@@ -30,6 +30,9 @@ export const Home = () => {
   ];
 
   useEffect(() => {
+    // Don't run timers during SSR
+    if (typeof window === "undefined") return;
+
     const interval = setInterval(() => {
       setCurrentPhotoIndex((prevIndex) =>
         prevIndex === photos.length - 1 ? 0 : prevIndex + 1
@@ -40,6 +43,9 @@ export const Home = () => {
   }, [photos.length]);
 
   const scrollToAbout = () => {
+    // Guard against SSR
+    if (typeof window === "undefined") return;
+
     const aboutSection = document.getElementById("about-section");
     if (aboutSection) {
       aboutSection.scrollIntoView({
