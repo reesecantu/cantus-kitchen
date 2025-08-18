@@ -14,6 +14,7 @@ import { ResetPassword } from "./pages/ResetPassword";
 import { Footer } from "./components/Footer";
 import { ROUTES } from "./utils/constants";
 import { isAuthRoute } from "./utils/routeHelper";
+import { Analytics } from "@vercel/analytics/react";
 
 function App() {
   const location = useLocation();
@@ -54,6 +55,7 @@ function App() {
         </Routes>
       </div>
       <Footer />
+      <Analytics />
     </div>
   );
 }
