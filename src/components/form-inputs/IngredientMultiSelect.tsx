@@ -95,21 +95,19 @@ export const IngredientMultiSelect = ({
               <div className="grid grid-cols-12 gap-3 items-end">
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Amount
+                  Amount
                   </label>
                   <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    inputMode="numeric"
-                    placeholder=""
-                    value={ingredient.unit_amount || ""}
-                    onChange={(e) =>
-                      updateIngredient(ingredient.ingredient_id, {
-                        unit_amount: parseFloat(e.target.value) || 0,
-                      })
-                    }
-                    className="w-full px-2 py-1 h-8 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  type="text"
+                  inputMode="decimal"
+                  placeholder=""
+                  value={ingredient.unit_amount || ""}
+                  onChange={(e) =>
+                    updateIngredient(ingredient.ingredient_id, {
+                    unit_amount: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                  className="w-full px-2 py-1 h-8 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
 
