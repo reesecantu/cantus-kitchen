@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Lily from "../assets/testimonials/Lily.png";
 import Fam from "../assets/testimonials/Fam.png";
+import Jewel from "../assets/testimonials/Jewel.png";
+import Susie from "../assets/testimonials/Susie.png";
+
 import { ANIMATION_CONSTANTS } from "../utils/constants"
 
 interface Testimonial {
@@ -15,26 +18,20 @@ const testimonials: Testimonial[] = [
   {
     id: "lily",
     image: Lily,
-    text: "This app made sharing my ideas so easy! — Lily",
+    text: "The recipes are so delicious and makes gluten-free accomodations is so easy! — Lily",
     alt: "Lily's testimonial photo",
   },
   {
-    id: "lily2",
-    image: Lily,
-    text: "This app made sharing my ideas so easy! — Lily2",
-    alt: "Lily's testimonial photo",
+    id: "Susie",
+    image: Susie,
+    text: "This website makes grocery shopping so much easier! And Reese’s recipes are so yummy! - Susie",
+    alt: "Susie's testimonial photo",
   },
   {
-    id: "lily3",
-    image: Lily,
-    text: "This app made sharing my ideas so easy! — Lily3",
-    alt: "Lily's testimonial photo",
-  },
-  {
-    id: "lily4",
-    image: Lily,
-    text: "This app made sharing my ideas so easy! — Lily4",
-    alt: "Lily's testimonial photo",
+    id: "Jewel",
+    image: Jewel,
+    text: "Cantu's Kitchen takes the stress out of planning and shopping",
+    alt: "Jewel's testimonial photo",
   },
   {
     id: "family",
