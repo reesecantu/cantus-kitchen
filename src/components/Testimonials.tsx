@@ -21,17 +21,17 @@ const testimonials: Testimonial[] = [
     text: "The recipes are so delicious and makes gluten-free accomodations is so easy! — Lily",
     alt: "Lily's testimonial photo",
   },
+    {
+    id: "Jewel",
+    image: Jewel,
+    text: "Cantu's Kitchen takes the stress out of planning and shopping. - Jewel",
+    alt: "Jewel's testimonial photo",
+  },
   {
     id: "Susie",
     image: Susie,
     text: "This website makes grocery shopping so much easier! And Reese’s recipes are so yummy! - Susie",
     alt: "Susie's testimonial photo",
-  },
-  {
-    id: "Jewel",
-    image: Jewel,
-    text: "Cantu's Kitchen takes the stress out of planning and shopping. - Jewel",
-    alt: "Jewel's testimonial photo",
   },
   {
     id: "family",
