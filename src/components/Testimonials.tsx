@@ -24,13 +24,13 @@ const testimonials: Testimonial[] = [
     {
     id: "Jewel",
     image: Jewel,
-    text: "Cantu's Kitchen takes the stress out of planning and shopping. - Jewel",
+    text: "Cantu's Kitchen takes the stress out of planning and shopping — Jewel",
     alt: "Jewel's testimonial photo",
   },
   {
     id: "Susie",
     image: Susie,
-    text: "This website makes grocery shopping so much easier! And Reese’s recipes are so yummy! - Susie",
+    text: "This website makes grocery shopping so much easier! And Reese's recipes are so yummy! — Susie",
     alt: "Susie's testimonial photo",
   },
   {
