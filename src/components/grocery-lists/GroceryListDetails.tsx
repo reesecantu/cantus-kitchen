@@ -178,7 +178,7 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
               </div>
             ) : (
               <div className="flex items-center gap-2 group">
-                <button onClick={handleStartEditName} title="Edit name" className="flex items-center gap-2.5">
+                <button onClick={handleStartEditName} title="Edit name" className="flex gap-2.5">
                   <h1 className="text-3xl font-bold text-gray-900">
                   {groceryList.name}
                   </h1>
