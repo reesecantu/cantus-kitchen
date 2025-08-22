@@ -7,6 +7,7 @@ import {
   SearchableDropdown,
   type SearchableDropdownRef,
 } from "./SearchableDropdown";
+import { COLORS } from "../../utils/constants"
 
 interface IngredientMultiSelectProps {
   ingredients: Tables<"ingredients">[];
@@ -199,6 +200,7 @@ export const IngredientMultiSelect = ({
         getItemLabel={(ingredient) => ingredient.name}
         mode="single"
       />
+      <p className={`text-xs ${COLORS.TEXT_SECONDARY}`}>Can't find an ingredient you want? <a href="https://forms.gle/c8ydhgk7qibz9yWw6" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline decoration-blue-500 decoration-2 font-medium">Request a new one here!</a></p>
     </div>
   );
 };
