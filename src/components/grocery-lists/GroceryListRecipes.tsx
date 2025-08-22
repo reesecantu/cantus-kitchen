@@ -114,10 +114,29 @@ export const GroceryListRecipes = ({
                   type="number"
                   step="1"
                   min="1"
-                  value={servingsMultiplier}
-                  onChange={(e) =>
-                    setServingsMultiplier(parseFloat(e.target.value) || 1)
-                  }
+                  max="50"
+                  inputMode="numeric"
+                  value={servingsMultiplier === 0 ? "" : servingsMultiplier}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "") {
+                      // Allow empty field temporarily
+                      setServingsMultiplier(0); // Use 0 to represent empty state
+                    } else {
+                      const numValue = parseFloat(value);
+                      if (!isNaN(numValue)) {
+                        setServingsMultiplier(
+                          Math.max(1, Math.min(50, numValue))
+                        );
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    // Ensure valid value when field loses focus
+                    if (servingsMultiplier === 0) {
+                      setServingsMultiplier(1);
+                    }
+                  }}
                   className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
