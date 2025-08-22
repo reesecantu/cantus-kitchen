@@ -178,15 +178,11 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
               </div>
             ) : (
               <div className="flex items-center gap-2 group">
-                <h1 className="text-3xl font-bold text-gray-900">
+                <button onClick={handleStartEditName} title="Edit name" className="flex items-center gap-2.5">
+                  <h1 className="text-3xl font-bold text-gray-900">
                   {groceryList.name}
-                </h1>
-                <button
-                  onClick={handleStartEditName}
-                  className="p-1 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-gray-600 transition-all"
-                  title="Edit name"
-                >
-                  <Edit3 className="h-4 w-4" />
+                  </h1>
+                  <Edit3 className="h-6 w-6 text-gray-400 opacity-0 group-hover:opacity-100 transition-all" />
                 </button>
               </div>
             )}
