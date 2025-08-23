@@ -212,7 +212,15 @@ export const CreateRecipe = () => {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+          }
+        }}
+        className="space-y-6"
+      >
         {/* Recipe Name */}
         <div>
           <div className="flex justify-between items-center mb-2">
