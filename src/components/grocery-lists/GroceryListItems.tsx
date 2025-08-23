@@ -296,12 +296,12 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
                     type="number"
                     step="0.25"
                     min="0"
-                    inputMode="numeric"
+                    inputMode="decimal"
                     placeholder="Qty"
                     value={newItem.quantity === 0 ? "" : newItem.quantity}
                     onChange={(e) => {
                       const value = e.target.value;
-                      if (value === "") {
+                      if (value === "" || value === ".") {
                         setNewItem((prev) => ({
                           ...prev,
                           quantity: 0,
