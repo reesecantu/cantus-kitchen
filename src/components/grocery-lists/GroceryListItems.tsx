@@ -67,7 +67,7 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
   const [newItem, setNewItem] = useState({
     name: "",
     quantity: 1,
-    unit: "piece",
+    unit: "",
     notes: "",
   });
 
@@ -89,7 +89,7 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
         unitName: newItem.unit,
         notes: newItem.notes || undefined,
       });
-      setNewItem({ name: "", quantity: 1, unit: "piece", notes: "" });
+      setNewItem({ name: "", quantity: 1, unit: "", notes: "" });
       setShowAddItem(false);
     } catch (error) {
       console.error("Failed to add item:", error);
@@ -271,39 +271,75 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
               </button>
             </div>
             <form onSubmit={handleAddManualItem} className="space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  placeholder="Item name"
-                  value={newItem.name}
-                  onChange={(e) =>
-                    setNewItem((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                  autoFocus
-                />
-                <div className="flex gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Item Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Item name"
+                    value={newItem.name}
+                    onChange={(e) =>
+                      setNewItem((prev) => ({ ...prev, name: e.target.value }))
+                    }
+                    className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Quantity
+                  </label>
                   <input
                     type="number"
                     step="0.25"
                     min="0"
+                    inputMode="numeric"
                     placeholder="Qty"
-                    value={newItem.quantity}
-                    onChange={(e) =>
-                      setNewItem((prev) => ({
-                        ...prev,
-                        quantity: parseFloat(e.target.value) || 1,
-                      }))
-                    }
-                    className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={newItem.quantity === 0 ? "" : newItem.quantity}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === "") {
+                        setNewItem((prev) => ({
+                          ...prev,
+                          quantity: 0,
+                        }));
+                      } else {
+                        const numValue = parseFloat(value);
+                        if (!isNaN(numValue)) {
+                          setNewItem((prev) => ({
+                            ...prev,
+                            quantity: Math.max(0, numValue),
+                          }));
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      if (newItem.quantity === 0) {
+                        setNewItem((prev) => ({
+                          ...prev,
+                          quantity: 1,
+                        }));
+                      }
+                    }}
+                    className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Unit
+                  </label>
                   <select
                     value={newItem.unit}
                     onChange={(e) =>
-                      setNewItem((prev) => ({ ...prev, unit: e.target.value }))
+                      setNewItem((prev) => ({
+                        ...prev,
+                        unit: e.target.value,
+                      }))
                     }
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className=" h-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {units.map((unit) => (
                       <option key={unit.id} value={unit.name}>
@@ -315,15 +351,20 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
                   </select>
                 </div>
               </div>
-              <input
-                type="text"
-                placeholder="Notes (optional)"
-                value={newItem.notes}
-                onChange={(e) =>
-                  setNewItem((prev) => ({ ...prev, notes: e.target.value }))
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Notes (optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Notes (optional)"
+                  value={newItem.notes}
+                  onChange={(e) =>
+                    setNewItem((prev) => ({ ...prev, notes: e.target.value }))
+                  }
+                  className="w-full h-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
               <button
                 type="submit"
                 disabled={addManualItemMutation.isPending}
