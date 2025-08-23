@@ -27,3 +27,4 @@ dist-ssr
 
 # Supabase
 .temp
+schema.sql
