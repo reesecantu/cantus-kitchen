@@ -217,7 +217,7 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
                           <button
                             onClick={() => handleRemoveItem(item.id)}
                             disabled={removeItemMutation.isPending}
-                            className="p-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                            className="p-1 text-red-500 hover:text-red-700 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity disabled:opacity-50"
                             title="Remove item"
                           >
                             <Trash2 className="h-4 w-4" />
