@@ -2,13 +2,11 @@
 
 **A modern web app for generating smart, organized grocery lists from recipes.**
 
----
+[Live Demo](https://www.cantuskitchen.com)
 
 ## Project Overview
 
 Cantu's Kitchen streamlines meal planning by letting users create, save, and select recipes to instantly generate grocery lists organized by store aisle for maximum efficiency. Built with React, Supabase, and Tailwind CSS, the app is designed for speed, usability, and real-world convenience.
-
----
 
 ## What I Learned
 
@@ -20,8 +18,6 @@ Cantu's Kitchen streamlines meal planning by letting users create, save, and sel
 - **Performance Optimization:** Used Vite and React Query for fast load times and smooth user experience.
 - **Product Thinking:** Focused on real user (myself) needs: efficient shopping, flexible serving sizes, and intuitive recipe management.
 
----
-
 ## Key Features
 
 - **Smart Grocery List Generator:** Instantly creates shopping lists from selected recipes.
@@ -30,16 +26,14 @@ Cantu's Kitchen streamlines meal planning by letting users create, save, and sel
 - **Recipe Management:** Save, organize, and reuse favorite recipes.
 - **Guest Mode:** Try the app without signing up.
 
----
 
 ## Impact
 
 - **Reduces time spent planning and shopping for groceries.**
-- **Saves money by making it easier to choose writing a grocery list over dining out**
+- **Saves money by making it easier to choose writing a grocery list over dining out.**
 - **Improves accuracy and organization for home cooks and families.**
 - **Demonstrates ability to deliver user-focused, scalable web solutions.**
 
----
 
 ## Technologies Used
 
@@ -48,14 +42,12 @@ Cantu's Kitchen streamlines meal planning by letting users create, save, and sel
 - Tailwind CSS
 - Lucide Icons
 
----
 
 ## Author
 
 **Reese Cantu**  
 [GitHub](https://github.com/reesecantu) | [LinkedIn](https://linkedin.com/in/reesecantu)
 
----
 
 ## Contact
 
