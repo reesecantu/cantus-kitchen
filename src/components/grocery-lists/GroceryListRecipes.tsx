@@ -178,7 +178,7 @@ export const GroceryListRecipes = ({
               <button
                 onClick={() => handleRemoveRecipe(recipe.recipe_id!)}
                 disabled={removeRecipeMutation.isPending}
-                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
                 title="Remove recipe"
               >
                 <X className="h-3 w-3" />
