@@ -15,7 +15,7 @@ export const SearchInput = ({
   className = "",
 }: SearchInputProps) => {
   return (
-    <div className={`flex flex-row my-2 items-center w-full max-w-2xl rounded-full border border-${COLORS.BORDER_MEDIUM} ${className}`}>
+    <div className={`flex flex-row my-2 items-center w-full max-w-3xl rounded-full border border-${COLORS.BORDER_MEDIUM} ${className}`}>
       {/* Search Icon */}
       <div className="p-1.5">
         <Search className="w-5 h-5"/>

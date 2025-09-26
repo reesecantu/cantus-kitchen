@@ -21,7 +21,7 @@ export const RecipesPage = () => {
         find here. Every recipe can be used in the grocery list generator. Check
         it out!
       </p>
-      <div className="flex  justify-center">
+      <div className="flex justify-center">
         <SearchInput
           value={searchTerm}
           onChange={(value) => setSearchTerm(value)}
