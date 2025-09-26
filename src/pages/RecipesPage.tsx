@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { RecipeList } from "../components/recipes/RecipeList";
 import { COLORS } from "../utils/constants";
+import { SearchInput } from "../components/ui/SearchInput";
 
 export const RecipesPage = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
   return (
     <div className="mx-10 md:mx-20 lg:mx-40 my-20">
       <h1
@@ -17,14 +21,19 @@ export const RecipesPage = () => {
         find here. Every recipe can be used in the grocery list generator. Check
         it out!
       </p>
-      <div className="mt-3 w-full text-center text-lg font-bold text-amber-400">
-        Filters and search bar coming soon!
+      <div className="flex  justify-center">
+        <SearchInput
+          value={searchTerm}
+          onChange={(value) => setSearchTerm(value)}
+          placeholder="Search recipes..."
+          className="flex-grow"
+        />
       </div>
       <div className="w-full h-2 bg-amber-400 rounded-full border-2 border-gray-700 mb-8" />
       {/* TODO MY Recipes list */}
 
       {/* Public recipes */}
-      <RecipeList />
+      <RecipeList searchTerm={searchTerm} />
     </div>
   );
 };
