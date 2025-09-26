@@ -15,10 +15,10 @@ export const SearchInput = ({
   className = "",
 }: SearchInputProps) => {
   return (
-    <div className={`relative w-full ${className}`}>
+    <div className={`flex flex-row my-2 items-center w-full max-w-2xl rounded-full border border-${COLORS.BORDER_MEDIUM} ${className}`}>
       {/* Search Icon */}
-      <div>
-        <Search className="w-5 h-5" />
+      <div className="p-1.5">
+        <Search className="w-5 h-5"/>
       </div>
       {/* Input Field */}
       <input
@@ -26,7 +26,7 @@ export const SearchInput = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full px-10 py-3 border border-${COLORS.BORDER_MEDIUM}`}
+        className="w-full pr-10 py-1.5 outline-none"
       />
     </div>
   );
