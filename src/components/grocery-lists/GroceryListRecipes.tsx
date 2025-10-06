@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
+import { Link } from "react-router";
 import { useRecipes } from "../../hooks/recipes";
 import {
   useAddRecipeToGroceryList,
   useRemoveRecipeFromGroceryList,
 } from "../../hooks/grocery-lists";
 import { SearchableDropdown } from "../form-inputs/SearchableDropdown";
+import { ROUTES } from "../../utils/constants";
 import type { GroceryListFull } from "../../types/grocery-list";
 import type { Tables } from "../../types/database-types";
 
@@ -178,17 +180,23 @@ export const GroceryListRecipes = ({
               <button
                 onClick={() => handleRemoveRecipe(recipe.recipe_id!)}
                 disabled={removeRecipeMutation.isPending}
-                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 z-10"
                 title="Remove recipe"
               >
                 <X className="h-3 w-3" />
               </button>
-              <div className="font-semibold text-gray-800 pr-6">
-                {recipe.recipe_name}
-              </div>
-              <div className="text-sm font-medium text-blue-500">
-                Servings: {recipe.servings_multiplier}x
-              </div>
+
+              <Link
+                to={ROUTES.RECIPE_DETAILS(recipe.recipe_id!)}
+                className="hover:underline decoration-blue-600 decoration-2 transition-colors"
+              >
+                <div className="font-semibold text-gray-800 ">
+                  {recipe.recipe_name}
+                </div>
+                <div className="text-sm font-medium text-blue-500">
+                  Servings: {recipe.servings_multiplier}x
+                </div>
+              </Link>
             </div>
           ))}
         </div>
