@@ -148,24 +148,26 @@ export const Home = () => {
             </Link>
 
             {/* Step 3 */}
-            <div
-              className={`flex flex-col items-center ${COLORS.BG_WHITE} rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow`}
-            >
-              <div className="bg-blue-500 rounded-full p-4 mb-6">
-                <LayoutGrid className="h-12 w-12 text-white" />
+            <Link to={ROUTES.GROCERY_LISTS}>
+              <div
+                className={`flex flex-col items-center ${COLORS.BG_WHITE} rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow`}
+              >
+                <div className="bg-blue-500 rounded-full p-4 mb-6">
+                  <LayoutGrid className="h-12 w-12 text-white" />
+                </div>
+                <h3
+                  className={`text-xl font-semibold ${COLORS.TEXT_PRIMARY} mb-3 text-center`}
+                >
+                  Shop Efficiently
+                </h3>
+                <p
+                  className={`${COLORS.TEXT_PRIMARY} text-center leading-relaxed`}
+                >
+                  Items organized by grocery store aisle and sub-aisle position
+                  for the most efficient shopping experience
+                </p>
               </div>
-              <h3
-                className={`text-xl font-semibold ${COLORS.TEXT_PRIMARY} mb-3 text-center`}
-              >
-                Shop Efficiently
-              </h3>
-              <p
-                className={`${COLORS.TEXT_PRIMARY} text-center leading-relaxed`}
-              >
-                Items organized by grocery store aisle and sub-aisle position
-                for the most efficient shopping experience
-              </p>
-            </div>
+            </Link>
           </div>
 
           {/* CTA Section */}
