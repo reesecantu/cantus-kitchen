@@ -104,44 +104,48 @@ export const Home = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mx-8 md:mx-0">
             {/* Step 1 */}
-            <div
-              className={`flex flex-col items-center ${COLORS.BG_WHITE} rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow`}
-            >
-              <div className="bg-blue-500 rounded-full p-4 mb-6">
-                <CookingPot className="h-12 w-12 text-white" />
+            <Link to={ROUTES.RECIPES}>
+              <div
+                className={`flex flex-col items-center ${COLORS.BG_WHITE} rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow`}
+              >
+                <div className="bg-blue-500 rounded-full p-4 mb-6">
+                  <CookingPot className="h-12 w-12 text-white" />
+                </div>
+                <h3
+                  className={`text-xl font-semibold ${COLORS.TEXT_PRIMARY} mb-3 text-center`}
+                >
+                  Choose Your Recipes
+                </h3>
+                <p
+                  className={`${COLORS.TEXT_PRIMARY} text-center leading-relaxed`}
+                >
+                  Browse our recipe collection or add your own favorites to plan
+                  your meals
+                </p>
               </div>
-              <h3
-                className={`text-xl font-semibold ${COLORS.TEXT_PRIMARY} mb-3 text-center`}
-              >
-                Choose Your Recipes
-              </h3>
-              <p
-                className={`${COLORS.TEXT_PRIMARY} text-center leading-relaxed`}
-              >
-                Browse our recipe collection or add your own favorites to plan
-                your meals
-              </p>
-            </div>
+            </Link>
 
             {/* Step 2 */}
-            <div
-              className={`flex flex-col items-center ${COLORS.BG_WHITE} rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow`}
-            >
-              <div className="bg-blue-500 rounded-full p-4 mb-6">
-                <NotepadText className="h-12 w-12 text-white" />
+            <Link to={ROUTES.GROCERY_LISTS}>
+              <div
+                className={`flex flex-col items-center ${COLORS.BG_WHITE} rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow`}
+              >
+                <div className="bg-blue-500 rounded-full p-4 mb-6">
+                  <NotepadText className="h-12 w-12 text-white" />
+                </div>
+                <h3
+                  className={`text-xl font-semibold ${COLORS.TEXT_PRIMARY} mb-3 text-center`}
+                >
+                  Generate Your List
+                </h3>
+                <p
+                  className={`${COLORS.TEXT_PRIMARY} text-center leading-relaxed`}
+                >
+                  Automatically create a shopping list from your selected recipes
+                  with custom servings amounts
+                </p>
               </div>
-              <h3
-                className={`text-xl font-semibold ${COLORS.TEXT_PRIMARY} mb-3 text-center`}
-              >
-                Generate Your List
-              </h3>
-              <p
-                className={`${COLORS.TEXT_PRIMARY} text-center leading-relaxed`}
-              >
-                Automatically create a shopping list from your selected recipes
-                with custom servings amounts
-              </p>
-            </div>
+            </Link>
 
             {/* Step 3 */}
             <div
