@@ -185,7 +185,7 @@ export const Testimonials = () => {
 
   return (
     <section
-      className="w-full py-12 overflow-hidden border-t-2 border-gray-600"
+      className="w-full py-12 overflow-hidden"
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
       aria-label="Customer testimonials"

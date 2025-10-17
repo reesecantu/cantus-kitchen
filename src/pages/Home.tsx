@@ -86,10 +86,8 @@ export const Home = () => {
         </div>
       </div>
 
-      <Testimonials />
-
       {/* How It Works Section */}
-      <div className={`py-12 px-6 sm:px-10 lg:px-20 ${COLORS.BG_GRAY_LIGHT}`}>
+      <div className={`py-15 px-6 sm:px-10 lg:px-20 border-t-2 border-gray-600 ${COLORS.BG_GRAY_LIGHT}`}>
         <div className="max-w-6xl mx-auto">
           <h2
             className={`text-4xl lg:text-5xl ${COLORS.TEXT_PRIMARY} font-bold text-center mb-4`}
@@ -169,7 +167,6 @@ export const Home = () => {
               </div>
             </Link>
           </div>
-
           {/* CTA Section */}
           <div className="text-center mt-12">
             <Link
@@ -182,6 +179,8 @@ export const Home = () => {
           </div>
         </div>
       </div>
+      
+      <Testimonials />
 
       {/* Features Section */}
       <div className="py-16 px-6 sm:px-10 lg:px-20">
