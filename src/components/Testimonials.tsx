@@ -33,12 +33,6 @@ const testimonials: Testimonial[] = [
     text: "This website makes grocery shopping so much easier! And Reese's recipes are so yummy! — Susie",
     alt: "Susie's testimonial photo",
   },
-  {
-    id: "family",
-    image: Fam,
-    text: "Yummy boba! — Faith, Jewel, and Keanu",
-    alt: "Family testimonial photo",
-  },
 ];
 
 const AUTOPLAY_INTERVAL = ANIMATION_CONSTANTS.TESTIMONIALS_AUTOPLAY_INTERVAL;

@@ -128,7 +128,7 @@ export const Navbar = () => {
                 to={ROUTES.CREATE_RECIPE}
                 className={`${COLORS.TEXT_PRIMARY_HOVER} transition-colors`}
               >
-                Create
+                Create Recipe
               </Link>
             </div>
 
