@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { vitePrerenderPlugin } from "vite-prerender-plugin";
 
+
 // Plugin to force process exit after build (fixes React 19 hanging issue)
 function closePlugin() {
   return {
@@ -19,6 +20,6 @@ export default defineConfig({
     react(),
     tailwindcss(),
     vitePrerenderPlugin({ renderTarget: "#root" }),
-    closePlugin(), 
+    closePlugin(),
   ],
 });

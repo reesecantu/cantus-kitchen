@@ -1,6 +1,6 @@
 import { renderToString } from "react-dom/server";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Home } from "./src/pages/Home";
+import { Home } from "./src/features/home";
 import "./src/index.css";
 import { StaticRouter } from "react-router";
 
