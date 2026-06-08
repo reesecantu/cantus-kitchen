@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import { useNavigate } from "react-router";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "@/features/auth/AuthContext";
 import { isSupabaseError, type GoogleCredentialResponse } from "../types";
 import { ROUTES } from "../../../utils/constants";
 

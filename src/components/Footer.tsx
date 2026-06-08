@@ -1,6 +1,6 @@
 import { Link } from "react-router";
-import logoLongBlue from "../../assets/logos/long_logo_blue.png";
-import { ROUTES } from "../../utils/constants";
+import logoLongBlue from "@/assets/logos/long_logo_blue.png";
+import { ROUTES } from "@/utils/constants";
 
 export const Footer = () => {
   return (

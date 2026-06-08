@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { useAuth } from "../../../contexts/AuthContext";
-import chef from "../../../assets/chef-blue.svg";
-import { LoadingSpinner } from "../../../shared/components/ui/LoadingSpinner";
+import { useAuth } from "@/features/auth/AuthContext";
+import chef from "@/assets/chef-blue.svg";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface FormErrors {
   email?: string;

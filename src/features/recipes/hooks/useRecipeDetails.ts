@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "../../../../supabase/supabase-client";
-import type { Tables } from "../../../shared/types/database-types";
+import { supabase } from "@/lib/supabase";
+import type { Tables } from "@/types/database-types";
 
 interface RecipeIngredientWithDetails {
   id: number;

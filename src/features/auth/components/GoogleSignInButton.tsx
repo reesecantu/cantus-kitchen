@@ -1,5 +1,5 @@
 import { useGoogleAuth } from "../hooks/useGoogleAuth";
-import { LoadingSpinner } from "../../../shared/components/ui/LoadingSpinner";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { GoogleIcon } from "./GoogleIcon";
 
 interface GoogleSignInButtonProps {

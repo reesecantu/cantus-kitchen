@@ -1,5 +1,5 @@
 import { Image } from "lucide-react";
-import type { Tables } from "../../../shared/types/database-types";
+import type { Tables } from "@/types/database-types";
 
 interface RecipeTileProps {
   recipe: Tables<"recipes">;

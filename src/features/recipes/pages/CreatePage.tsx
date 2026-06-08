@@ -1,5 +1,5 @@
 import { CreateRecipe } from "../components/CreateRecipe";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "@/features/auth/AuthContext";
 
 export const CreatePage = () => {
   const { user } = useAuth();

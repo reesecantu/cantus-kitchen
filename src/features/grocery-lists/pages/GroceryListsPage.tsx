@@ -3,7 +3,7 @@ import { GroceryListList } from "../components/GroceryListList";
 import { useState } from "react";
 import { useCreateGroceryList } from "../hooks";
 import { Plus } from "lucide-react";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "@/features/auth/AuthContext";
 import { COLORS } from "../../../utils/constants";
 
 export const GroceryListsPage = () => {

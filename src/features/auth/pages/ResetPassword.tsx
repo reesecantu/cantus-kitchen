@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { useAuth } from "../../../contexts/AuthContext";
-import chef from "../../../assets/chef-blue.svg";
+import { useAuth } from "@/features/auth/AuthContext";
+import chef from "@/assets/chef-blue.svg";
 
 interface FormErrors {
   password?: string;
