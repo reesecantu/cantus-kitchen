@@ -1,4 +1,4 @@
-import type { Tables } from "../../shared/types/database-types";
+import type { Tables } from "@/types/database-types";
 
 export type GroceryList = Tables<"grocery_lists">;
 export type GroceryListRecipe = Tables<"grocery_list_recipes">;

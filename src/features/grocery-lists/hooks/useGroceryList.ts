@@ -6,7 +6,7 @@ import type {
   GroceryListItemWithRelations,
   GroceryListRecipeWithRecipe,
 } from "../types";
-import { supabase } from "../../../../supabase/supabase-client";
+import { supabase } from "@/lib/supabase";
 
 // Fetch single grocery list with full details
 export const useGroceryList = (listId: string) => {

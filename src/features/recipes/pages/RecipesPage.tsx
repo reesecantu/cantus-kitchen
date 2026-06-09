@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { RecipeList } from "../components/RecipeList";
 import { COLORS } from "../../../utils/constants";
-import { SearchInput } from "../../../shared/components/ui/SearchInput";
+import { SearchInput } from "@/components/SearchInput";
 
 export const RecipesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");

@@ -6,7 +6,7 @@ import {
   useRemoveGroceryListItem,
   useAutoUpdateCompletion,
 } from "../hooks";
-import { useUnits } from "../../../shared/hooks/useUnits";
+import { useUnits } from "@/hooks/useUnits";
 import type { GroceryListFull, GroceryListItemWithDetails } from "../types";
 
 interface GroceryListItemsProps {

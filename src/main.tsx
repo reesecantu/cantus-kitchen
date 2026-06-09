@@ -5,7 +5,7 @@ import App from "./App.tsx";
 
 import { BrowserRouter as Router } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "./contexts/AuthContext.tsx";
+import { AuthProvider } from "@/features/auth/AuthContext";
 
 const client = new QueryClient();
 

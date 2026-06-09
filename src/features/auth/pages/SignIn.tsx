@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
-import { useAuth } from "../../../contexts/AuthContext";
-import { useFormValidation } from "../../../shared/hooks/useFormValidation";
-import { FormInput } from "../../../shared/components/ui/FormInput";
+import { useAuth } from "@/features/auth/AuthContext";
+import { useFormValidation } from "@/hooks/useFormValidation";
+import { FormInput } from "@/components/FormInput";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
 import { isSupabaseError } from "../types";
 import { AuthLayout } from "../components/AuthLayout";
-import { LoadingSpinner } from "../../../shared/components/ui/LoadingSpinner";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ROUTES } from "../../../utils/constants";
 
 export const SignIn = () => {

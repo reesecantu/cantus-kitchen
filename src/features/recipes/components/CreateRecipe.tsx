@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useIngredients } from "../../../shared/hooks/useIngredients";
-import { useCreateRecipe } from "../hooks";
-import { IngredientMultiSelect } from "../../../shared/components/form-inputs/IngredientMultiSelect";
-import { StepsInput } from "../../../shared/components/form-inputs/StepsInput";
-import { ImageUpload } from "../../../shared/components/form-inputs/ImageUpload";
+import { useIngredients } from "@/hooks/useIngredients";
+import { useCreateRecipe } from "../hooks/useRecipeMutations";
+import { IngredientMultiSelect } from "@/components/IngredientMultiSelect";
+import { StepsInput } from "@/components/StepsInput";
+import { ImageUpload } from "@/components/ImageUpload";
 import type { RecipeFormData } from "../types";
 
 const FORM_STORAGE_KEY = "createRecipeFormData";

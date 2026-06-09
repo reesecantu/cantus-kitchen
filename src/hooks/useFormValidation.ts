@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { FormErrors } from "../../features/auth/types";
-import { VALIDATION_MESSAGES, VALIDATION_RULES } from "../../utils/constants";
+import type { FormErrors } from "@/features/auth/types";
+import { VALIDATION_MESSAGES, VALIDATION_RULES } from "@/utils/constants";
 
 interface ValidationRules {
   email?: boolean;

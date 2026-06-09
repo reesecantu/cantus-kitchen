@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../../../../supabase/supabase-client";
+import { supabase } from "@/lib/supabase";
 import type { GroceryListItemForStats, GroceryListWithStats } from "../types";
 import { GROCERY_LIST_QUERY_KEYS } from "./query-keys";
 

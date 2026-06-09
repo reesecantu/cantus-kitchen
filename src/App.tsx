@@ -1,7 +1,7 @@
 import { Route, Routes, useLocation } from "react-router";
 import { useEffect } from "react";
 import { Home } from "./features/home/pages/Home";
-import { Navbar } from "./shared/components/Navbar";
+import { Navbar } from "@/components/Navbar";
 import { SignIn } from "./features/auth/pages/SignIn";
 import { SignUp } from "./features/auth/pages/SignUp";
 import { RecipesPage } from "./features/recipes/pages/RecipesPage";
@@ -11,7 +11,7 @@ import { GroceryListsPage } from "./features/grocery-lists/pages/GroceryListsPag
 import { GroceryListDetailsPage } from "./features/grocery-lists/pages/GroceryListDetailsPage";
 import { ForgotPassword } from "./features/auth/pages/ForgotPassword";
 import { ResetPassword } from "./features/auth/pages/ResetPassword";
-import { Footer } from "./shared/components/Footer";
+import { Footer } from "@/components/Footer";
 import { ROUTES } from "./utils/constants";
 import { isAuthRoute } from "./utils/routeHelper";
 import { Analytics } from "@vercel/analytics/react";

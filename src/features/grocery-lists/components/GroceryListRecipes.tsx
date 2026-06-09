@@ -6,10 +6,10 @@ import {
   useAddRecipeToGroceryList,
   useRemoveRecipeFromGroceryList,
 } from "../hooks";
-import { SearchableDropdown } from "../../../shared/components/form-inputs/SearchableDropdown";
+import { SearchableDropdown } from "@/components/SearchableDropdown";
 import { ROUTES } from "../../../utils/constants";
 import type { GroceryListFull } from "../types";
-import type { Tables } from "../../../shared/types/database-types";
+import type { Tables } from "@/types/database-types";
 
 interface GroceryListRecipesProps {
   groceryList: GroceryListFull;

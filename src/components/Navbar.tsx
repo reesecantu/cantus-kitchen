@@ -1,9 +1,9 @@
 import { Link } from "react-router";
 import { useState } from "react";
-import logoLongBlue from "../../assets/logos/long_logo_blue.png";
-import stackedLogoBlue from "../../assets/logos/stacked_logo_blue.png";
-import { useAuth } from "../../contexts/AuthContext";
-import { ROUTES, COLORS } from "../../utils/constants";
+import logoLongBlue from "@/assets/logos/long_logo_blue.png";
+import stackedLogoBlue from "@/assets/logos/stacked_logo_blue.png";
+import { useAuth } from "@/features/auth/AuthContext";
+import { ROUTES, COLORS } from "@/utils/constants";
 
 export const Navbar = () => {
   const { user, signOut } = useAuth();

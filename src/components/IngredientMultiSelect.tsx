@@ -1,13 +1,13 @@
 import { useRef } from "react";
 import { X } from "lucide-react";
-import type { Tables } from "../../types/database-types";
-import type { RecipeIngredient } from "../../../features/recipes/types";
-import { useUnits } from "../../hooks/useUnits";
+import type { Tables } from "@/types/database-types";
+import type { RecipeIngredient } from "@/features/recipes/types";
+import { useUnits } from "@/hooks/useUnits";
 import {
   SearchableDropdown,
   type SearchableDropdownRef,
 } from "./SearchableDropdown";
-import { COLORS } from "../../../utils/constants";
+import { COLORS } from "@/utils/constants";
 
 interface IngredientMultiSelectProps {
   ingredients: Tables<"ingredients">[];

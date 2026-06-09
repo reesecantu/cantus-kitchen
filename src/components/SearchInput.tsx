@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import { COLORS } from "../../../utils/constants";
+import { COLORS } from "@/utils/constants";
 
 interface SearchInputProps {
   value: string;
