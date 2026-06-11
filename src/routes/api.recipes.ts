@@ -2,6 +2,7 @@ import { data } from "react-router";
 import type { Route } from "./+types/api.recipes";
 import { getServerClient } from "@/lib/supabase.server";
 import { deleteRecipe } from "@/server/recipes.server";
+import { createSupabaseAdminClient } from "@/server/supabase-admin.server";
 
 /**
  * DELETE /api/recipes/:recipeId
@@ -25,7 +26,7 @@ export async function action({ request, params }: Route.ActionArgs) {
   }
 
   try {
-    await deleteRecipe(supabase, params.recipeId);
+    await deleteRecipe(supabase, createSupabaseAdminClient(), params.recipeId);
   } catch (error) {
     if (error instanceof Error && error.message === "Recipe not found") {
       throw data({ message: error.message }, { status: 404, headers });

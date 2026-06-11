@@ -26,16 +26,19 @@ export async function action({ request, params }: Route.ActionArgs) {
   const body = await request.json().catch(() => null);
   const ingredientName = body?.ingredientName;
   const unitName = body?.unitName;
-  const quantity = Number(body?.quantity);
+  // typeof check first: Number(null) and Number("") coerce to 0 and would
+  // otherwise slip past as a "valid" quantity
+  const quantity = typeof body?.quantity === "number" ? body.quantity : NaN;
   if (
     typeof ingredientName !== "string" ||
     !ingredientName.trim() ||
     typeof unitName !== "string" ||
     !unitName.trim() ||
-    !Number.isFinite(quantity)
+    !Number.isFinite(quantity) ||
+    quantity <= 0
   ) {
     throw data(
-      { message: "ingredientName, quantity, and unitName are required" },
+      { message: "ingredientName, a positive quantity, and unitName are required" },
       { status: 400, headers }
     );
   }

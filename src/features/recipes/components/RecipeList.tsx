@@ -1,15 +1,14 @@
 import { Link } from "react-router";
-import { useRecipes } from "../hooks";
+import { useRecipes, type SsrRecipes } from "../hooks/useRecipes";
 import { RecipeTile } from "./RecipeTile";
-import type { Tables } from "@/types/database-types";
 
 interface RecipeListProps {
   searchTerm: string;
-  initialRecipes?: Tables<"recipes">[];
+  ssrRecipes?: SsrRecipes;
 }
 
-export const RecipeList = ({ searchTerm, initialRecipes }: RecipeListProps) => {
-  const { data: recipes = [], isLoading, error } = useRecipes(initialRecipes);
+export const RecipeList = ({ searchTerm, ssrRecipes }: RecipeListProps) => {
+  const { data: recipes = [], isLoading, error } = useRecipes(ssrRecipes);
 
   const filteredRecipes = recipes.filter((recipe) => {
     if (!searchTerm.trim()) return true;

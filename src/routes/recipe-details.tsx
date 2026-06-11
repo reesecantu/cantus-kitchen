@@ -27,8 +27,15 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   try {
     const recipe = await fetchRecipeDetails(supabase, params.id);
     return data({ recipe }, { headers });
-  } catch {
-    throw data("Recipe not found", { status: 404, headers });
+  } catch (error) {
+    // Only a genuinely missing recipe is a 404 — transient Supabase/network
+    // failures must be 500s, or outages get recipe pages de-indexed.
+    // PGRST116 = .single() found no rows; 22P02 = invalid uuid in the URL
+    const code = (error as { code?: string })?.code;
+    if (code === "PGRST116" || code === "22P02") {
+      throw data("Recipe not found", { status: 404, headers });
+    }
+    throw data("Failed to load recipe", { status: 500, headers });
   }
 }
 

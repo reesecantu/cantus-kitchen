@@ -19,14 +19,15 @@ export async function loader({ request }: Route.LoaderArgs) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    const recipes = await fetchRecipes(supabase, user?.id ?? null);
-    return data({ recipes }, { headers });
+    const userId = user?.id ?? null;
+    const recipes = await fetchRecipes(supabase, userId);
+    return data({ ssrRecipes: { recipes, userId } }, { headers });
   } catch {
     // Render the page shell; the client-side query will surface the error
-    return data({ recipes: undefined }, { headers });
+    return data({ ssrRecipes: undefined }, { headers });
   }
 }
 
 export default function RecipesRoute({ loaderData }: Route.ComponentProps) {
-  return <RecipesPage initialRecipes={loaderData.recipes} />;
+  return <RecipesPage ssrRecipes={loaderData.ssrRecipes} />;
 }

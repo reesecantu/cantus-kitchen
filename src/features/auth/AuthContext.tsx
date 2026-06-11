@@ -14,20 +14,29 @@ const migrateLegacyLocalStorageSession = async (): Promise<void> => {
   try {
     const stored = window.localStorage.getItem(legacyKey);
     if (!stored) return;
-    window.localStorage.removeItem(legacyKey);
 
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    if (session) return;
+    if (session) {
+      window.localStorage.removeItem(legacyKey);
+      return;
+    }
 
     const parsed = JSON.parse(stored);
     if (parsed?.access_token && parsed?.refresh_token) {
-      await supabase.auth.setSession({
+      const { error } = await supabase.auth.setSession({
         access_token: parsed.access_token,
         refresh_token: parsed.refresh_token,
       });
+      // Only discard the legacy token once it's safely in cookies — a
+      // transient setSession failure must stay retryable on the next load
+      if (error) {
+        console.warn("Failed to migrate legacy auth session:", error);
+        return;
+      }
     }
+    window.localStorage.removeItem(legacyKey);
   } catch (error) {
     console.warn("Failed to migrate legacy auth session:", error);
   }

@@ -130,11 +130,16 @@ export async function addManualItem(
     notes?: string | null;
   }
 ): Promise<string> {
-  // ILIKE without wildcards = case-insensitive exact match (as in the SQL)
+  // Case-insensitive exact match. Escape LIKE metacharacters so user input
+  // like "2% milk" doesn't act as a wildcard pattern, and limit(1) for parity
+  // with the old SQL's SELECT INTO, which silently took the first row if the
+  // name still matched more than one ingredient (e.g. case variants).
+  const escapedName = args.ingredientName.replace(/[\\%_]/g, "\\$&");
   const { data: ingredient, error: ingredientError } = await supabase
     .from("ingredients")
     .select("id")
-    .ilike("name", args.ingredientName)
+    .ilike("name", escapedName)
+    .limit(1)
     .maybeSingle();
   if (ingredientError) throw ingredientError;
 
