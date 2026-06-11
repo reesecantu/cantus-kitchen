@@ -2,8 +2,13 @@ import { useState } from "react";
 import { RecipeList } from "../components/RecipeList";
 import { COLORS } from "../../../utils/constants";
 import { SearchInput } from "@/components/SearchInput";
+import type { Tables } from "@/types/database-types";
 
-export const RecipesPage = () => {
+interface RecipesPageProps {
+  initialRecipes?: Tables<"recipes">[];
+}
+
+export const RecipesPage = ({ initialRecipes }: RecipesPageProps) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
@@ -33,7 +38,7 @@ export const RecipesPage = () => {
       {/* TODO MY Recipes list */}
 
       {/* Public recipes */}
-      <RecipeList searchTerm={searchTerm} />
+      <RecipeList searchTerm={searchTerm} initialRecipes={initialRecipes} />
     </div>
   );
 };

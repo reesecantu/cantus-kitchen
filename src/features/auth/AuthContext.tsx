@@ -1,6 +1,37 @@
 import type { User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
+import { useRevalidator } from "react-router";
 import { supabase } from "@/lib/supabase";
+
+// Sessions used to live in localStorage; the cookie-backed client can't see
+// them. Restore once so existing users aren't signed out by the SSR migration.
+const migrateLegacyLocalStorageSession = async (): Promise<void> => {
+  const projectRef = new URL(
+    import.meta.env.VITE_SUPABASE_URL
+  ).hostname.split(".")[0];
+  const legacyKey = `sb-${projectRef}-auth-token`;
+
+  try {
+    const stored = window.localStorage.getItem(legacyKey);
+    if (!stored) return;
+    window.localStorage.removeItem(legacyKey);
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (session) return;
+
+    const parsed = JSON.parse(stored);
+    if (parsed?.access_token && parsed?.refresh_token) {
+      await supabase.auth.setSession({
+        access_token: parsed.access_token,
+        refresh_token: parsed.refresh_token,
+      });
+    }
+  } catch (error) {
+    console.warn("Failed to migrate legacy auth session:", error);
+  }
+};
 
 interface AuthContextType {
   user: User | null;
@@ -15,21 +46,37 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+export const AuthProvider = ({
+  children,
+  initialUser = null,
+}: {
+  children: React.ReactNode;
+  initialUser?: User | null;
+}) => {
+  const [user, setUser] = useState<User | null>(initialUser);
+  const { revalidate } = useRevalidator();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
+    migrateLegacyLocalStorageSession().then(() =>
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+      })
+    );
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
-    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        // Re-run loaders so server-rendered data matches the new auth state
+        if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+          revalidate();
+        }
+      }
+    );
 
     return () => {
       listener.subscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function signInWithGoogle(response: { credential: string }) {

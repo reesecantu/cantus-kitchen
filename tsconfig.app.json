@@ -5,6 +5,8 @@
     "paths": {
       "@/*": ["src/*"]
     },
+    "rootDirs": [".", "./.react-router/types"],
+    "types": ["@react-router/node", "vite/client"],
     "target": "ES2022",
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
@@ -27,5 +29,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "supabase"]
+  "include": ["src", "supabase", ".react-router/types/**/*"]
 }

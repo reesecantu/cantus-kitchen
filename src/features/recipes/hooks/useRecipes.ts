@@ -1,22 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Tables } from "@/types/database-types";
 import { supabase } from "@/lib/supabase";
+import { fetchRecipes } from "../api";
 
-export const useRecipes = () => {
+export const useRecipes = (initialData?: Tables<"recipes">[]) => {
   return useQuery({
     queryKey: ["recipes"],
-    queryFn: async (): Promise<Tables<"recipes">[]> => {
-      const { data, error } = await supabase
-        .rpc("get_public_and_user_recipes")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching recipes:", error);
-        throw error;
-      }
-
-      return data || [];
-    },
+    queryFn: () => fetchRecipes(supabase),
+    initialData,
+    staleTime: initialData ? 30_000 : 0,
   });
 };
 

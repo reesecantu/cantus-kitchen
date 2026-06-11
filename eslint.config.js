@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint'
 import { globalIgnores } from 'eslint/config'
 
 export default tseslint.config([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'build', '.react-router', '.vercel']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -18,6 +18,15 @@ export default tseslint.config([
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+    },
+  },
+  {
+    // React Router route modules export loaders/actions/meta alongside the
+    // component; @react-router/dev handles their HMR, so the fast-refresh
+    // restriction doesn't apply
+    files: ['src/routes/**/*.tsx', 'src/root.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
     },
   },
 ])

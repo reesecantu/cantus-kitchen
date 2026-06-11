@@ -9,14 +9,24 @@ import type { RecipeFormData } from "../types";
 const FORM_STORAGE_KEY = "createRecipeFormData";
 
 export const CreateRecipe = () => {
-  // Initialize form data from localStorage or defaults
-  const [formData, setFormData] = useState<RecipeFormData>(() => {
+  const [formData, setFormData] = useState<RecipeFormData>({
+    name: "",
+    steps: [],
+    image_file: undefined,
+    image_url: undefined,
+    ingredients: [],
+    servings: 1,
+  });
+
+  // Restore any saved draft after mount — localStorage isn't available during
+  // SSR, and reading it in the useState initializer would break hydration
+  useEffect(() => {
     try {
       const savedData = localStorage.getItem(FORM_STORAGE_KEY);
       if (savedData) {
         const parsed = JSON.parse(savedData);
         // Validate the parsed data has required structure
-        return {
+        setFormData({
           name: parsed.name || "",
           steps: Array.isArray(parsed.steps) ? parsed.steps : [],
           image_file: undefined, // Files can't be persisted
@@ -25,22 +35,12 @@ export const CreateRecipe = () => {
             ? parsed.ingredients
             : [],
           servings: parsed.servings || 1,
-        };
+        });
       }
     } catch (error) {
       console.warn("Failed to parse saved form data:", error);
     }
-
-    // Return defaults if no saved data or parsing failed
-    return {
-      name: "",
-      steps: [],
-      image_file: undefined,
-      image_url: undefined,
-      ingredients: [],
-      servings: 1,
-    };
-  });
+  }, []);
 
   const [formKey, setFormKey] = useState(0);
 
