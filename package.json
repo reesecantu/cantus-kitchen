@@ -7,6 +7,7 @@
     "dev": "react-router dev",
     "build": "react-router build",
     "typecheck": "react-router typegen && tsc -b",
+    "test": "vitest run",
     "lint": "eslint .",
     "gen-types": "supabase gen types typescript --project-id gbvhulvkeglzwfqccgrv > src/types/database-types.ts"
   },
@@ -37,6 +38,7 @@
     "globals": "^16.2.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.34.1",
-    "vite": "^7.0.0"
+    "vite": "^7.0.0",
+    "vitest": "^4.1.8"
   }
 }

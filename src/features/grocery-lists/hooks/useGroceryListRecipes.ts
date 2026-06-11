@@ -1,6 +1,22 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
 import { GROCERY_LIST_QUERY_KEYS } from "./query-keys";
+
+async function mutateListRecipe(
+  listId: string,
+  method: "POST" | "DELETE",
+  body: { recipeId: string; servingsMultiplier?: number }
+) {
+  const response = await fetch(`/api/grocery-lists/${listId}/recipes`, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null);
+    throw new Error(payload?.message ?? "Failed to update grocery list");
+  }
+}
 
 // Add recipe to grocery list
 export const useAddRecipeToGroceryList = () => {
@@ -16,14 +32,7 @@ export const useAddRecipeToGroceryList = () => {
       recipeId: string;
       servingsMultiplier?: number;
     }) => {
-      const { data, error } = await supabase.rpc("add_recipe_to_grocery_list", {
-        list_id: listId,
-        p_recipe_id: recipeId,
-        servings_multiplier: servingsMultiplier,
-      });
-
-      if (error) throw error;
-      return data;
+      await mutateListRecipe(listId, "POST", { recipeId, servingsMultiplier });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -45,13 +54,7 @@ export const useRemoveRecipeFromGroceryList = () => {
       listId: string;
       recipeId: string;
     }) => {
-      const { error } = await supabase
-        .from("grocery_list_recipes")
-        .delete()
-        .eq("grocery_list_id", listId)
-        .eq("recipe_id", recipeId);
-
-      if (error) throw error;
+      await mutateListRecipe(listId, "DELETE", { recipeId });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

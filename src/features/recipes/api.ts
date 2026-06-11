@@ -22,21 +22,40 @@ export interface RecipeWithIngredients extends Tables<"recipes"> {
   ingredients: RecipeIngredientWithDetails[];
 }
 
+/**
+ * Recipes whose creator is this account are the site's shared public catalog.
+ * (Previously hardcoded inside the get_public_*_recipes SQL functions.)
+ */
+export const PUBLIC_RECIPES_USER_ID = "6e0258f5-c980-47d2-a7ee-981e76e56333";
+
 // Shared between the TanStack Query hooks (browser client) and the route
-// loaders (per-request server client), so SSR and client render identical data.
+// loaders (per-request server client), so SSR and client render identical
+// data. Replaces the get_public_recipes / get_public_and_user_recipes RPCs:
+// the public catalog plus the signed-in user's own recipes.
 export async function fetchRecipes(
-  client: SupabaseClient
+  client: SupabaseClient,
+  userId: string | null
 ): Promise<Tables<"recipes">[]> {
-  const { data, error } = await client
-    .rpc("get_public_and_user_recipes")
+  let query = client
+    .from("recipes")
+    .select("id, name, image_url, created_by, steps, servings, created_at")
     .order("created_at", { ascending: false });
+
+  query =
+    userId && userId !== PUBLIC_RECIPES_USER_ID
+      ? query.or(
+          `created_by.eq.${PUBLIC_RECIPES_USER_ID},created_by.eq.${userId}`
+        )
+      : query.eq("created_by", PUBLIC_RECIPES_USER_ID);
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("Error fetching recipes:", error);
     throw error;
   }
 
-  return data || [];
+  return (data || []) as Tables<"recipes">[];
 }
 
 export async function fetchRecipeDetails(

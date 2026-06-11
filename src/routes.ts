@@ -12,4 +12,10 @@ export default [
   route(ROUTES.SIGN_UP, "routes/sign-up.tsx"),
   route(ROUTES.FORGOT_PASSWORD, "routes/forgot-password.tsx"),
   route(ROUTES.RESET_PASSWORD, "routes/reset-password.tsx"),
+
+  // Resource routes (no UI) — the app-layer replacement for the Postgres RPCs
+  route("/api/grocery-lists/:listId/recipes", "routes/api.grocery-list-recipes.ts"),
+  route("/api/grocery-lists/:listId/items", "routes/api.grocery-list-items.ts"),
+  route("/api/recipes/:recipeId", "routes/api.recipes.ts"),
+  route("/api/cron/cleanup-anonymous-users", "routes/api.cron.cleanup-anonymous-users.ts"),
 ] satisfies RouteConfig;

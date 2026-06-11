@@ -91,19 +91,24 @@ export const useAddManualItem = () => {
       unitName: string;
       notes?: string | null;
     }) => {
-      const { data, error } = await supabase.rpc(
-        "add_manual_item_to_grocery_list",
-        {
-          list_id: listId,
-          ingredient_name: ingredientName,
+      const response = await fetch(`/api/grocery-lists/${listId}/items`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ingredientName,
           quantity,
-          unit_name: unitName,
-          notes: notes || undefined,
-        },
-      );
+          unitName,
+          notes: notes || null,
+        }),
+      });
 
-      if (error) throw error;
-      return data;
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.message ?? "Failed to add item");
+      }
+
+      const { id } = await response.json();
+      return id as string;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

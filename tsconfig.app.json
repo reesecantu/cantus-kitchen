@@ -6,7 +6,7 @@
       "@/*": ["src/*"]
     },
     "rootDirs": [".", "./.react-router/types"],
-    "types": ["@react-router/node", "vite/client"],
+    "types": ["@react-router/node", "vite/client", "node"],
     "target": "ES2022",
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],

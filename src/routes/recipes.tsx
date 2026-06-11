@@ -16,7 +16,10 @@ export const meta: Route.MetaFunction = () => [
 export async function loader({ request }: Route.LoaderArgs) {
   const { supabase, headers } = getServerClient(request);
   try {
-    const recipes = await fetchRecipes(supabase);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const recipes = await fetchRecipes(supabase, user?.id ?? null);
     return data({ recipes }, { headers });
   } catch {
     // Render the page shell; the client-side query will surface the error
