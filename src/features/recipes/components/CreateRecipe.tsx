@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import { useCreateRecipe } from "../hooks/useRecipeMutations";
 import { RecipeForm } from "./RecipeForm";
+import { ROUTES } from "@/utils/constants";
 import type { RecipeFormData } from "../types";
 
 const FORM_STORAGE_KEY = "createRecipeFormData";
@@ -15,6 +17,7 @@ const EMPTY_FORM: RecipeFormData = {
 };
 
 export const CreateRecipe = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<RecipeFormData>(EMPTY_FORM);
 
   // Restore any saved draft after mount — localStorage isn't available during
@@ -83,7 +86,7 @@ export const CreateRecipe = () => {
 
   const handleSubmit = async () => {
     try {
-      await createRecipeMutation.mutateAsync({
+      const recipe = await createRecipeMutation.mutateAsync({
         recipe: {
           name: formData.name.trim(),
           steps: formData.steps.filter((step) => step.trim()),
@@ -99,9 +102,10 @@ export const CreateRecipe = () => {
         imageFile: formData.image_file,
         imageUrl: formData.image_url,
       });
-
-      resetForm();
       alert("Recipe created successfully!");
+      resetForm();
+      navigate(ROUTES.RECIPE_DETAILS(recipe.id));
+
     } catch (error) {
       console.error("Error creating recipe:", error);
       alert("Failed to create recipe. Please try again.");

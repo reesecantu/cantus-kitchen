@@ -175,6 +175,9 @@ export const useUpdateRecipe = () => {
       queryClient.invalidateQueries({
         queryKey: ["recipe-details", variables.recipeId],
       });
+      // Editing ingredients or servings changes aggregated grocery list
+      // quantities — the server regenerates them, so flush the client cache.
+      queryClient.invalidateQueries({ queryKey: ["grocery-list-items"] });
     },
   });
 };
@@ -196,8 +199,9 @@ export const useDeleteRecipe = () => {
         throw new Error(message || "Failed to delete recipe");
       }
     },
-    onSuccess: () => {
+    onSuccess: (_data, recipeId) => {
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      queryClient.invalidateQueries({ queryKey: ["recipe-details", recipeId] });
     },
   });
 };

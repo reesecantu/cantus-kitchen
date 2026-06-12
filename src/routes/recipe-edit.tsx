@@ -1,8 +1,9 @@
-import { data } from "react-router";
+import { data, redirect } from "react-router";
 import type { Route } from "./+types/recipe-edit";
 import { EditRecipePage } from "@/features/recipes/pages/EditRecipePage";
 import { fetchRecipeDetails } from "@/features/recipes/api";
 import { getServerClient } from "@/lib/supabase.server";
+import { ROUTES } from "@/utils/constants";
 
 export const meta: Route.MetaFunction = ({ data }) => {
   if (!data?.recipe) {
@@ -17,9 +18,13 @@ export const meta: Route.MetaFunction = ({ data }) => {
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const { supabase, headers } = getServerClient(request);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let recipe;
   try {
-    const recipe = await fetchRecipeDetails(supabase, params.id);
-    return data({ recipe }, { headers });
+    recipe = await fetchRecipeDetails(supabase, params.id);
   } catch (error) {
     // Mirror recipe-details: only a genuinely missing recipe is a 404.
     // PGRST116 = .single() found no rows; 22P02 = invalid uuid in the URL
@@ -29,6 +34,14 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }
     throw data("Failed to load recipe", { status: 500, headers });
   }
+
+  // Server-side ownership check — prevents full recipe data from being
+  // serialized and sent to non-owners before the client-side guard fires.
+  if (!user || recipe.created_by !== user.id) {
+    throw redirect(ROUTES.RECIPE_DETAILS(params.id), { headers });
+  }
+
+  return data({ recipe }, { headers });
 }
 
 export default function RecipeEditRoute({ loaderData }: Route.ComponentProps) {
