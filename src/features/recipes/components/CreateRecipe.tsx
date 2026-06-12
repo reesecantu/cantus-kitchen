@@ -1,22 +1,21 @@
 import { useState, useEffect } from "react";
-import { useIngredients } from "@/features/recipes/hooks/useIngredients";
 import { useCreateRecipe } from "../hooks/useRecipeMutations";
-import { IngredientMultiSelect } from "./IngredientMultiSelect";
-import { StepsInput } from "./StepsInput";
-import { ImageUpload } from "@/components/ImageUpload";
+import { RecipeForm } from "./RecipeForm";
 import type { RecipeFormData } from "../types";
 
 const FORM_STORAGE_KEY = "createRecipeFormData";
 
+const EMPTY_FORM: RecipeFormData = {
+  name: "",
+  steps: [],
+  image_file: undefined,
+  image_url: undefined,
+  ingredients: [],
+  servings: 1,
+};
+
 export const CreateRecipe = () => {
-  const [formData, setFormData] = useState<RecipeFormData>({
-    name: "",
-    steps: [],
-    image_file: undefined,
-    image_url: undefined,
-    ingredients: [],
-    servings: 1,
-  });
+  const [formData, setFormData] = useState<RecipeFormData>(EMPTY_FORM);
 
   // Restore any saved draft after mount — localStorage isn't available during
   // SSR, and reading it in the useState initializer would break hydration
@@ -44,8 +43,6 @@ export const CreateRecipe = () => {
 
   const [formKey, setFormKey] = useState(0);
 
-  const { data: ingredients = [], isLoading: ingredientsLoading } =
-    useIngredients();
   const createRecipeMutation = useCreateRecipe();
 
   // Save form data to localStorage whenever it changes
@@ -74,62 +71,17 @@ export const CreateRecipe = () => {
     }
   }, [formData]);
 
-  // Clear saved data helper
   const clearSavedData = () => {
     localStorage.removeItem(FORM_STORAGE_KEY);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const resetForm = () => {
+    setFormData(EMPTY_FORM);
+    clearSavedData();
+    setFormKey((prev) => prev + 1);
+  };
 
-    // Collect all missing fields
-    const missingFields: string[] = [];
-
-    // Check recipe name
-    if (!formData.name.trim()) {
-      missingFields.push("Recipe name");
-    }
-
-    // Check ingredients
-    if (formData.ingredients.length === 0) {
-      missingFields.push("Ingredients");
-    }
-
-    // Check steps
-    if (formData.steps.length === 0) {
-      missingFields.push("Steps");
-    } else {
-      // Check if any steps are empty
-      const hasEmptySteps = formData.steps.some((step) => !step.trim());
-      if (hasEmptySteps) {
-        missingFields.push("Complete all steps (some steps are empty)");
-      }
-    }
-
-    // Check servings (though this should be auto-handled by the input)
-    if (formData.servings < 1 || formData.servings > 300) {
-      missingFields.push("Valid servings (1-300)");
-    }
-
-    // Check for incomplete ingredients (optional but helpful)
-    const incompleteIngredients = formData.ingredients.filter(
-      (ing) => !ing.unit_id,
-    );
-    if (incompleteIngredients.length > 0) {
-      missingFields.push(
-        `Unit for ${incompleteIngredients.length} ingredient(s)`,
-      );
-    }
-
-    // If there are missing fields, show detailed alert
-    if (missingFields.length > 0) {
-      const message = `Missing the following fields:\n\n• ${missingFields.join(
-        "\n• ",
-      )}`;
-      alert(message);
-      return;
-    }
-
+  const handleSubmit = async () => {
     try {
       await createRecipeMutation.mutateAsync({
         recipe: {
@@ -148,20 +100,7 @@ export const CreateRecipe = () => {
         imageUrl: formData.image_url,
       });
 
-      // Reset form on success
-      const resetData = {
-        name: "",
-        steps: [],
-        image_file: undefined,
-        image_url: undefined,
-        ingredients: [],
-        servings: 1,
-      };
-
-      setFormData(resetData);
-      clearSavedData();
-      setFormKey((prev) => prev + 1);
-
+      resetForm();
       alert("Recipe created successfully!");
     } catch (error) {
       console.error("Error creating recipe:", error);
@@ -171,37 +110,27 @@ export const CreateRecipe = () => {
 
   const handleClearForm = () => {
     if (confirm("Are you sure you want to clear all form data?")) {
-      const resetData = {
-        name: "",
-        steps: [],
-        image_file: undefined,
-        image_url: undefined,
-        ingredients: [],
-        servings: 1,
-      };
-      setFormData(resetData);
-      clearSavedData();
-      setFormKey((prev) => prev + 1);
+      resetForm();
     }
   };
 
-  if (ingredientsLoading) {
-    return (
-      <div className="flex justify-center items-center p-8">
-        <div className="text-gray-500">Loading ingredients...</div>
-      </div>
-    );
-  }
+  const hasContent =
+    !!formData.name ||
+    formData.steps.length > 0 ||
+    formData.ingredients.length > 0;
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md my-10">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Create New Recipe</h2>
-
-        {/* Optional: Show clear button if there's saved data */}
-        {(formData.name ||
-          formData.steps.length > 0 ||
-          formData.ingredients.length > 0) && (
+    <RecipeForm
+      formData={formData}
+      onChange={setFormData}
+      onSubmit={handleSubmit}
+      title="Create New Recipe"
+      submitLabel="Create Recipe"
+      submittingLabel="Creating..."
+      isSubmitting={createRecipeMutation.isPending}
+      imageUploadKey={formKey}
+      headerAction={
+        hasContent ? (
           <button
             type="button"
             onClick={handleClearForm}
@@ -209,136 +138,8 @@ export const CreateRecipe = () => {
           >
             Clear Form
           </button>
-        )}
-      </div>
-
-      <form
-        onSubmit={handleSubmit}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-          }
-        }}
-        className="space-y-6"
-      >
-        {/* Recipe Name */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Recipe Name
-            </label>
-          </div>
-          <div>
-            <input
-              type="text"
-              id="name"
-              maxLength={100}
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              autoComplete="off"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter recipe name"
-              required
-            />
-            <div className="text-right mr-1">
-              <span className="text-xs text-gray-500">
-                {formData.name.length}/100
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Image Upload - Url or file */}
-        <ImageUpload
-          key={formKey}
-          imageFile={formData.image_file}
-          imageUrl={formData.image_url}
-          onImageChange={(file) =>
-            setFormData({ ...formData, image_file: file })
-          }
-          onImageUrlChange={(url) =>
-            setFormData({ ...formData, image_url: url })
-          }
-        />
-
-        {/* Servings Input */}
-        <div>
-          <label
-            htmlFor="servings"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Servings
-          </label>
-          <input
-            type="number"
-            id="servings"
-            min="1"
-            max="300"
-            inputMode="numeric"
-            value={formData.servings === 0 ? "" : formData.servings}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value === "") {
-                // Allow empty field temporarily
-                setFormData({
-                  ...formData,
-                  servings: 0, // Use 0 to represent empty state
-                });
-              } else {
-                const numValue = parseInt(value);
-                if (!isNaN(numValue)) {
-                  setFormData({
-                    ...formData,
-                    servings: Math.max(1, Math.min(300, numValue)),
-                  });
-                }
-              }
-            }}
-            onBlur={() => {
-              // Ensure valid value when field loses focus
-              if (formData.servings === 0) {
-                setFormData({
-                  ...formData,
-                  servings: 1,
-                });
-              }
-            }}
-            className="w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
-        </div>
-
-        {/* Ingredients Multi-Select */}
-        <IngredientMultiSelect
-          ingredients={ingredients}
-          selectedIngredients={formData.ingredients}
-          onIngredientsChange={(ingredients) =>
-            setFormData({ ...formData, ingredients })
-          }
-        />
-
-        {/* Steps Input */}
-        <StepsInput
-          steps={formData.steps}
-          onStepsChange={(steps) => setFormData({ ...formData, steps })}
-        />
-
-        {/* Submit Button */}
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={createRecipeMutation.isPending}
-            className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {createRecipeMutation.isPending ? "Creating..." : "Create Recipe"}
-          </button>
-        </div>
-      </form>
-    </div>
+        ) : undefined
+      }
+    />
   );
 };

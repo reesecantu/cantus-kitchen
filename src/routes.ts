@@ -5,6 +5,7 @@ export default [
   index("routes/home.tsx"),
   route(ROUTES.RECIPES, "routes/recipes.tsx"),
   route(ROUTES.RECIPE_DETAILS_PATTERN, "routes/recipe-details.tsx"),
+  route(ROUTES.RECIPE_EDIT_PATTERN, "routes/recipe-edit.tsx"),
   route(ROUTES.CREATE_RECIPE, "routes/create.tsx"),
   route(ROUTES.GROCERY_LISTS, "routes/grocery-lists.tsx"),
   route(ROUTES.GROCERY_LIST_DETAILS_PATTERN, "routes/grocery-list-details.tsx"),

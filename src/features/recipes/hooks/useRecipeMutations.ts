@@ -16,6 +16,36 @@ interface RecipeWithIngredients {
   imageUrl?: string; // Add imageUrl parameter
 }
 
+/**
+ * Upload a recipe photo to the `recipe-photos` bucket and return its public
+ * URL. Shared by create and edit — both let the browser do the upload (the
+ * anon client can write to the bucket) and pass the resulting URL to the row
+ * write.
+ */
+async function uploadRecipeImage(
+  imageFile: File,
+  recipeName: string
+): Promise<string> {
+  const cleanFileName = imageFile.name
+    .replace(/[^a-zA-Z0-9.-]/g, "_")
+    .toLowerCase();
+  const cleanRecipeName = recipeName.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+  const filePath = `${cleanRecipeName}-${Date.now()}-${cleanFileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("recipe-photos")
+    .upload(filePath, imageFile);
+  if (uploadError) {
+    console.error("Image upload error:", uploadError);
+    throw new Error(`Failed to upload image: ${uploadError.message}`);
+  }
+
+  const { data: publicUrlData } = supabase.storage
+    .from("recipe-photos")
+    .getPublicUrl(filePath);
+  return publicUrlData.publicUrl;
+}
+
 export const useCreateRecipe = () => {
   const queryClient = useQueryClient();
 
@@ -34,33 +64,7 @@ export const useCreateRecipe = () => {
       }
       // Otherwise, upload file if provided
       else if (imageFile) {
-        // Clean the filename and recipe name for the path
-        const cleanFileName = imageFile.name
-          .replace(/[^a-zA-Z0-9.-]/g, "_")
-          .toLowerCase();
-
-        const cleanRecipeName = recipe.name
-          .replace(/[^a-zA-Z0-9]/g, "_")
-          .toLowerCase();
-
-        const filePath = `${cleanRecipeName}-${Date.now()}-${cleanFileName}`;
-
-        // Upload to Supabase storage
-        const { error: uploadError } = await supabase.storage
-          .from("recipe-photos")
-          .upload(filePath, imageFile);
-
-        if (uploadError) {
-          console.error("Image upload error:", uploadError);
-          throw new Error(`Failed to upload image: ${uploadError.message}`);
-        }
-
-        // Get the public URL
-        const { data: publicUrlData } = supabase.storage
-          .from("recipe-photos")
-          .getPublicUrl(filePath);
-
-        finalImageUrl = publicUrlData.publicUrl;
+        finalImageUrl = await uploadRecipeImage(imageFile, recipe.name);
       }
 
       // Create the recipe with the final image URL
@@ -97,6 +101,100 @@ export const useCreateRecipe = () => {
       }
 
       return recipeData;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+    },
+  });
+};
+
+interface UpdateRecipeArgs {
+  recipeId: string;
+  recipe: {
+    name: string;
+    steps: string[];
+    servings: number;
+  };
+  ingredients: RecipeIngredientForDB[];
+  imageFile?: File;
+  // Either a freshly chosen URL or the recipe's existing image_url to keep it.
+  imageUrl?: string;
+}
+
+/**
+ * Edit a recipe. Resolves the final image URL client-side (new URL, a freshly
+ * uploaded file, or the unchanged existing URL passed through), then PUTs to
+ * the server route which rewrites the row + ingredients atomically and
+ * regenerates affected grocery lists.
+ */
+export const useUpdateRecipe = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      recipeId,
+      recipe,
+      ingredients,
+      imageFile,
+      imageUrl,
+    }: UpdateRecipeArgs) => {
+      let finalImageUrl: string | null = null;
+      if (imageUrl) {
+        finalImageUrl = imageUrl;
+      } else if (imageFile) {
+        finalImageUrl = await uploadRecipeImage(imageFile, recipe.name);
+      }
+
+      const response = await fetch(`/api/recipes/${recipeId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: recipe.name,
+          steps: recipe.steps,
+          servings: recipe.servings,
+          image_url: finalImageUrl,
+          ingredients: ingredients.map((ing) => ({
+            ingredient_id: ing.ingredient_id,
+            unit_id: ing.unit_id ?? null,
+            unit_amount: ing.unit_amount || null,
+            note: ing.note || null,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        const message = await response
+          .json()
+          .then((b) => b?.message)
+          .catch(() => null);
+        throw new Error(message || "Failed to update recipe");
+      }
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      queryClient.invalidateQueries({
+        queryKey: ["recipe-details", variables.recipeId],
+      });
+    },
+  });
+};
+
+/** Delete a recipe via the server route (RLS-checked, cleans up the photo). */
+export const useDeleteRecipe = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (recipeId: string) => {
+      const response = await fetch(`/api/recipes/${recipeId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const message = await response
+          .json()
+          .then((b) => b?.message)
+          .catch(() => null);
+        throw new Error(message || "Failed to delete recipe");
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recipes"] });

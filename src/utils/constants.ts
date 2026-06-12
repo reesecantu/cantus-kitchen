@@ -53,10 +53,12 @@ export const ROUTES = {
 
   // Route patterns for React Router
   RECIPE_DETAILS_PATTERN: "/recipe/:id",
+  RECIPE_EDIT_PATTERN: "/recipe/:id/edit",
   GROCERY_LIST_DETAILS_PATTERN: "/grocery-list/:id",
 
   // Dynamic route builders
   RECIPE_DETAILS: (id: string) => `/recipe/${id}`,
+  RECIPE_EDIT: (id: string) => `/recipe/${id}/edit`,
   GROCERY_LIST_DETAILS: (id: string) => `/grocery-list/${id}`,
 } as const;
 
