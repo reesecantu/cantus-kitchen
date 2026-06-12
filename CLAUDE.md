@@ -44,9 +44,7 @@ Business logic lives under `src/server/` and runs inside the React Router server
 
 HTTP surface: resource routes in `src/routes/api.*.ts` (`/api/grocery-lists/:listId/recipes`, `/api/grocery-lists/:listId/items`, `/api/recipes/:recipeId`, `/api/cron/cleanup-anonymous-users`). They authenticate via `getUser()`, verify list ownership for clean 404s, and validate bodies. The cron route is guarded by `CRON_SECRET` (Vercel cron sends it as a bearer token; schedule in `vercel.json`).
 
-What intentionally remains in Postgres: RLS policies on every table, `handle_new_anonymous_user` (auth.users trigger), `delete_old_anonymous_users` (called by the cron), and the `replace_generated_grocery_list_items` wrapper. Schema changes go through `supabase/migrations/` as new timestamped files, applied with `supabase db push`.
-
-> Transition note: legacy SQL functions/triggers coexist until `supabase/migrations/20260611130000_drop_ported_postgres_logic.sql` (Migration B) is applied post-deploy. After applying it, run `npm run gen-types` and delete this note.
+What intentionally remains in Postgres: RLS policies on every table, `handle_new_anonymous_user` (auth.users trigger), `delete_old_anonymous_users` (called by the cron), and the `replace_generated_grocery_list_items` wrapper. Schema changes go through `supabase/migrations/` as new timestamped files, applied with `supabase db push`./
 
 ### Feature-sliced layout
 Code is organized by feature under `src/features/<feature>/` (`auth`, `home`, `recipes`, `grocery-lists`), each with its own `components/`, `hooks/`, `pages/`, `types.ts`. The `auth` feature owns `AuthContext.tsx`: Google One Tap, email, anonymous/guest sign-in, password reset, the `initialUser` SSR seed, loader revalidation on sign-in/out, and a one-time localStorage→cookie session migration shim. Shared code lives in `src/components/`, `src/hooks/`, `src/lib/`, `src/utils/` (`constants.ts` has routes, validation, error copy, colors). `@/*` aliases `src/*` — prefer it for cross-folder imports.

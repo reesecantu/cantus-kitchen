@@ -328,6 +328,7 @@ export type Database = {
         Row: {
           abbreviation: string
           base_conversion_factor: number | null
+          cooking_priority: number | null
           created_at: string | null
           id: string
           name: string
@@ -337,6 +338,7 @@ export type Database = {
         Insert: {
           abbreviation?: string
           base_conversion_factor?: number | null
+          cooking_priority?: number | null
           created_at?: string | null
           id?: string
           name: string
@@ -346,6 +348,7 @@ export type Database = {
         Update: {
           abbreviation?: string
           base_conversion_factor?: number | null
+          cooking_priority?: number | null
           created_at?: string | null
           id?: string
           name?: string
@@ -354,114 +357,19 @@ export type Database = {
         }
         Relationships: []
       }
-      units_backup_before_fix: {
-        Row: {
-          abbreviation: string | null
-          base_conversion_factor: number | null
-          created_at: string | null
-          display_order: number | null
-          id: string | null
-          name: string | null
-          system: string | null
-          type: string | null
-        }
-        Insert: {
-          abbreviation?: string | null
-          base_conversion_factor?: number | null
-          created_at?: string | null
-          display_order?: number | null
-          id?: string | null
-          name?: string | null
-          system?: string | null
-          type?: string | null
-        }
-        Update: {
-          abbreviation?: string | null
-          base_conversion_factor?: number | null
-          created_at?: string | null
-          display_order?: number | null
-          id?: string | null
-          name?: string | null
-          system?: string | null
-          type?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      add_manual_item_to_grocery_list: {
-        Args: {
-          ingredient_name: string
-          list_id: string
-          notes?: string
-          quantity: number
-          unit_name: string
-        }
-        Returns: string
-      }
-      add_recipe_to_grocery_list: {
-        Args: {
-          list_id: string
-          p_recipe_id: string
-          servings_multiplier?: number
-        }
-        Returns: boolean
-      }
       delete_old_anonymous_users: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           deleted_count: number
         }[]
       }
-      find_best_unit_for_quantity: {
-        Args: {
-          p_base_quantity: number
-          p_preferred_system?: string
-          p_unit_type: string
-        }
-        Returns: string
-      }
-      generate_simple_anonymous_username: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_public_and_user_recipes: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          created_at: string
-          created_by: string
-          id: string
-          image_url: string
-          name: string
-          servings: number
-          steps: string[]
-        }[]
-      }
-      get_public_recipes: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          created_at: string
-          created_by: string
-          id: string
-          image_url: string
-          name: string
-          servings: number
-          steps: string[]
-        }[]
-      }
-      regenerate_grocery_list_items: {
-        Args: { list_id: string }
-        Returns: undefined
-      }
-      remove_recipe_from_grocery_list: {
-        Args: { list_id: string; recipe_id: number }
-        Returns: boolean
-      }
-      trigger_delete_old_anonymous_users: {
-        Args: Record<PropertyKey, never>
+      replace_generated_grocery_list_items: {
+        Args: { p_items: Json; p_list_id: string }
         Returns: undefined
       }
     }
