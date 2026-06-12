@@ -16,6 +16,7 @@ interface RecipeFormProps {
   onChange: (data: RecipeFormData) => void;
   /** Called only after client validation passes. */
   onSubmit: () => void | Promise<void>;
+  onCancel?: () => void;
   title: string;
   submitLabel: string;
   submittingLabel: string;
@@ -36,6 +37,7 @@ export const RecipeForm = ({
   formData,
   onChange,
   onSubmit,
+  onCancel,
   title,
   submitLabel,
   submittingLabel,
@@ -199,8 +201,18 @@ export const RecipeForm = ({
           onStepsChange={(steps) => onChange({ ...formData, steps })}
         />
 
-        {/* Submit Button */}
-        <div className="flex justify-end">
+        {/* Submit / Cancel Buttons */}
+        <div className="flex justify-end gap-3">
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={isSubmitting}
+              className="px-6 py-2 bg-white text-gray-700 font-medium rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Cancel
+            </button>
+          )}
           <button
             type="submit"
             disabled={isSubmitting}

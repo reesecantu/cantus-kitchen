@@ -67,6 +67,7 @@ export const EditRecipe = ({ recipe }: EditRecipeProps) => {
       formData={formData}
       onChange={setFormData}
       onSubmit={handleSubmit}
+      onCancel={() => navigate(ROUTES.RECIPE_DETAILS(recipe.id))}
       title="Edit Recipe"
       submitLabel="Save Changes"
       submittingLabel="Saving..."
