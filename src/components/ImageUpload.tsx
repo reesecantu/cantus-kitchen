@@ -15,7 +15,7 @@ export const ImageUpload = ({
   onImageUrlChange,
 }: ImageUploadProps) => {
   const [preview, setPreview] = useState<string | null>(null);
-  const [uploadMethod, setUploadMethod] = useState<"file" | "url">("file");
+  const [uploadMethod, setUploadMethod] = useState<"file" | "url">(imageUrl ? "url" : "file");
   const [imageError, setImageError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
