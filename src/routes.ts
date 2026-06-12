@@ -14,6 +14,8 @@ export default [
   route(ROUTES.FORGOT_PASSWORD, "routes/forgot-password.tsx"),
   route(ROUTES.RESET_PASSWORD, "routes/reset-password.tsx"),
 
+  route("/sitemap.xml", "routes/sitemap[.]xml.ts"),
+
   // Resource routes (no UI) — the app-layer replacement for the Postgres RPCs
   route("/api/grocery-lists/:listId/recipes", "routes/api.grocery-list-recipes.ts"),
   route("/api/grocery-lists/:listId/items", "routes/api.grocery-list-items.ts"),
