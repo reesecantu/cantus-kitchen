@@ -1,7 +1,16 @@
-import { ArrowLeft, Clock, Users, Image as ImageIcon } from "lucide-react";
-import { Link } from "react-router";
+import {
+  ArrowLeft,
+  Clock,
+  Users,
+  Image as ImageIcon,
+  Pencil,
+} from "lucide-react";
+import { Link, useNavigate } from "react-router";
 import { useRecipeDetails } from "../hooks";
+import { useDeleteRecipe } from "../hooks/useRecipeMutations";
+import { useAuth } from "@/features/auth/AuthContext";
 import { ROUTES } from "../../../utils/constants";
+import { DeleteButton } from "@/components/DeleteButton";
 import type { RecipeWithIngredients } from "../api";
 
 interface RecipeDetailsProps {
@@ -29,6 +38,21 @@ export const RecipeDetails = ({
     isLoading,
     error,
   } = useRecipeDetails(recipeId, initialRecipe);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const deleteRecipe = useDeleteRecipe();
+
+  const isOwner = !!user && recipe?.created_by === user.id;
+
+  const handleDelete = async () => {
+    try {
+      await deleteRecipe.mutateAsync(recipeId);
+      navigate(ROUTES.RECIPES);
+    } catch (err) {
+      console.error("Error deleting recipe:", err);
+      alert("Failed to delete recipe. Please try again.");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -63,9 +87,29 @@ export const RecipeDetails = ({
 
       {/* Recipe Header */}
       <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-          {recipe.name}
-        </h1>
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+            {recipe.name}
+          </h1>
+
+          {isOwner && (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Link
+                to={ROUTES.RECIPE_EDIT(recipeId)}
+                aria-label="Edit recipe"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              >
+                <Pencil className="h-4 w-4" /> Edit
+              </Link>
+              <DeleteButton
+                onDelete={handleDelete}
+                isPending={deleteRecipe.isPending}
+                confirmMessage="Delete this recipe? This can't be undone and will remove it from any grocery lists."
+                ariaLabel="Delete recipe"
+              />
+            </div>
+          )}
+        </div>
 
         <div className="flex items-center gap-6 text-gray-600">
           <div className="flex items-center gap-2">

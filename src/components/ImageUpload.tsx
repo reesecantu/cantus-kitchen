@@ -101,11 +101,11 @@ export const ImageUpload = ({
             checked={uploadMethod === "file"}
             onChange={(e) => {
               setUploadMethod(e.target.value as "file");
-              // Clear URL-related data when switching to file upload
-              if (imageUrl) {
-                onImageUrlChange(undefined);
-                setImageError(null);
-              }
+              setImageError(null);
+              // Don't clear imageUrl here — handleFileSelect does it once a
+              // file is actually chosen. Clearing eagerly would wipe an
+              // existing photo if the user switches modes and saves without
+              // picking a file.
             }}
             className="mr-2"
           />

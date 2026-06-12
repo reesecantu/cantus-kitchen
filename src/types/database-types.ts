@@ -372,6 +372,17 @@ export type Database = {
         Args: { p_items: Json; p_list_id: string }
         Returns: undefined
       }
+      replace_recipe: {
+        Args: {
+          p_image_url: string
+          p_ingredients: Json
+          p_name: string
+          p_recipe_id: string
+          p_servings: number
+          p_steps: string[]
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
