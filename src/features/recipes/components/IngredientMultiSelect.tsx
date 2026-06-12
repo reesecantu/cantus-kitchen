@@ -6,7 +6,7 @@ import { useUnits } from "@/hooks/useUnits";
 import {
   SearchableDropdown,
   type SearchableDropdownRef,
-} from "./SearchableDropdown";
+} from "@/components/SearchableDropdown";
 import { COLORS } from "@/utils/constants";
 
 interface IngredientMultiSelectProps {
