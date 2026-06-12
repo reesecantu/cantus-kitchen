@@ -1,24 +1,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { useAuth } from "@/features/auth/AuthContext";
+import { useFormValidation } from "@/hooks/useFormValidation";
 import chef from "@/assets/chef-blue.svg";
-
-interface FormErrors {
-  password?: string;
-  confirmPassword?: string;
-  general?: string;
-}
 
 export const ResetPassword = () => {
   const { updatePassword } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { errors, validateForm, clearError, setErrors } = useFormValidation();
 
   // Form state
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -36,32 +31,10 @@ export const ResetPassword = () => {
     }
   }, [searchParams]);
 
-  // Form validation
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    // Password validation
-    if (!password) {
-      newErrors.password = "Password is required";
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    // Confirm password validation
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!validateForm({ password, confirmPassword }, { password: true, confirmPassword: true })) {
       return;
     }
 
@@ -148,9 +121,7 @@ export const ResetPassword = () => {
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    if (errors.password) {
-                      setErrors((prev) => ({ ...prev, password: undefined }));
-                    }
+                    if (errors.password) clearError("password");
                   }}
                   required
                   disabled={loading}
@@ -184,12 +155,7 @@ export const ResetPassword = () => {
                   value={confirmPassword}
                   onChange={(e) => {
                     setConfirmPassword(e.target.value);
-                    if (errors.confirmPassword) {
-                      setErrors((prev) => ({
-                        ...prev,
-                        confirmPassword: undefined,
-                      }));
-                    }
+                    if (errors.confirmPassword) clearError("confirmPassword");
                   }}
                   required
                   disabled={loading}

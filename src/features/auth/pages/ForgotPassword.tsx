@@ -1,40 +1,23 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { useAuth } from "@/features/auth/AuthContext";
+import { useFormValidation } from "@/hooks/useFormValidation";
 import chef from "@/assets/chef-blue.svg";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
-interface FormErrors {
-  email?: string;
-  general?: string;
-}
-
 export const ForgotPassword = () => {
   const { resetPassword } = useAuth();
+  const { errors, validateForm, clearError, setErrors } = useFormValidation();
 
   // Form state
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
   const [isEmailSent, setIsEmailSent] = useState(false);
-
-  // Email validation
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate email
-    if (!email) {
-      setErrors({ email: "Email is required" });
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      setErrors({ email: "Please enter a valid email address" });
+    if (!validateForm({ email }, { email: true })) {
       return;
     }
 
@@ -167,9 +150,7 @@ export const ForgotPassword = () => {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  if (errors.email) {
-                    setErrors((prev) => ({ ...prev, email: undefined }));
-                  }
+                  if (errors.email) clearError("email");
                 }}
                 required
                 disabled={loading}
