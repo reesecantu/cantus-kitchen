@@ -98,6 +98,9 @@ export async function addRecipeToGroceryList(
   );
   if (error) throw error;
 
+  // Membership row committed above; regen runs next. A concurrent add/remove
+  // between these two statements can read stale membership and produce a lost
+  // update — full prevention requires moving the read inside a Postgres function.
   await regenerateGroceryListItems(supabase, args.listId);
 }
 
@@ -112,6 +115,7 @@ export async function removeRecipeFromGroceryList(
     .eq("recipe_id", args.recipeId);
   if (error) throw error;
 
+  // Same race note as addRecipeToGroceryList: membership committed, regen next.
   await regenerateGroceryListItems(supabase, args.listId);
 }
 

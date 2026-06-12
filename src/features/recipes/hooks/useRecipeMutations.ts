@@ -56,51 +56,43 @@ export const useCreateRecipe = () => {
       imageFile,
       imageUrl,
     }: RecipeWithIngredients) => {
-      let finalImageUrl: string | null = null;
+      if (ingredients.length === 0) {
+        throw new Error("There should be at least one ingredient in the recipe");
+      }
 
-      // if imageUrl is provided, use it directly
+      let finalImageUrl: string | null = null;
       if (imageUrl) {
         finalImageUrl = imageUrl;
-      }
-      // Otherwise, upload file if provided
-      else if (imageFile) {
+      } else if (imageFile) {
         finalImageUrl = await uploadRecipeImage(imageFile, recipe.name);
       }
 
-      // Create the recipe with the final image URL
-      const { data: recipeData, error: recipeError } = await supabase
-        .from("recipes")
-        .insert({
+      const response = await fetch("/api/recipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           name: recipe.name,
           steps: recipe.steps,
-          image_url: finalImageUrl,
-          created_by: recipe.created_by,
           servings: recipe.servings,
-        })
-        .select()
-        .single();
+          image_url: finalImageUrl,
+          ingredients: ingredients.map((ing) => ({
+            ingredient_id: ing.ingredient_id,
+            unit_id: ing.unit_id ?? null,
+            unit_amount: ing.unit_amount || null,
+            note: ing.note || null,
+          })),
+        }),
+      });
 
-      if (recipeError) throw recipeError;
-
-      if (ingredients.length > 0) {
-        const recipeIngredients = ingredients.map((ing) => ({
-          recipe_id: recipeData.id,
-          ingredient_id: ing.ingredient_id,
-          unit_id: ing.unit_id,
-          unit_amount: ing.unit_amount || null,
-          note: ing.note || null,
-        }));
-
-        const { error: ingredientsError } = await supabase
-          .from("recipe_ingredients")
-          .insert(recipeIngredients);
-
-        if (ingredientsError) throw ingredientsError;
-      } else {
-        throw Error("There should be at least one ingredient in the recipe");
+      if (!response.ok) {
+        const message = await response
+          .json()
+          .then((b) => b?.message)
+          .catch(() => null);
+        throw new Error(message || "Failed to create recipe");
       }
 
-      return recipeData;
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recipes"] });

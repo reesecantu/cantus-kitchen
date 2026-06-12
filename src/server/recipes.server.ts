@@ -39,13 +39,8 @@ export async function deleteRecipe(
     .eq("id", recipeId);
   if (deleteError) throw deleteError;
 
-  const listIds = [
-    ...new Set((affectedLists ?? []).map((row) => row.grocery_list_id)),
-  ];
-  for (const listId of listIds) {
-    await regenerateGroceryListItems(admin, listId);
-  }
-
+  // Clean up photo before regen: the row is already gone, so this must run
+  // regardless of whether regen succeeds.
   if (recipe.image_url) {
     const path = recipe.image_url.replace(/^.*?\/recipe-photos\//, "");
     if (path) {
@@ -57,6 +52,52 @@ export async function deleteRecipe(
       }
     }
   }
+
+  const listIds = [
+    ...new Set((affectedLists ?? []).map((row) => row.grocery_list_id)),
+  ];
+  // Per-list try/catch: one bad list must not abort regeneration of the rest.
+  for (const listId of listIds) {
+    try {
+      await regenerateGroceryListItems(admin, listId);
+    } catch (err) {
+      console.error(`Failed to regenerate grocery list ${listId}:`, err);
+    }
+  }
+}
+
+export interface CreateRecipePayload {
+  name: string;
+  steps: string[];
+  servings: number;
+  image_url: string | null;
+  created_by: string;
+  ingredients: {
+    ingredient_id: number;
+    unit_id: string | null;
+    unit_amount: number | null;
+    note: string | null;
+  }[];
+}
+
+/**
+ * Create a recipe and its ingredients atomically via the `create_recipe` RPC
+ * (SECURITY INVOKER, so RLS enforces ownership). Returns the new recipe's id.
+ */
+export async function createRecipe(
+  supabase: SupabaseClient,
+  payload: CreateRecipePayload
+): Promise<string> {
+  const { data: recipeId, error } = await supabase.rpc("create_recipe", {
+    p_name: payload.name,
+    p_steps: payload.steps,
+    p_servings: payload.servings,
+    p_image_url: payload.image_url,
+    p_created_by: payload.created_by,
+    p_ingredients: payload.ingredients,
+  });
+  if (error) throw error;
+  return recipeId as string;
 }
 
 export interface UpdateRecipePayload {
@@ -125,8 +166,13 @@ export async function updateRecipe(
   const listIds = [
     ...new Set((affectedLists ?? []).map((row) => row.grocery_list_id)),
   ];
+  // Per-list try/catch: one bad list must not abort regeneration of the rest.
   for (const listId of listIds) {
-    await regenerateGroceryListItems(admin, listId);
+    try {
+      await regenerateGroceryListItems(admin, listId);
+    } catch (err) {
+      console.error(`Failed to regenerate grocery list ${listId}:`, err);
+    }
   }
 
   // Clean up the old photo only when the image actually changed.

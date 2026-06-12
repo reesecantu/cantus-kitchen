@@ -17,6 +17,7 @@ export default [
   // Resource routes (no UI) — the app-layer replacement for the Postgres RPCs
   route("/api/grocery-lists/:listId/recipes", "routes/api.grocery-list-recipes.ts"),
   route("/api/grocery-lists/:listId/items", "routes/api.grocery-list-items.ts"),
+  route("/api/recipes", "routes/api.recipes.create.ts"),
   route("/api/recipes/:recipeId", "routes/api.recipes.ts"),
   route("/api/cron/cleanup-anonymous-users", "routes/api.cron.cleanup-anonymous-users.ts"),
 ] satisfies RouteConfig;
