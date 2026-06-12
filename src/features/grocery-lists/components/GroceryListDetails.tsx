@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit3, Check, X, ArrowLeft, Trash2 } from "lucide-react";
+import { Edit3, Check, X, ArrowLeft } from "lucide-react";
 import {
   useGroceryList,
   useUpdateGroceryList,
@@ -9,6 +9,7 @@ import { GroceryListRecipes } from "./GroceryListRecipes";
 import { GroceryListItems } from "./GroceryListItems";
 import { Link, useNavigate } from "react-router";
 import { ROUTES } from "../../../utils/constants";
+import { DeleteButton } from "@/components/DeleteButton";
 
 interface GroceryListDetailsProps {
   listId: string;
@@ -38,9 +39,6 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
   // State for editing description
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editedDescription, setEditedDescription] = useState("");
-
-  // State for delete confirmation
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Name editing handlers
   const handleStartEditName = () => {
@@ -109,7 +107,6 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
     }
   };
 
-  // Delete handlers
   const handleDeleteList = async () => {
     if (groceryList) {
       try {
@@ -195,34 +192,13 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
           {/* Delete Button */}
           {!isEditingName && (
             <div className="ml-4">
-              {showDeleteConfirm ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">
-                    Delete this list?
-                  </span>
-                  <button
-                    onClick={handleDeleteList}
-                    disabled={deleteMutation.isPending}
-                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                  >
-                    {deleteMutation.isPending ? "Deleting..." : "Yes"}
-                  </button>
-                  <button
-                    onClick={() => setShowDeleteConfirm(false)}
-                    className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
-                  >
-                    No
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="p-2 text-white bg-red-500 hover:bg-red-600 rounded transition-colors shadow-md"
-                  title="Delete grocery list"
-                >
-                  <Trash2 className="h-5 w-5" />
-                </button>
-              )}
+              <DeleteButton
+                onDelete={handleDeleteList}
+                isPending={deleteMutation.isPending}
+                label="Delete"
+                confirmMessage="Delete this grocery list?"
+                ariaLabel="Delete grocery list"
+              />
             </div>
           )}
         </div>

@@ -4,13 +4,13 @@ import {
   Users,
   Image as ImageIcon,
   Pencil,
-  Trash2,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useRecipeDetails } from "../hooks";
 import { useDeleteRecipe } from "../hooks/useRecipeMutations";
 import { useAuth } from "@/features/auth/AuthContext";
 import { ROUTES } from "../../../utils/constants";
+import { DeleteButton } from "@/components/DeleteButton";
 import type { RecipeWithIngredients } from "../api";
 
 interface RecipeDetailsProps {
@@ -45,13 +45,6 @@ export const RecipeDetails = ({
   const isOwner = !!user && recipe?.created_by === user.id;
 
   const handleDelete = async () => {
-    if (
-      !confirm(
-        "Delete this recipe? This can't be undone and will remove it from any grocery lists."
-      )
-    ) {
-      return;
-    }
     try {
       await deleteRecipe.mutateAsync(recipeId);
       navigate(ROUTES.RECIPES);
@@ -108,16 +101,12 @@ export const RecipeDetails = ({
               >
                 <Pencil className="h-4 w-4" /> Edit
               </Link>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleteRecipe.isPending}
-                aria-label="Delete recipe"
-                className="flex items-center gap-1.5 px-3 py-2 text-sm text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Trash2 className="h-4 w-4" />{" "}
-                {deleteRecipe.isPending ? "Deleting..." : "Delete"}
-              </button>
+              <DeleteButton
+                onDelete={handleDelete}
+                isPending={deleteRecipe.isPending}
+                confirmMessage="Delete this recipe? This can't be undone and will remove it from any grocery lists."
+                ariaLabel="Delete recipe"
+              />
             </div>
           )}
         </div>
