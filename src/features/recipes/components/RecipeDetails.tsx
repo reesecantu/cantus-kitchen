@@ -2,9 +2,11 @@ import { ArrowLeft, Clock, Users, Image as ImageIcon } from "lucide-react";
 import { Link } from "react-router";
 import { useRecipeDetails } from "../hooks";
 import { ROUTES } from "../../../utils/constants";
+import type { RecipeWithIngredients } from "../api";
 
 interface RecipeDetailsProps {
   recipeId: string;
+  initialRecipe?: RecipeWithIngredients;
 }
 
 const BackButton = () => {
@@ -18,8 +20,15 @@ const BackButton = () => {
   );
 };
 
-export const RecipeDetails = ({ recipeId }: RecipeDetailsProps) => {
-  const { data: recipe, isLoading, error } = useRecipeDetails(recipeId);
+export const RecipeDetails = ({
+  recipeId,
+  initialRecipe,
+}: RecipeDetailsProps) => {
+  const {
+    data: recipe,
+    isLoading,
+    error,
+  } = useRecipeDetails(recipeId, initialRecipe);
 
   if (isLoading) {
     return (

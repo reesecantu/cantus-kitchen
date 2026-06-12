@@ -1,13 +1,14 @@
 import { Link } from "react-router";
-import { useRecipes } from "../hooks";
+import { useRecipes, type SsrRecipes } from "../hooks/useRecipes";
 import { RecipeTile } from "./RecipeTile";
 
 interface RecipeListProps {
   searchTerm: string;
+  ssrRecipes?: SsrRecipes;
 }
 
-export const RecipeList = ({ searchTerm }: RecipeListProps) => {
-  const { data: recipes = [], isLoading, error } = useRecipes();
+export const RecipeList = ({ searchTerm, ssrRecipes }: RecipeListProps) => {
+  const { data: recipes = [], isLoading, error } = useRecipes(ssrRecipes);
 
   const filteredRecipes = recipes.filter((recipe) => {
     if (!searchTerm.trim()) return true;
