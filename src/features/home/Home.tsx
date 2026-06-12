@@ -6,16 +6,16 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { Link } from "react-router";
-import { Testimonials } from "../components/Testimonials";
-import { ROUTES, COLORS } from "../../../utils/constants";
+import { Testimonials } from "./Testimonials";
+import { ROUTES, COLORS } from "@/utils/constants";
 
 // Photos for about section
-import reesePhoto1 from "../../../assets/reese-squares/reese1.jpg";
-import reesePhoto2 from "../../../assets/reese-squares/reese2.jpg";
-import reesePhoto3 from "../../../assets/reese-squares/reese3.jpg";
-import reesePhoto4 from "../../../assets/reese-squares/reese4.jpg";
-import reesePhoto5 from "../../../assets/reese-squares/reese5.jpg";
-import reesePhoto6 from "../../../assets/reese-squares/reese6.jpg";
+import reesePhoto1 from "@/assets/reese-squares/reese1.jpg";
+import reesePhoto2 from "@/assets/reese-squares/reese2.jpg";
+import reesePhoto3 from "@/assets/reese-squares/reese3.jpg";
+import reesePhoto4 from "@/assets/reese-squares/reese4.jpg";
+import reesePhoto5 from "@/assets/reese-squares/reese5.jpg";
+import reesePhoto6 from "@/assets/reese-squares/reese6.jpg";
 
 export const Home = () => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);

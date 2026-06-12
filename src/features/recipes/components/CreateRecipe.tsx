@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useIngredients } from "@/hooks/useIngredients";
+import { useIngredients } from "@/features/recipes/hooks/useIngredients";
 import { useCreateRecipe } from "../hooks/useRecipeMutations";
-import { IngredientMultiSelect } from "@/components/IngredientMultiSelect";
-import { StepsInput } from "@/components/StepsInput";
+import { IngredientMultiSelect } from "./IngredientMultiSelect";
+import { StepsInput } from "./StepsInput";
 import { ImageUpload } from "@/components/ImageUpload";
 import type { RecipeFormData } from "../types";
 
