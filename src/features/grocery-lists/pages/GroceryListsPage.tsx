@@ -27,7 +27,7 @@ export const GroceryListsPage = () => {
     }
   };
 
-  // Otherwise, show the list of all grocery lists
+
   return (
     <div className="mx-10 md:mx-20 lg:mx-40 mt-20">
       <div className="flex justify-between items-center mb-6">
@@ -62,15 +62,17 @@ export const GroceryListsPage = () => {
       <div className="w-full h-2 bg-amber-400 rounded-full border-2 border-gray-700 mb-8" />
 
       {/* My Grocery Lists */}
-      {user ? (
-        <GroceryListList />
-      ) : (
-        <p className="text-lg text-gray-900 text-center">
-          {" "}
-          Sign in to create your own custom grocery lists! Coming Soon: Featured
-          Grocery Lists.
-        </p>
-      )}
+      <div className="mb-12">
+        {user ? (
+          <GroceryListList />
+        ) : (
+          <p className="text-lg text-gray-900 text-center">
+            {" "}
+            Sign in to create your own custom grocery lists! Coming Soon: Featured
+            Grocery Lists.
+          </p>
+        )}
+      </div>
     </div>
   );
 };
