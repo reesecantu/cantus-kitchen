@@ -45,7 +45,7 @@ export const RecipeForm = ({
   imageUploadKey = 0,
   headerAction,
 }: RecipeFormProps) => {
-  const { data: ingredients = [], isLoading: ingredientsLoading } =
+  const { data: ingredients = [], isLoading: ingredientsLoading, isError: ingredientsError } =
     useIngredients();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -83,14 +83,6 @@ export const RecipeForm = ({
 
     onSubmit();
   };
-
-  if (ingredientsLoading) {
-    return (
-      <div className="flex justify-center items-center p-8">
-        <div className="text-gray-500">Loading ingredients...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md my-10">
@@ -193,6 +185,8 @@ export const RecipeForm = ({
           onIngredientsChange={(ingredients) =>
             onChange({ ...formData, ingredients })
           }
+          isLoading={ingredientsLoading}
+          isError={ingredientsError}
         />
 
         {/* Steps Input */}

@@ -13,12 +13,16 @@ interface IngredientMultiSelectProps {
   ingredients: Tables<"ingredients">[];
   selectedIngredients: RecipeIngredient[];
   onIngredientsChange: (ingredients: RecipeIngredient[]) => void;
+  isLoading?: boolean;
+  isError?: boolean;
 }
 
 export const IngredientMultiSelect = ({
   ingredients,
   selectedIngredients,
   onIngredientsChange,
+  isLoading = false,
+  isError = false,
 }: IngredientMultiSelectProps) => {
   const { data: units = [] } = useUnits();
   const dropdownRef = useRef<SearchableDropdownRef>(null);
@@ -185,21 +189,28 @@ export const IngredientMultiSelect = ({
       )}
 
       {/* Add ingredient dropdown */}
-      <SearchableDropdown
-        ref={dropdownRef}
-        label={
-          selectedIngredients.length === 0
-            ? "Ingredients"
-            : "Add More Ingredients"
-        }
-        placeholder="Add ingredients..."
-        searchPlaceholder="Search ingredients..."
-        items={availableIngredients}
-        onItemSelect={addIngredient}
-        getItemId={(ingredient) => ingredient.id}
-        getItemLabel={(ingredient) => ingredient.name}
-        mode="single"
-      />
+      {isError ? (
+        <p className="text-sm text-red-600">
+          Failed to load ingredients. Please refresh.
+        </p>
+      ) : (
+        <SearchableDropdown
+          ref={dropdownRef}
+          label={
+            selectedIngredients.length === 0
+              ? "Ingredients"
+              : "Add More Ingredients"
+          }
+          placeholder={isLoading ? "Loading ingredients..." : "Add ingredients..."}
+          searchPlaceholder="Search ingredients..."
+          items={availableIngredients}
+          onItemSelect={addIngredient}
+          getItemId={(ingredient) => ingredient.id}
+          getItemLabel={(ingredient) => ingredient.name}
+          mode="single"
+          disabled={isLoading}
+        />
+      )}
       <p className={`text-xs ${COLORS.TEXT_SECONDARY}`}>
         Can't find an ingredient you want?{" "}
         <a
