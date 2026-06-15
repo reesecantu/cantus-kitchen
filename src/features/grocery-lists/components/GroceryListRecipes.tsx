@@ -125,7 +125,7 @@ export const GroceryListRecipes = ({
                       // Allow empty field temporarily
                       setServingsMultiplier(0); // Use 0 to represent empty state
                     } else {
-                      const numValue = parseFloat(value);
+                      const numValue = parseInt(value, 10);
                       if (!isNaN(numValue)) {
                         setServingsMultiplier(
                           Math.max(1, Math.min(50, numValue)),
