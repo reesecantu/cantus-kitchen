@@ -40,7 +40,8 @@ const BackButton = () => {
 function scaleIngredients(
   ingredients: RecipeIngredientWithDetails[],
   scaleFactor: number,
-  unitsById: Map<string, UnitDisplayInfo>
+  unitsById: Map<string, UnitDisplayInfo>,
+  allUnits: UnitDisplayInfo[]
 ): RecipeIngredientWithDetails[] {
   return ingredients.map((ing) => {
     if (ing.unit_amount === null) return ing;
@@ -56,7 +57,7 @@ function scaleIngredients(
     const bestUnitId = findBestUnitForQuantity(
       baseQuantity,
       unit.type,
-      Array.from(unitsById.values())
+      allUnits
     );
     const bestUnit = bestUnitId ? unitsById.get(bestUnitId) : unit;
     const displayQuantity = bestUnit?.baseConversionFactor
@@ -93,10 +94,10 @@ export const RecipeDetails = ({
     return !isNaN(n) && n >= 1 ? Math.min(50, n) : null;
   });
 
-  const unitsById = useMemo(
-    () => new Map(units.map((u) => [u.id, u])),
-    [units]
-  );
+  const [unitsById, allUnits] = useMemo(() => {
+    const byId = new Map(units.map((u) => [u.id, u]));
+    return [byId, Array.from(byId.values())];
+  }, [units]);
 
   const effectiveServings = displayServings ?? recipe?.servings ?? 1;
   const isScaled =
@@ -110,9 +111,10 @@ export const RecipeDetails = ({
     return scaleIngredients(
       recipe.ingredients,
       effectiveServings / recipe.servings,
-      unitsById
+      unitsById,
+      allUnits
     );
-  }, [recipe, isScaled, effectiveServings, unitsById]);
+  }, [recipe, isScaled, effectiveServings, unitsById, allUnits]);
 
   const handleServingsChange = (delta: number) => {
     if (!recipe) return;

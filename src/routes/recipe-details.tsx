@@ -24,15 +24,11 @@ export const meta: Route.MetaFunction = ({ data }) => {
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const { supabase, headers } = getServerClient(request);
+
+  let recipe: Awaited<ReturnType<typeof fetchRecipeDetails>>;
   try {
-    const [recipe, units] = await Promise.all([
-      fetchRecipeDetails(supabase, params.id),
-      fetchUnitsForDisplay(supabase),
-    ]);
-    return data({ recipe, units }, { headers });
+    recipe = await fetchRecipeDetails(supabase, params.id);
   } catch (error) {
-    // Only a genuinely missing recipe is a 404 — transient Supabase/network
-    // failures must be 500s, or outages get recipe pages de-indexed.
     // PGRST116 = .single() found no rows; 22P02 = invalid uuid in the URL
     const code = (error as { code?: string })?.code;
     if (code === "PGRST116" || code === "22P02") {
@@ -40,6 +36,16 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }
     throw data("Failed to load recipe", { status: 500, headers });
   }
+
+  // Units are optional display data — a failure here must not block the recipe page.
+  let units: Awaited<ReturnType<typeof fetchUnitsForDisplay>> = [];
+  try {
+    units = await fetchUnitsForDisplay(supabase);
+  } catch {
+    // non-critical; render without unit conversion
+  }
+
+  return data({ recipe, units }, { headers });
 }
 
 export default function RecipeDetailsRoute({
