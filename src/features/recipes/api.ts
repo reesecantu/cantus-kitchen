@@ -28,6 +28,36 @@ export interface RecipeWithIngredients extends Tables<"recipes"> {
  */
 export const PUBLIC_RECIPES_USER_ID = "6e0258f5-c980-47d2-a7ee-981e76e56333";
 
+export interface UnitDisplayInfo {
+  id: string;
+  type: string;
+  system: string;
+  baseConversionFactor: number | null;
+  cookingPriority: number | null;
+  name: string;
+  abbreviation: string;
+}
+
+export async function fetchUnitsForDisplay(
+  client: SupabaseClient
+): Promise<UnitDisplayInfo[]> {
+  const { data, error } = await client
+    .from("units")
+    .select(
+      "id, type, system, base_conversion_factor, cooking_priority, name, abbreviation"
+    );
+  if (error) throw error;
+  return (data ?? []).map((u) => ({
+    id: u.id,
+    type: u.type,
+    system: u.system,
+    baseConversionFactor: u.base_conversion_factor,
+    cookingPriority: u.cooking_priority,
+    name: u.name,
+    abbreviation: u.abbreviation,
+  }));
+}
+
 // Shared between the TanStack Query hooks (browser client) and the route
 // loaders (per-request server client), so SSR and client render identical
 // data. Replaces the get_public_recipes / get_public_and_user_recipes RPCs:

@@ -187,7 +187,11 @@ export const GroceryListRecipes = ({
               </button>
 
               <Link
-                to={ROUTES.RECIPE_DETAILS(recipe.recipe_id!)}
+                to={
+                  recipe.servings_multiplier
+                    ? `${ROUTES.RECIPE_DETAILS(recipe.recipe_id!)}?servings=${recipe.servings_multiplier}`
+                    : ROUTES.RECIPE_DETAILS(recipe.recipe_id!)
+                }
                 className="hover:underline decoration-blue-600 decoration-2 transition-colors"
               >
                 <div className="font-semibold text-gray-800 ">

@@ -1,21 +1,29 @@
 import {
   ArrowLeft,
+  ChevronDown,
+  ChevronUp,
   Clock,
   Users,
   Image as ImageIcon,
   Pencil,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { useMemo, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useRecipeDetails } from "../hooks";
 import { useDeleteRecipe } from "../hooks/useRecipeMutations";
 import { useAuth } from "@/features/auth/AuthContext";
 import { ROUTES } from "../../../utils/constants";
 import { DeleteButton } from "@/components/DeleteButton";
-import type { RecipeWithIngredients } from "../api";
+import type { RecipeIngredientWithDetails, RecipeWithIngredients, UnitDisplayInfo } from "../api";
+import {
+  findBestUnitForQuantity,
+  roundQuantity,
+} from "@/server/grocery-aggregation";
 
 interface RecipeDetailsProps {
   recipeId: string;
   initialRecipe?: RecipeWithIngredients;
+  units?: UnitDisplayInfo[];
 }
 
 const BackButton = () => {
@@ -29,9 +37,46 @@ const BackButton = () => {
   );
 };
 
+function scaleIngredients(
+  ingredients: RecipeIngredientWithDetails[],
+  scaleFactor: number,
+  unitsById: Map<string, UnitDisplayInfo>
+): RecipeIngredientWithDetails[] {
+  return ingredients.map((ing) => {
+    if (ing.unit_amount === null) return ing;
+
+    const scaledAmount = ing.unit_amount * scaleFactor;
+    const unit = ing.unit_id ? unitsById.get(ing.unit_id) : undefined;
+
+    if (!unit || unit.baseConversionFactor === null) {
+      return { ...ing, unit_amount: roundQuantity(scaledAmount) };
+    }
+
+    const baseQuantity = scaledAmount * unit.baseConversionFactor;
+    const bestUnitId = findBestUnitForQuantity(
+      baseQuantity,
+      unit.type,
+      Array.from(unitsById.values())
+    );
+    const bestUnit = bestUnitId ? unitsById.get(bestUnitId) : unit;
+    const displayQuantity = bestUnit?.baseConversionFactor
+      ? roundQuantity(baseQuantity / bestUnit.baseConversionFactor)
+      : roundQuantity(scaledAmount);
+
+    return {
+      ...ing,
+      unit_amount: displayQuantity,
+      unit_id: bestUnitId ?? ing.unit_id,
+      unit_name: bestUnit?.name ?? ing.unit_name,
+      unit_abbreviation: bestUnit?.abbreviation ?? ing.unit_abbreviation,
+    };
+  });
+}
+
 export const RecipeDetails = ({
   recipeId,
   initialRecipe,
+  units = [],
 }: RecipeDetailsProps) => {
   const {
     data: recipe,
@@ -41,6 +86,40 @@ export const RecipeDetails = ({
   const { user } = useAuth();
   const navigate = useNavigate();
   const deleteRecipe = useDeleteRecipe();
+  const [searchParams] = useSearchParams();
+  const [displayServings, setDisplayServings] = useState<number | null>(() => {
+    const s = searchParams.get("servings");
+    const n = s ? parseInt(s, 10) : NaN;
+    return !isNaN(n) && n >= 1 ? Math.min(50, n) : null;
+  });
+
+  const unitsById = useMemo(
+    () => new Map(units.map((u) => [u.id, u])),
+    [units]
+  );
+
+  const effectiveServings = displayServings ?? recipe?.servings ?? 1;
+  const isScaled =
+    recipe !== undefined &&
+    displayServings !== null &&
+    displayServings !== recipe.servings;
+
+  const displayIngredients = useMemo(() => {
+    if (!recipe) return [];
+    if (!isScaled) return recipe.ingredients;
+    return scaleIngredients(
+      recipe.ingredients,
+      effectiveServings / recipe.servings,
+      unitsById
+    );
+  }, [recipe, isScaled, effectiveServings, unitsById]);
+
+  const handleServingsChange = (delta: number) => {
+    if (!recipe) return;
+    const current = displayServings ?? recipe.servings;
+    const next = Math.min(50, Math.max(1, current + delta));
+    setDisplayServings(next === recipe.servings ? null : next);
+  };
 
   const isOwner = !!user && recipe?.created_by === user.id;
 
@@ -114,7 +193,37 @@ export const RecipeDetails = ({
         <div className="flex items-center gap-6 text-gray-600">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            <span>{recipe.servings} servings</span>
+            <div className="flex items-center">
+              <span className="min-w-24 tabular-nums">
+                {effectiveServings} servings
+              </span>
+              <div className="flex flex-col">
+                <button
+                  onClick={() => handleServingsChange(1)}
+                  disabled={effectiveServings >= 50}
+                  className="flex items-center justify-center rounded text-gray-500 hover:text-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Increase servings"
+                >
+                  <ChevronUp className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleServingsChange(-1)}
+                  disabled={effectiveServings <= 1}
+                  className="flex items-center justify-center rounded text-gray-500 hover:text-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Decrease servings"
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            {isScaled && (
+              <button
+                onClick={() => setDisplayServings(null)}
+                className="text-sm text-blue-600 hover:underline"
+              >
+                Reset
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
@@ -152,9 +261,9 @@ export const RecipeDetails = ({
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">
               Ingredients
             </h2>
-            {recipe.ingredients.length > 0 ? (
+            {displayIngredients.length > 0 ? (
               <div className="space-y-2">
-                {recipe.ingredients.map((ingredient) => (
+                {displayIngredients.map((ingredient) => (
                   <div
                     key={ingredient.id}
                     className="flex items-start gap-3 bg-gray-50 rounded-lg"
