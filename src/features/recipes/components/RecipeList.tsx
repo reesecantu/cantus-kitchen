@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { useRecipes, type SsrRecipes } from "../hooks/useRecipes";
 import { RecipeTile } from "./RecipeTile";
+import { ROUTES } from "@/utils/constants";
 
 interface RecipeListProps {
   searchTerm: string;
@@ -67,11 +68,9 @@ export const RecipeList = ({ searchTerm, ssrRecipes }: RecipeListProps) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {filteredRecipes.map((recipe) => (
-        <div key={recipe.id}>
-          <Link to={`/recipe/${recipe.id}`}>
-            <RecipeTile recipe={recipe} />
-          </Link>
-        </div>
+        <Link key={recipe.id} to={ROUTES.RECIPE_DETAILS(recipe.id)}>
+          <RecipeTile recipe={recipe} />
+        </Link>
       ))}
     </div>
   );

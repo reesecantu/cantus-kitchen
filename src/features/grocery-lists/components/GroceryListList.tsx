@@ -35,8 +35,8 @@ export const GroceryListList = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {groceryLists.map((list) => (
-        <Link to={ROUTES.GROCERY_LIST_DETAILS(list.id)}>
-          <GroceryListTile key={list.id} list={list} />
+        <Link key={list.id} to={ROUTES.GROCERY_LIST_DETAILS(list.id)}>
+          <GroceryListTile list={list} />
         </Link>
       ))}
     </div>

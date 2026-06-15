@@ -28,7 +28,7 @@ export const SearchInput = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full pr-10 md:py-1.5 py-1 outline-none text-${COLORS.TEXT_PRIMARY}`}
+        className={`w-full pr-10 md:py-1.5 py-1 outline-none ${COLORS.TEXT_PRIMARY}`}
       />
     </div>
   );

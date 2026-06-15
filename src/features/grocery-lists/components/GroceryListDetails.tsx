@@ -111,7 +111,7 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
     if (groceryList) {
       try {
         await deleteMutation.mutateAsync(groceryList.id);
-        navigate("/grocery-lists");
+        navigate(ROUTES.GROCERY_LISTS);
       } catch (error) {
         console.error("Failed to delete grocery list:", error);
       }
@@ -120,18 +120,22 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
+      <div className="py-12">
         <BackButton />
-        <div className="text-gray-500">Loading grocery list...</div>
+        <div className="flex justify-center items-center">
+          <div className="text-gray-500">Loading grocery list...</div>
+        </div>
       </div>
     );
   }
 
   if (!groceryList) {
     return (
-      <div className="flex justify-center items-center py-12">
+      <div className="py-12">
         <BackButton />
-        <div className="text-gray-500">Grocery list not found.</div>
+        <div className="flex justify-center items-center">
+          <div className="text-gray-500">Grocery list not found.</div>
+        </div>
       </div>
     );
   }

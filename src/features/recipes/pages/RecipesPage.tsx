@@ -19,7 +19,7 @@ export const RecipesPage = ({ ssrRecipes }: RecipesPageProps) => {
         Recipes
       </h1>
       <p
-        className={`text-md ${COLORS.TEXT_SECONDARY} font-medium w-full md:w-[80%]`}
+        className={`text-base ${COLORS.TEXT_SECONDARY} font-medium w-full md:w-[80%]`}
       >
         Explore the recipes found on Cantu's Kitchen and used in my own life.
         Sign in to add and view your own recipes in addition to the ones you

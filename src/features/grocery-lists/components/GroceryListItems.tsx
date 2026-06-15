@@ -262,7 +262,7 @@ export const GroceryListItems = ({ groceryList }: GroceryListItemsProps) => {
         ) : (
           <div className="p-4 bg-white rounded-lg border border-gray-800">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-md font-medium">Add Custom Item</h3>
+              <h3 className="text-base font-medium">Add Custom Item</h3>
               <button
                 onClick={() => setShowAddItem(false)}
                 className="text-sm text-gray-500 hover:text-gray-700"

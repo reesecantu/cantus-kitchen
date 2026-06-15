@@ -269,13 +269,13 @@ export const Home = () => {
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-8">
                 The Cantu Behind the Kitchen
               </h2>
-              <p className="text-md md:text-xl text-blue-50 leading-relaxed mb-8">
+              <p className="text-base md:text-xl text-blue-50 leading-relaxed mb-8">
                 Born from my love of cooking and a desire to make meal planning
                 effortless, Cantu's Kitchen helps home cooks organize their
                 recipes and streamline their grocery shopping experience.
               </p>
-              <p className="text-md md:text-xl text-blue-50 leading-relaxed mb-8">
-                I found myself delaying my grocery trips because the barrior of
+              <p className="text-base md:text-xl text-blue-50 leading-relaxed mb-8">
+                I found myself delaying my grocery trips because the barrier of
                 the 20 minutes it takes to build a comprehensive list. So, I
                 dedicated over two months of continuous work (plus I'll keep
                 tinkering with this) in order to fix it. I hope to spare you my

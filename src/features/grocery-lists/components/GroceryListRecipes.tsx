@@ -89,7 +89,7 @@ export const GroceryListRecipes = ({
       {/* Add Recipe Form */}
       {showAddRecipe && (
         <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-md font-medium mb-3">Add Recipe to List</h3>
+          <h3 className="text-base font-medium mb-3">Add Recipe to List</h3>
           <form onSubmit={handleAddRecipe} className="space-y-4">
             <div className="flex gap-4 flex-wrap items-end">
               {/* Searchable Recipe Dropdown */}

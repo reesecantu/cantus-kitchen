@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useCreateGroceryList } from "../hooks";
 import { Plus } from "lucide-react";
 import { useAuth } from "@/features/auth/AuthContext";
-import { COLORS } from "../../../utils/constants";
+import { COLORS, ROUTES } from "../../../utils/constants";
 
 export const GroceryListsPage = () => {
   const createGroceryListMutation = useCreateGroceryList();
@@ -19,7 +19,7 @@ export const GroceryListsPage = () => {
         name: "Untitled Grocery List",
         description: "",
       });
-      navigate(`/grocery-list/${newList.id}`);
+      navigate(ROUTES.GROCERY_LIST_DETAILS(newList.id));
     } catch (error) {
       console.error("Failed to create grocery list:", error);
     } finally {
@@ -38,7 +38,7 @@ export const GroceryListsPage = () => {
             Grocery Lists
           </h1>
           <p
-            className={`text-md ${COLORS.TEXT_SECONDARY} font-medium w-full md:w-[80%]`}
+            className={`text-base ${COLORS.TEXT_SECONDARY} font-medium w-full md:w-[80%]`}
           >
             On this page, you can access, edit, create, and delete your grocery
             lists
