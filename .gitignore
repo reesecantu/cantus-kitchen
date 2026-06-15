@@ -28,6 +28,8 @@ build
 
 .env
 
+docs/
+
 # Supabase
 .temp
 schema.sql
