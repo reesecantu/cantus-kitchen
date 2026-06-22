@@ -1,10 +1,7 @@
 /**
- * Pure TypeScript port of the Postgres `regenerate_grocery_list_items` +
- * `find_best_unit_for_quantity` functions (see supabase/schema.sql). No I/O —
- * callers fetch the inputs and persist the output (see grocery-lists.server.ts).
- *
- * Parity caveat: SQL `numeric` is arbitrary-precision while JS numbers are
- * float64, so results at exact rounding midpoints can differ by ±0.01.
+ * Grocery-list aggregation engine. No I/O — callers fetch the inputs and persist
+ * the output (see grocery-lists.server.ts). Scales each recipe's ingredients,
+ * aggregates them in base units, and picks a readable display unit.
  */
 
 export interface RecipeForAggregation {
@@ -27,7 +24,6 @@ export interface UnitInfo {
   type: string; // volume | count | weight
   system: string; // imperial | metric | universal
   baseConversionFactor: number | null;
-  cookingPriority: number | null;
 }
 
 export interface GeneratedItem {
@@ -38,7 +34,7 @@ export interface GeneratedItem {
   source_recipes: string[];
 }
 
-/** SQL ROUND(numeric, 2): half away from zero. */
+/** Round to 2 decimals, half away from zero. */
 export function roundQuantity(value: number): number {
   const scaled = Math.abs(value) * 100;
   // toFixed(6) strips float artifacts (2.675 * 100 === 267.49999999999997)
@@ -47,7 +43,7 @@ export function roundQuantity(value: number): number {
   return (Math.sign(value) || 1) * (rounded / 100);
 }
 
-/** Merge rule used by every aggregation bucket in the SQL. */
+/** Merge rule used by every aggregation bucket. */
 function mergeNotes(current: string | null, incoming: string | null): string | null {
   if (current === null) return incoming;
   if (incoming === null) return current;
@@ -56,12 +52,14 @@ function mergeNotes(current: string | null, incoming: string | null): string | n
 }
 
 /**
- * Port of `find_best_unit_for_quantity(p_base_quantity, p_unit_type, p_preferred_system)`.
+ * Pick the display unit for a quantity expressed in base units (ml / g).
  *
  * Scores candidate units by how "natural" the resulting quantity reads
- * (tier 0: 0.5–8, e.g. "2 cups"), then by cooking_priority, then by size.
- * The SQL ORDER BY has no deterministic tiebreak; we add unit id as a final
- * one, a harmless divergence.
+ * (tier 0: 0.5–8, e.g. "2 cups"), breaking ties toward the smaller unit (so the
+ * number reads larger and more precise). When no unit lands in a readable range:
+ * for a huge total, pick the largest unit so the number stays small (gallons,
+ * not cups); for a tiny total, pick the smallest unit so the number stays
+ * readable (tsp, not cups). Unit id is the final, deterministic tiebreak.
  */
 export function findBestUnitForQuantity(
   baseQuantity: number,
@@ -69,8 +67,10 @@ export function findBestUnitForQuantity(
   units: UnitInfo[],
   preferredSystem = "imperial"
 ): string | null {
+  // Lower score = more natural-reading quantity. The ranges overlap at their
+  // inclusive bounds on purpose: the first matching tier wins, which is what
+  // makes e.g. 8 cups read as "cup" (tier 0) rather than "quart".
   const naturalRangeScore = (quantity: number): number => {
-    // Mirrors the SQL CASE: evaluated in order, bounds inclusive
     if (quantity >= 0.5 && quantity <= 8) return 0;
     if (quantity >= 8 && quantity <= 16) return 1;
     if (quantity >= 0.25 && quantity <= 0.5) return 2;
@@ -78,50 +78,47 @@ export function findBestUnitForQuantity(
     return 3;
   };
 
-  const convertible = units.filter(
-    (u) =>
-      u.type === unitType &&
-      u.system === preferredSystem &&
-      u.baseConversionFactor !== null &&
-      u.baseConversionFactor > 0
-  );
+  // Candidate units of the right type/system, each paired with the quantity (q)
+  // it would display. q is computed once here so the passes below never re-divide.
+  const candidates = units
+    .filter(
+      (u) =>
+        u.type === unitType &&
+        u.system === preferredSystem &&
+        u.baseConversionFactor !== null &&
+        u.baseConversionFactor > 0
+    )
+    .map((u) => ({
+      id: u.id,
+      factor: u.baseConversionFactor!,
+      q: baseQuantity / u.baseConversionFactor!,
+    }));
 
-  // Primary: quantity lands in a displayable range (0.125–48)
-  const primary = convertible
-    .filter((u) => {
-      const q = baseQuantity / u.baseConversionFactor!;
-      return q >= 0.125 && q <= 48;
-    })
+  // Primary: q lands in a displayable range (0.125–48) — prefer the most natural
+  // range, then the smaller unit (larger, more precise number).
+  const primary = candidates
+    .filter((c) => c.q >= 0.125 && c.q <= 48)
     .sort(
       (a, b) =>
-        naturalRangeScore(baseQuantity / a.baseConversionFactor!) -
-          naturalRangeScore(baseQuantity / b.baseConversionFactor!) ||
-        (a.cookingPriority ?? 10) - (b.cookingPriority ?? 10) ||
-        a.baseConversionFactor! - b.baseConversionFactor! ||
+        naturalRangeScore(a.q) - naturalRangeScore(b.q) ||
+        a.factor - b.factor ||
         a.id.localeCompare(b.id)
     );
   if (primary.length > 0) return primary[0].id;
 
-  // Fallback 1: any unit giving at least 0.125, preferring larger units
-  const fallback = convertible
-    .filter((u) => baseQuantity / u.baseConversionFactor! >= 0.125)
-    .sort(
-      (a, b) =>
-        (a.cookingPriority ?? 10) - (b.cookingPriority ?? 10) ||
-        b.baseConversionFactor! - a.baseConversionFactor! ||
-        a.id.localeCompare(b.id)
-    );
-  if (fallback.length > 0) return fallback[0].id;
+  // Overflow: total too large for any unit's range — pick the largest unit so
+  // the number stays as small as possible (gallons over cups).
+  const overflow = candidates
+    .filter((c) => c.q >= 0.125)
+    .sort((a, b) => b.factor - a.factor || a.id.localeCompare(b.id));
+  if (overflow.length > 0) return overflow[0].id;
 
-  // Fallback 2: any unit of the right type and system
-  const any = units
-    .filter((u) => u.type === unitType && u.system === preferredSystem)
-    .sort(
-      (a, b) =>
-        (a.cookingPriority ?? 10) - (b.cookingPriority ?? 10) ||
-        a.id.localeCompare(b.id)
-    );
-  return any.length > 0 ? any[0].id : null;
+  // Underflow: total too small for any unit's range — pick the smallest unit so
+  // the number stays as large/readable as possible (tsp over cups).
+  const underflow = [...candidates].sort(
+    (a, b) => a.factor - b.factor || a.id.localeCompare(b.id)
+  );
+  return underflow.length > 0 ? underflow[0].id : null;
 }
 
 interface ConvertibleBucket {
@@ -142,15 +139,15 @@ interface NoConversionBucket {
 
 interface NullQuantityBucket {
   ingredientId: number;
-  unitId: string | null; // first recipe's unit wins, matching the SQL upsert
+  unitId: string | null; // first recipe's unit wins
   sourceRecipes: string[];
   notes: string | null;
 }
 
 /**
- * Port of `regenerate_grocery_list_items`, phases 1–4. Returns the generated
- * (non-manual) items for a list; persisting them (and preserving manual items)
- * is the caller's job via the `replace_generated_grocery_list_items` RPC.
+ * Aggregate a list's recipes into generated (non-manual) grocery items, in four
+ * phases. Persisting them (and preserving manual items) is the caller's job via
+ * the `replace_generated_grocery_list_items` RPC.
  */
 export function aggregateGroceryItems(
   recipes: RecipeForAggregation[],
@@ -232,13 +229,13 @@ export function aggregateGroceryItems(
       bucket.totalBaseQuantity,
       bucket.unitType,
       units,
-      "imperial" // TODO: could become a user preference (same TODO as the SQL)
+      "imperial" // TODO: could become a user preference
     );
+    // findBestUnitForQuantity only ever returns convertible units (factor > 0),
+    // so dividing by the factor is always valid; null means no unit was found.
     const bestUnit = bestUnitId ? unitsById.get(bestUnitId) : undefined;
     const convertedQuantity = bestUnit
-      ? bestUnit.baseConversionFactor && bestUnit.baseConversionFactor > 0
-        ? bucket.totalBaseQuantity / bestUnit.baseConversionFactor
-        : bucket.totalBaseQuantity
+      ? bucket.totalBaseQuantity / bestUnit.baseConversionFactor!
       : null;
 
     items.push({

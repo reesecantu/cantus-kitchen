@@ -8,22 +8,21 @@ import {
 } from "./grocery-aggregation";
 
 // Fixture mirroring the units table: ml is the base for volume, g for weight.
-// Conversion factors match the real seed data; priorities are internally
-// consistent (lower = preferred).
-const TSP = unit("tsp", "volume", "imperial", 4.93, 3);
-const TBSP = unit("tbsp", "volume", "imperial", 14.79, 2);
-const CUP = unit("cup", "volume", "imperial", 236.59, 1);
-const FLOZ = unit("floz", "volume", "imperial", 29.57, 4);
-const PINT = unit("pint", "volume", "imperial", 473.18, 5);
-const QUART = unit("quart", "volume", "imperial", 946.35, 6);
-const GALLON = unit("gallon", "volume", "imperial", 3785.41, 7);
-const ML = unit("ml", "volume", "metric", 1, 1);
-const OZ = unit("oz", "weight", "imperial", 28.35, 2);
-const POUND = unit("lb", "weight", "imperial", 453.59, 1);
-const GRAM = unit("g", "weight", "metric", 1, 1);
-const COUNT = unit("count", "count", "universal", null, 1);
-const CLOVE = unit("clove", "count", "universal", null, 5);
-const PINCH = unit("pinch", "volume", "imperial", null, 9);
+// Conversion factors match the real seed data.
+const TSP = unit("tsp", "volume", "imperial", 4.93);
+const TBSP = unit("tbsp", "volume", "imperial", 14.79);
+const CUP = unit("cup", "volume", "imperial", 236.59);
+const FLOZ = unit("floz", "volume", "imperial", 29.57);
+const PINT = unit("pint", "volume", "imperial", 473.18);
+const QUART = unit("quart", "volume", "imperial", 946.35);
+const GALLON = unit("gallon", "volume", "imperial", 3785.41);
+const ML = unit("ml", "volume", "metric", 1);
+const OZ = unit("oz", "weight", "imperial", 28.35);
+const POUND = unit("lb", "weight", "imperial", 453.59);
+const GRAM = unit("g", "weight", "metric", 1);
+const COUNT = unit("count", "count", "universal", null);
+const CLOVE = unit("clove", "count", "universal", null);
+const PINCH = unit("pinch", "volume", "imperial", null);
 
 const UNITS: UnitInfo[] = [
   TSP, TBSP, CUP, FLOZ, PINT, QUART, GALLON, ML, OZ, POUND, GRAM, COUNT, CLOVE, PINCH,
@@ -33,10 +32,9 @@ function unit(
   id: string,
   type: string,
   system: string,
-  baseConversionFactor: number | null,
-  cookingPriority: number | null
+  baseConversionFactor: number | null
 ): UnitInfo {
-  return { id, type, system, baseConversionFactor, cookingPriority };
+  return { id, type, system, baseConversionFactor };
 }
 
 function recipe(
@@ -71,17 +69,17 @@ describe("roundQuantity", () => {
 describe("findBestUnitForQuantity", () => {
   it("prefers units landing in the natural 0.5–8 range", () => {
     // 473.18 ml: cup = 2 (tier 0), tbsp = 32 (tier 2), pint = 1 (tier 0)
-    // cup wins over pint on cooking_priority
+    // cup wins over pint on the smaller-unit tiebreak
     expect(findBestUnitForQuantity(473.18, "volume", UNITS)).toBe("cup");
   });
 
-  it("treats tier boundaries like the SQL CASE (first match wins)", () => {
-    // Exactly 8 cups: matches both 0.5–8 (tier 0) and 8–16 (tier 1); CASE
-    // order means tier 0 — cup must still win over quart (q=2, also tier 0,
-    // but priority 6 > 1)
+  it("treats tier boundaries inclusively (first matching tier wins)", () => {
+    // Exactly 8 cups: matches both 0.5–8 (tier 0) and 8–16 (tier 1); tier 0
+    // wins — cup must still win over quart (q=2, also tier 0) on the
+    // smaller-unit tiebreak
     expect(findBestUnitForQuantity(8 * 236.59, "volume", UNITS)).toBe("cup");
-    // 16 cups = exactly 8 pints: 8 is inclusive in tier 0, so pint (priority 5)
-    // beats gallon (q=1, also tier 0, priority 7) — same outcome as the SQL
+    // 16 cups = exactly 8 pints: 8 is inclusive in tier 0, so pint (q=8) beats
+    // quart (q=4) and gallon (q=2) on the smaller-unit tiebreak
     expect(findBestUnitForQuantity(16 * 236.59, "volume", UNITS)).toBe("pint");
     // 3 gallons: quart = 12 (tier 1), pint/cup overflow into tiers 2–3,
     // gallon = 3 is the only tier-0 candidate
@@ -93,14 +91,16 @@ describe("findBestUnitForQuantity", () => {
     expect(findBestUnitForQuantity(5, "volume", UNITS)).toBe("tsp");
   });
 
-  it("falls back to priority order when every unit overflows 48", () => {
-    // 1,000,000 ml: gallon = 264 (> 48) → fallback 1 sorts priority asc → cup
-    expect(findBestUnitForQuantity(1_000_000, "volume", UNITS)).toBe("cup");
+  it("picks the largest unit when every unit overflows 48", () => {
+    // 1,000,000 ml: even gallon = 264 (> 48) → pick the largest unit so the
+    // number stays as small as possible
+    expect(findBestUnitForQuantity(1_000_000, "volume", UNITS)).toBe("gallon");
   });
 
-  it("falls back to any unit of the type when the quantity is microscopic", () => {
-    // 0.1 ml: nothing reaches 0.125 → fallback 2 → best priority (cup)
-    expect(findBestUnitForQuantity(0.1, "volume", UNITS)).toBe("cup");
+  it("picks the smallest unit when the quantity is microscopic", () => {
+    // 0.1 ml: nothing reaches 0.125 → pick the smallest unit so the number
+    // stays as large/readable as possible
+    expect(findBestUnitForQuantity(0.1, "volume", UNITS)).toBe("tsp");
   });
 
   it("returns null when no unit of the type/system exists", () => {

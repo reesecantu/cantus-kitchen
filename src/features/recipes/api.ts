@@ -33,7 +33,6 @@ export interface UnitDisplayInfo {
   type: string;
   system: string;
   baseConversionFactor: number | null;
-  cookingPriority: number | null;
   name: string;
   abbreviation: string;
 }
@@ -44,7 +43,7 @@ export async function fetchUnitsForDisplay(
   const { data, error } = await client
     .from("units")
     .select(
-      "id, type, system, base_conversion_factor, cooking_priority, name, abbreviation"
+      "id, type, system, base_conversion_factor, name, abbreviation"
     );
   if (error) throw error;
   return (data ?? []).map((u) => ({
@@ -52,7 +51,6 @@ export async function fetchUnitsForDisplay(
     type: u.type,
     system: u.system,
     baseConversionFactor: u.base_conversion_factor,
-    cookingPriority: u.cooking_priority,
     name: u.name,
     abbreviation: u.abbreviation,
   }));
