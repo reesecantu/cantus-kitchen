@@ -22,12 +22,6 @@ export interface RecipeWithIngredients extends Tables<"recipes"> {
   ingredients: RecipeIngredientWithDetails[];
 }
 
-/**
- * Recipes whose creator is this account are the site's shared public catalog.
- * (Previously hardcoded inside the get_public_*_recipes SQL functions.)
- */
-export const PUBLIC_RECIPES_USER_ID = "6e0258f5-c980-47d2-a7ee-981e76e56333";
-
 export interface UnitDisplayInfo {
   id: string;
   type: string;
@@ -69,12 +63,9 @@ export async function fetchRecipes(
     .select("id, name, image_url, created_by, steps, servings, created_at")
     .order("created_at", { ascending: false });
 
-  query =
-    userId && userId !== PUBLIC_RECIPES_USER_ID
-      ? query.or(
-          `created_by.eq.${PUBLIC_RECIPES_USER_ID},created_by.eq.${userId}`
-        )
-      : query.eq("created_by", PUBLIC_RECIPES_USER_ID);
+  query = userId
+    ? query.or(`is_public.eq.true,created_by.eq.${userId}`)
+    : query.eq("is_public", true);
 
   const { data, error } = await query;
 
