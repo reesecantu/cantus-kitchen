@@ -33,3 +33,4 @@ docs/
 # Supabase
 .temp
 schema.sql
+seed.sql
