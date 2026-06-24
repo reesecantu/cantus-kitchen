@@ -147,13 +147,17 @@ export async function addManualItem(
     .maybeSingle();
   if (ingredientError) throw ingredientError;
 
-  const { data: unit, error: unitError } = await supabase
-    .from("units")
-    .select("id")
-    .eq("name", args.unitName)
-    .maybeSingle();
-  if (unitError) throw unitError;
-  if (!unit) throw new Error(`Unit "${args.unitName}" not found`);
+  let unitId: string | null = null;
+  if (args.unitName.trim()) {
+    const { data: unit, error: unitError } = await supabase
+      .from("units")
+      .select("id")
+      .eq("name", args.unitName)
+      .maybeSingle();
+    if (unitError) throw unitError;
+    if (!unit) throw new Error(`Unit "${args.unitName}" not found`);
+    unitId = unit.id;
+  }
 
   const { data: item, error: insertError } = await supabase
     .from("grocery_list_items")
@@ -161,7 +165,7 @@ export async function addManualItem(
       grocery_list_id: args.listId,
       ingredient_id: ingredient?.id ?? null,
       quantity: args.quantity,
-      unit_id: unit.id,
+      unit_id: unitId,
       notes: args.notes ?? null,
       is_manual: true,
       manual_name: ingredient ? null : args.ingredientName,

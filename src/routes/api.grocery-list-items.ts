@@ -33,12 +33,11 @@ export async function action({ request, params }: Route.ActionArgs) {
     typeof ingredientName !== "string" ||
     !ingredientName.trim() ||
     typeof unitName !== "string" ||
-    !unitName.trim() ||
     !Number.isFinite(quantity) ||
     quantity <= 0
   ) {
     throw data(
-      { message: "ingredientName, a positive quantity, and unitName are required" },
+      { message: "ingredientName and a positive quantity are required" },
       { status: 400, headers }
     );
   }
