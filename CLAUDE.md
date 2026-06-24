@@ -57,3 +57,6 @@ Recipe photos upload client-side to the `recipe-photos` bucket (see `useCreateRe
 
 ### Env vars
 Client (Vite-inlined): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_GOOGLE_CLIENT_ID`. Server-only (never `VITE_`-prefixed): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`. `.env` is gitignored.
+
+## Feature-level docs
+- `src/features/recipes/CLAUDE.MD` — recipes domain: file map, key invariants (photo upload, mutation routing, SSR seeding, form state lift), checklist for adding new recipe fields.
