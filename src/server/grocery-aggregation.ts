@@ -21,6 +21,7 @@ export interface RecipeForAggregation {
 
 export interface UnitInfo {
   id: string;
+  name: string; // canonical unit name, e.g. "cup" — used to recognize cooking units
   type: string; // volume | count | weight
   system: string; // imperial | metric | universal
   baseConversionFactor: number | null;
@@ -52,34 +53,56 @@ function mergeNotes(current: string | null, incoming: string | null): string | n
 }
 
 /**
- * Pick the display unit for a quantity expressed in base units (ml / g).
+ * A candidate unit's role on the display "ladder", keyed off its canonical name:
+ *  - `sourceOnly` units (fl oz, pint) clutter a list and are never auto-chosen.
+ *    They display only when the recipe was written in them, and only until the
+ *    next standard unit reaches 1 — the `keepBelowName` unit, whose real factor is
+ *    resolved from the unit list (so there are no hardcoded conversion numbers).
+ *  - ladder units carry a `min`: the smallest quantity at which we promote to
+ *    this unit. cup promotes at 1/4 (so "1/4 cup" beats "4 Tbsp"); quart/gallon
+ *    only at a whole unit; tsp/oz have min 0, making them the small-amount
+ *    fallback. The weight oz→lb crossover depends on whether the recipe used oz.
+ */
+type UnitRole =
+  | { sourceOnly: true; keepBelowName: string }
+  | { sourceOnly: false; min: number };
+
+function classifyUnit(
+  name: string,
+  unitType: string,
+  ozInSource: boolean
+): UnitRole {
+  if (unitType === "weight") {
+    if (name === "ounce") return { sourceOnly: false, min: 0 };
+    if (name === "pound") return { sourceOnly: false, min: ozInSource ? 1 : 0.25 };
+    return { sourceOnly: false, min: 1 };
+  }
+  // volume (the only other convertible type today)
+  if (name === "fluid ounce") return { sourceOnly: true, keepBelowName: "cup" };
+  if (name === "pint") return { sourceOnly: true, keepBelowName: "quart" };
+  if (name === "cup") return { sourceOnly: false, min: 0.25 };
+  if (name === "teaspoon") return { sourceOnly: false, min: 0 };
+  return { sourceOnly: false, min: 1 }; // tablespoon, quart, gallon, or unknown
+}
+
+/**
+ * Pick the display unit for a quantity expressed in base units (ml / g),
+ * choosing the unit a home cook would actually reach for.
  *
- * Scores candidate units by how "natural" the resulting quantity reads
- * (tier 0: 0.5–8, e.g. "2 cups"), breaking ties toward the smaller unit (so the
- * number reads larger and more precise). When no unit lands in a readable range:
- * for a huge total, pick the largest unit so the number stays small (gallons,
- * not cups); for a tiny total, pick the smallest unit so the number stays
- * readable (tsp, not cups). Unit id is the final, deterministic tiebreak.
+ * The standard ladder (tsp → Tbsp → cup → quart → gallon for volume, oz → lb for
+ * weight) picks the largest unit whose displayed quantity clears that unit's
+ * promotion threshold. fl oz and pint sit off the ladder: they only appear when
+ * the recipe itself used them (`sourceUnitIds`) and only while the number stays
+ * smaller than the next standard unit. Ounces likewise stay ounces all the way to
+ * a pound when the recipe used ounces, but otherwise give way to pounds at 1/4 lb.
  */
 export function findBestUnitForQuantity(
   baseQuantity: number,
   unitType: string,
   units: UnitInfo[],
-  preferredSystem = "imperial"
+  preferredSystem = "imperial",
+  sourceUnitIds: string[] = []
 ): string | null {
-  // Lower score = more natural-reading quantity. The ranges overlap at their
-  // inclusive bounds on purpose: the first matching tier wins, which is what
-  // makes e.g. 8 cups read as "cup" (tier 0) rather than "quart".
-  const naturalRangeScore = (quantity: number): number => {
-    if (quantity >= 0.5 && quantity <= 8) return 0;
-    if (quantity >= 8 && quantity <= 16) return 1;
-    if (quantity >= 0.25 && quantity <= 0.5) return 2;
-    if (quantity >= 16 && quantity <= 32) return 2;
-    return 3;
-  };
-
-  // Candidate units of the right type/system, each paired with the quantity (q)
-  // it would display. q is computed once here so the passes below never re-divide.
   const candidates = units
     .filter(
       (u) =>
@@ -90,35 +113,63 @@ export function findBestUnitForQuantity(
     )
     .map((u) => ({
       id: u.id,
+      name: u.name,
       factor: u.baseConversionFactor!,
       q: baseQuantity / u.baseConversionFactor!,
     }));
+  if (candidates.length === 0) return null;
 
-  // Primary: q lands in a displayable range (0.125–48) — prefer the most natural
-  // range, then the smaller unit (larger, more precise number).
-  const primary = candidates
-    .filter((c) => c.q >= 0.125 && c.q <= 48)
-    .sort(
-      (a, b) =>
-        naturalRangeScore(a.q) - naturalRangeScore(b.q) ||
-        a.factor - b.factor ||
-        a.id.localeCompare(b.id)
-    );
-  if (primary.length > 0) return primary[0].id;
+  // Real conversion factor of each candidate unit, by name — lets a source-only
+  // unit's "keep below the next standard unit" threshold come from the data.
+  const factorByName = new Map(candidates.map((c) => [c.name, c.factor]));
 
-  // Overflow: total too large for any unit's range — pick the largest unit so
-  // the number stays as small as possible (gallons over cups).
-  const overflow = candidates
-    .filter((c) => c.q >= 0.125)
+  const sourceSet = new Set(sourceUnitIds);
+  const ozInSource = candidates.some(
+    (c) => c.name === "ounce" && sourceSet.has(c.id)
+  );
+  const classified = candidates.map((c) => ({
+    ...c,
+    role: classifyUnit(c.name, unitType, ozInSource),
+  }));
+
+  // Step 1: source-only units (fl oz, pint). Only honor them when the recipe was
+  // written *entirely* in them — if any ladder unit is also a source, prefer the
+  // ladder. Keep them only while smaller than the next standard unit.
+  const ladderInSource = classified.some(
+    (c) => !c.role.sourceOnly && sourceSet.has(c.id)
+  );
+  if (!ladderInSource) {
+    const kept = classified
+      .filter((c) => {
+        if (!c.role.sourceOnly || !sourceSet.has(c.id) || c.q < 1) return false;
+        // Upgrade once we'd have ≥ 1 of the next standard unit. If that unit
+        // isn't available, there's nothing to upgrade to, so keep this one.
+        const keepBelow = factorByName.get(c.role.keepBelowName) ?? Infinity;
+        return baseQuantity < keepBelow;
+      })
+      .sort((a, b) => b.factor - a.factor || a.id.localeCompare(b.id));
+    if (kept.length > 0) return kept[0].id;
+  }
+
+  // Step 2: standard ladder — never includes source-only units. Pick the largest
+  // unit whose quantity clears its promotion threshold; the smallest unit (min 0)
+  // is the guaranteed fallback for tiny amounts.
+  const ladder = classified
+    .filter(
+      (c): c is typeof c & { role: { sourceOnly: false; min: number } } =>
+        !c.role.sourceOnly
+    )
     .sort((a, b) => b.factor - a.factor || a.id.localeCompare(b.id));
-  if (overflow.length > 0) return overflow[0].id;
+  for (const c of ladder) {
+    if (c.q >= c.role.min) return c.id;
+  }
 
-  // Underflow: total too small for any unit's range — pick the smallest unit so
-  // the number stays as large/readable as possible (tsp over cups).
-  const underflow = [...candidates].sort(
+  // No ladder units (e.g. a type with only source-only units): fall back to the
+  // smallest candidate so the number stays as readable as possible.
+  const smallest = [...candidates].sort(
     (a, b) => a.factor - b.factor || a.id.localeCompare(b.id)
   );
-  return underflow.length > 0 ? underflow[0].id : null;
+  return smallest[0].id;
 }
 
 interface ConvertibleBucket {
@@ -126,6 +177,7 @@ interface ConvertibleBucket {
   totalBaseQuantity: number;
   unitType: string;
   sourceRecipes: string[];
+  sourceUnitIds: string[];
   notes: string | null;
 }
 
@@ -207,6 +259,7 @@ export function aggregateGroceryItems(
         if (existing) {
           existing.totalBaseQuantity += baseQuantity;
           existing.sourceRecipes.push(recipe.recipeId);
+          existing.sourceUnitIds.push(ingredient.unitId!);
           existing.notes = mergeNotes(existing.notes, ingredient.note);
         } else {
           convertible.set(key, {
@@ -214,6 +267,7 @@ export function aggregateGroceryItems(
             totalBaseQuantity: baseQuantity,
             unitType: unit.type,
             sourceRecipes: [recipe.recipeId],
+            sourceUnitIds: [ingredient.unitId!],
             notes: ingredient.note,
           });
         }
@@ -229,7 +283,8 @@ export function aggregateGroceryItems(
       bucket.totalBaseQuantity,
       bucket.unitType,
       units,
-      "imperial" // TODO: could become a user preference
+      "imperial", // TODO: could become a user preference
+      bucket.sourceUnitIds
     );
     // findBestUnitForQuantity only ever returns convertible units (factor > 0),
     // so dividing by the factor is always valid; null means no unit was found.

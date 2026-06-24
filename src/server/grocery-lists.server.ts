@@ -177,11 +177,12 @@ export async function addManualItem(
 async function fetchUnits(supabase: SupabaseClient): Promise<UnitInfo[]> {
   const { data, error } = await supabase
     .from("units")
-    .select("id, type, system, base_conversion_factor");
+    .select("id, name, type, system, base_conversion_factor");
   if (error) throw error;
 
   return (data ?? []).map((u) => ({
     id: u.id,
+    name: u.name,
     type: u.type,
     system: u.system,
     baseConversionFactor: u.base_conversion_factor,

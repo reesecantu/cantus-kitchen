@@ -21,20 +21,22 @@ const GALLON_ML = 3785.41;
 const OZ_G = 28.35;
 const LB_G = 453.59;
 
-const TSP = unit("tsp", "volume", "imperial", TSP_ML);
-const TBSP = unit("tbsp", "volume", "imperial", TBSP_ML);
-const CUP = unit("cup", "volume", "imperial", CUP_ML);
-const FLOZ = unit("floz", "volume", "imperial", FLOZ_ML);
-const PINT = unit("pint", "volume", "imperial", PINT_ML);
-const QUART = unit("quart", "volume", "imperial", QUART_ML);
-const GALLON = unit("gallon", "volume", "imperial", GALLON_ML);
-const ML = unit("ml", "volume", "metric", 1);
-const OZ = unit("oz", "weight", "imperial", OZ_G);
-const POUND = unit("lb", "weight", "imperial", LB_G);
-const GRAM = unit("g", "weight", "metric", 1);
-const COUNT = unit("count", "count", "universal", null);
-const CLOVE = unit("clove", "count", "universal", null);
-const PINCH = unit("pinch", "volume", "imperial", null);
+// id stays a short slug (so `toBe("cup")` assertions read clearly); name is the
+// real units-table name the engine classifies on.
+const TSP = unit("tsp", "teaspoon", "volume", "imperial", TSP_ML);
+const TBSP = unit("tbsp", "tablespoon", "volume", "imperial", TBSP_ML);
+const CUP = unit("cup", "cup", "volume", "imperial", CUP_ML);
+const FLOZ = unit("floz", "fluid ounce", "volume", "imperial", FLOZ_ML);
+const PINT = unit("pint", "pint", "volume", "imperial", PINT_ML);
+const QUART = unit("quart", "quart", "volume", "imperial", QUART_ML);
+const GALLON = unit("gallon", "gallon", "volume", "imperial", GALLON_ML);
+const ML = unit("ml", "milliliter", "volume", "metric", 1);
+const OZ = unit("oz", "ounce", "weight", "imperial", OZ_G);
+const POUND = unit("lb", "pound", "weight", "imperial", LB_G);
+const GRAM = unit("g", "gram", "weight", "metric", 1);
+const COUNT = unit("count", "count", "count", "universal", null);
+const CLOVE = unit("clove", "clove", "count", "universal", null);
+const PINCH = unit("pinch", "pinch", "volume", "imperial", null);
 
 const UNITS: UnitInfo[] = [
   TSP, TBSP, CUP, FLOZ, PINT, QUART, GALLON, ML, OZ, POUND, GRAM, COUNT, CLOVE, PINCH,
@@ -42,11 +44,12 @@ const UNITS: UnitInfo[] = [
 
 function unit(
   id: string,
+  name: string,
   type: string,
   system: string,
   baseConversionFactor: number | null
 ): UnitInfo {
-  return { id, type, system, baseConversionFactor };
+  return { id, name, type, system, baseConversionFactor };
 }
 
 function recipe(
