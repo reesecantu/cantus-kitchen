@@ -11,15 +11,15 @@ import {
 // Conversion factors match the real seed data. The `_ML`/`_G` constants let the
 // tests express amounts in human terms (`4 * TBSP_ML`) while the `unit()`
 // fixtures below stay in sync with them.
-const TSP_ML = 4.93;
-const TBSP_ML = 14.79;
-const CUP_ML = 236.59;
-const FLOZ_ML = 29.57;
-const PINT_ML = 473.18;
-const QUART_ML = 946.35;
+const TSP_ML = 4.92892;
+const TBSP_ML = 14.7868;
+const CUP_ML = 236.588;
+const FLOZ_ML = 29.5735;
+const PINT_ML = 473.176;
+const QUART_ML = 946.353;
 const GALLON_ML = 3785.41;
-const OZ_G = 28.35;
-const LB_G = 453.59;
+const OZ_G = 28.3495;
+const LB_G = 453.592;
 
 // id stays a short slug (so `toBe("cup")` assertions read clearly); name is the
 // real units-table name the engine classifies on.

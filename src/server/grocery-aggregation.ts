@@ -153,7 +153,13 @@ export function findBestUnitForQuantity(
 
   // Step 2: standard ladder — never includes source-only units. Pick the largest
   // unit whose quantity clears its promotion threshold; the smallest unit (min 0)
-  // is the guaranteed fallback for tiny amounts.
+  // is the guaranteed fallback for tiny amounts. The relative EPSILON absorbs the
+  // rounding in real conversion factors, which aren't exact multiples of each
+  // other: 3 real teaspoons is 0.99997 of a tablespoon, and without slack a clean
+  // "1 Tbsp" would fall back to "tsp" (likewise 4 cups → quart, 16 cups → gallon).
+  // The slack (0.01%) dwarfs the factor noise (~3e-6) yet is far below any amount a
+  // cook would meaningfully enter just under a threshold.
+  const EPSILON = 1e-4;
   const ladder = classified
     .filter(
       (c): c is typeof c & { role: { sourceOnly: false; min: number } } =>
@@ -161,7 +167,7 @@ export function findBestUnitForQuantity(
     )
     .sort((a, b) => b.factor - a.factor || a.id.localeCompare(b.id));
   for (const c of ladder) {
-    if (c.q >= c.role.min) return c.id;
+    if (c.q >= c.role.min * (1 - EPSILON)) return c.id;
   }
 
   // No ladder units (e.g. a type with only source-only units): fall back to the
