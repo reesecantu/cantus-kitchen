@@ -103,6 +103,10 @@ export async function fetchRecipeDetails(
     )
     .eq("id", recipeId)
     .order("position", { referencedTable: "recipe_ingredients", ascending: true })
+    // Tiebreaker: pre-migration rows all default to position 0, so without a
+    // secondary key their order is non-deterministic. Ordering by the primary
+    // key reproduces the stable insertion order the old query returned.
+    .order("id", { referencedTable: "recipe_ingredients", ascending: true })
     .single();
 
   if (error) {
