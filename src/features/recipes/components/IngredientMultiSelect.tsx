@@ -14,31 +14,43 @@ interface IngredientMultiSelectProps {
   isError?: boolean;
 }
 
-/** Display section derived from a contiguous run of rows sharing a group_label. */
+/** Display section derived from a contiguous run of rows sharing a groupId. */
 interface Section {
-  /** First row's stable rowId — survives label edits, so the section subtree
-   *  (and its group-name input) isn't remounted on every keystroke. */
+  /** Stable React key — the group's id, or the first row's rowId when ungrouped.
+   *  Survives label edits, so the section subtree (and its group-name input)
+   *  isn't remounted on every keystroke. */
   key: string;
-  /** "" = the ungrouped run (rendered without a header). */
+  /** Group identity; undefined = the ungrouped run (rendered without a header). */
+  groupId?: string;
+  /** Display name of the group ("" while unnamed). */
   label: string;
   rows: RecipeIngredient[];
 }
 
 const labelOf = (row: RecipeIngredient) => row.group_label ?? "";
+/** Group key: identity is the groupId; ungrouped rows collapse to "". */
+const groupKey = (row: RecipeIngredient) => row.groupId ?? "";
 
 /**
- * Group the flat ordered ingredient array into contiguous runs of equal
- * group_label. Array order is the source of truth; this is purely for display.
+ * Group the flat ordered ingredient array into contiguous runs sharing a
+ * groupId. Array order is the source of truth; this is purely for display.
+ * Grouping by identity (not label) lets two groups share a name and lets a
+ * group keep its rows together while its name is momentarily blank.
  */
 function buildSections(rows: RecipeIngredient[]): Section[] {
   const sections: Section[] = [];
   for (const row of rows) {
-    const label = labelOf(row);
+    const key = groupKey(row);
     const last = sections[sections.length - 1];
-    if (last && last.label === label) {
+    if (last && groupKey(last.rows[0]) === key) {
       last.rows.push(row);
     } else {
-      sections.push({ key: row.rowId, label, rows: [row] });
+      sections.push({
+        key: row.groupId ?? row.rowId,
+        groupId: row.groupId,
+        label: labelOf(row),
+        rows: [row],
+      });
     }
   }
   return sections;
@@ -73,11 +85,13 @@ export const IngredientMultiSelect = ({
 
   const makeRow = (
     ingredient: Tables<"ingredients">,
+    groupId: string | undefined,
     groupLabel: string
   ): RecipeIngredient => {
     const defaultUnit = units[0];
     return {
       rowId: crypto.randomUUID(),
+      groupId,
       ingredient_id: ingredient.id,
       ingredient_name: ingredient.name,
       unit_id: defaultUnit?.id || null,
@@ -88,17 +102,19 @@ export const IngredientMultiSelect = ({
     };
   };
 
-  /** Append a new ingredient row at the end of the run that shares `label`. */
+  /** Append a new ingredient row at the end of the run that shares `groupId`. */
   const addIngredient = (
     ingredient: Tables<"ingredients">,
-    label: string,
+    groupId: string | undefined,
+    groupLabel: string,
     pendingId?: string
   ) => {
-    const newRow = makeRow(ingredient, label);
+    const newRow = makeRow(ingredient, groupId, groupLabel);
     const arr = [...selectedIngredients];
+    const targetKey = groupId ?? "";
     let insertAt = arr.length;
     for (let i = arr.length - 1; i >= 0; i--) {
-      if (labelOf(arr[i]) === label) {
+      if (groupKey(arr[i]) === targetKey) {
         insertAt = i + 1;
         break;
       }
@@ -145,9 +161,10 @@ export const IngredientMultiSelect = ({
     const j = dir === "up" ? i - 1 : i + 1;
     if (j < 0 || j >= selectedIngredients.length) return;
     const arr = [...selectedIngredients];
+    const neighborGroupId = arr[j].groupId;
     const neighborLabel = arr[j].group_label ?? null;
     [arr[i], arr[j]] = [arr[j], arr[i]];
-    arr[j] = { ...arr[j], group_label: neighborLabel };
+    arr[j] = { ...arr[j], groupId: neighborGroupId, group_label: neighborLabel };
     onIngredientsChange(arr);
   };
 
@@ -163,17 +180,19 @@ export const IngredientMultiSelect = ({
     onIngredientsChange(reordered.flatMap((s) => s.rows));
   };
 
-  const renameSection = (rowIds: Set<string>, newName: string) => {
+  // Rename by groupId, not by rows: the group keeps its identity even when the
+  // name is cleared, so an empty field doesn't merge it into the ungrouped run.
+  const renameSection = (groupId: string, newName: string) => {
     onIngredientsChange(
       selectedIngredients.map((r) =>
-        rowIds.has(r.rowId) ? { ...r, group_label: newName || null } : r
+        r.groupId === groupId ? { ...r, group_label: newName || null } : r
       )
     );
   };
 
-  const deleteSection = (rowIds: Set<string>) => {
+  const deleteSection = (groupId: string) => {
     onIngredientsChange(
-      selectedIngredients.filter((r) => !rowIds.has(r.rowId))
+      selectedIngredients.filter((r) => r.groupId !== groupId)
     );
   };
 
@@ -198,7 +217,7 @@ export const IngredientMultiSelect = ({
   const ungroupedIds = useMemo(() => {
     const set = new Set<number>();
     for (const r of selectedIngredients) {
-      if (labelOf(r) === "") set.add(r.ingredient_id);
+      if (r.groupId === undefined) set.add(r.ingredient_id);
     }
     return set;
   }, [selectedIngredients]);
@@ -320,7 +339,8 @@ export const IngredientMultiSelect = ({
 
   /** Add-ingredient dropdown scoped to a group; excludes dupes already in it. */
   const renderAddDropdown = (
-    label: string,
+    groupId: string | undefined,
+    groupLabel: string,
     excludeIds: Set<number>,
     placeholderLabel: string,
     pendingId?: string,
@@ -333,7 +353,7 @@ export const IngredientMultiSelect = ({
         placeholder={isLoading ? "Loading ingredients..." : "Add ingredient..."}
         searchPlaceholder="Search ingredients..."
         items={available}
-        onItemSelect={(ing) => addIngredient(ing, label, pendingId)}
+        onItemSelect={(ing) => addIngredient(ing, groupId, groupLabel, pendingId)}
         getItemId={(ing) => ing.id}
         getItemLabel={(ing) => ing.name}
         mode="single"
@@ -352,12 +372,12 @@ export const IngredientMultiSelect = ({
 
       {/* Sections in array order; ungrouped runs render without a header. */}
       {sections.map((section, sectionIndex) => {
-        const rowIds = new Set(section.rows.map((r) => r.rowId));
+        const groupId = section.groupId;
         const sectionIngredientIds = new Set(
           section.rows.map((r) => r.ingredient_id)
         );
 
-        if (section.label === "") {
+        if (groupId === undefined) {
           return (
             <div key={section.key} className="space-y-2">
               {section.rows.map(renderIngredientRow)}
@@ -374,7 +394,7 @@ export const IngredientMultiSelect = ({
               <input
                 type="text"
                 value={section.label}
-                onChange={(e) => renameSection(rowIds, e.target.value)}
+                onChange={(e) => renameSection(groupId, e.target.value)}
                 placeholder="Group name"
                 className="flex-1 px-2 py-1 h-8 border border-gray-300 rounded text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -398,7 +418,7 @@ export const IngredientMultiSelect = ({
               </button>
               <button
                 type="button"
-                onClick={() => deleteSection(rowIds)}
+                onClick={() => deleteSection(groupId)}
                 className="text-red-500 hover:text-red-700 p-1"
                 title="Delete group and its ingredients"
               >
@@ -409,6 +429,7 @@ export const IngredientMultiSelect = ({
             {section.rows.map(renderIngredientRow)}
 
             {renderAddDropdown(
+              groupId,
               section.label,
               sectionIngredientIds,
               "Add to this group"
@@ -442,6 +463,7 @@ export const IngredientMultiSelect = ({
           </div>
           {group.name.trim() ? (
             renderAddDropdown(
+              group.id,
               group.name,
               new Set<number>(),
               "Add to this group",
@@ -463,6 +485,7 @@ export const IngredientMultiSelect = ({
       ) : (
         <div className="space-y-3">
           {renderAddDropdown(
+            undefined,
             "",
             ungroupedIds,
             totalCount === 0 ? "Ingredients" : "Add ingredient"

@@ -4,6 +4,7 @@ import { useCreateRecipe } from "../hooks/useRecipeMutations";
 import { RecipeForm } from "./RecipeForm";
 import { ROUTES } from "@/utils/constants";
 import type { RecipeFormData, RecipeIngredient } from "../types";
+import { seedGroupIds } from "../ingredient-groups";
 
 const FORM_STORAGE_KEY = "createRecipeFormData";
 
@@ -33,19 +34,23 @@ export const CreateRecipe = () => {
           steps: Array.isArray(parsed.steps) ? parsed.steps : [],
           image_file: undefined, // Files can't be persisted
           image_url: parsed.image_url || undefined,
+          // seedGroupIds preserves a groupId already in the draft and rebuilds it
+          // from contiguous label runs for older drafts that predate the field.
           ingredients: Array.isArray(parsed.ingredients)
-            ? parsed.ingredients.map(
-                (ing: Record<string, unknown>): RecipeIngredient => ({
-                  ...(ing as unknown as RecipeIngredient),
-                  // Back-compat: older drafts predate rowId. Generate one (this
-                  // runs in an effect, so crypto is available client-side).
-                  rowId:
-                    typeof ing.rowId === "string" && ing.rowId
-                      ? ing.rowId
-                      : crypto.randomUUID(),
-                  group_label:
-                    (ing.group_label as string | null | undefined) ?? null,
-                })
+            ? seedGroupIds(
+                parsed.ingredients.map(
+                  (ing: Record<string, unknown>): RecipeIngredient => ({
+                    ...(ing as unknown as RecipeIngredient),
+                    // Back-compat: older drafts predate rowId. Generate one (this
+                    // runs in an effect, so crypto is available client-side).
+                    rowId:
+                      typeof ing.rowId === "string" && ing.rowId
+                        ? ing.rowId
+                        : crypto.randomUUID(),
+                    group_label:
+                      (ing.group_label as string | null | undefined) ?? null,
+                  })
+                )
               )
             : [],
           servings: parsed.servings || 1,

@@ -6,6 +6,13 @@ export interface RecipeIngredient {
    * `crypto.randomUUID()` in event handlers / when seeding state.
    */
   rowId: string;
+  /**
+   * Stable client-only identity for the group this row belongs to (mirrors
+   * `rowId`). `undefined` = ungrouped. Lets two groups share a display name and
+   * lets a group survive its name being cleared mid-edit. Never persisted and
+   * never sent in the mutation payload — only `group_label` is stored.
+   */
+  groupId?: string;
   ingredient_id: number;
   ingredient_name: string;
   unit_id?: string | null;
