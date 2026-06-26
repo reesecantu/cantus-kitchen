@@ -396,7 +396,7 @@ export const IngredientMultiSelect = ({
                 value={section.label}
                 onChange={(e) => renameSection(groupId, e.target.value)}
                 placeholder="Group name"
-                className="flex-1 px-2 py-1 h-8 border border-gray-300 rounded text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-2 py-1 h-8 border border-gray-300 bg-white rounded text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
                 type="button"
