@@ -50,7 +50,7 @@ function validateCreatePayload(
 
   if (!Array.isArray(b.ingredients) || b.ingredients.length === 0) return null;
   const ingredients: CreateRecipePayload["ingredients"] = [];
-  for (const raw of b.ingredients) {
+  for (const [index, raw] of b.ingredients.entries()) {
     if (!raw || typeof raw !== "object") return null;
     const ing = raw as Record<string, unknown>;
     if (typeof ing.ingredient_id !== "number") return null;
@@ -58,11 +58,21 @@ function validateCreatePayload(
     if (ing.unit_amount != null && typeof ing.unit_amount !== "number") {
       return null;
     }
+    if (ing.group_label != null && typeof ing.group_label !== "string") {
+      return null;
+    }
+    if (ing.position != null && typeof ing.position !== "number") return null;
     ingredients.push({
       ingredient_id: ing.ingredient_id,
       unit_id: (ing.unit_id as string | null) ?? null,
       unit_amount: (ing.unit_amount as number | null) ?? null,
       note: typeof ing.note === "string" && ing.note.trim() ? ing.note.trim() : null,
+      group_label:
+        typeof ing.group_label === "string" && ing.group_label.trim()
+          ? ing.group_label.trim()
+          : null,
+      // Trust the client's order but fall back to array index defensively.
+      position: typeof ing.position === "number" ? ing.position : index,
     });
   }
 

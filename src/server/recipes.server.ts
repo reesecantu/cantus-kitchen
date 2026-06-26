@@ -77,6 +77,8 @@ export interface CreateRecipePayload {
     unit_id: string | null;
     unit_amount: number | null;
     note: string | null;
+    group_label: string | null;
+    position: number;
   }[];
 }
 
@@ -110,6 +112,8 @@ export interface UpdateRecipePayload {
     unit_id: string | null;
     unit_amount: number | null;
     note: string | null;
+    group_label: string | null;
+    position: number;
   }[];
 }
 

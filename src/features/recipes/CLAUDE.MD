@@ -2,7 +2,7 @@
 
 ## Overview
 
-Recipes are the core domain object. A recipe has a name, servings count, ordered steps, an optional photo, and a list of `recipe_ingredients` (ingredient + unit + amount + note). Recipes are either public (`is_public = true`) or private to their creator — RLS enforces this.
+Recipes are the core domain object. A recipe has a name, servings count, ordered steps, an optional photo, and a list of `recipe_ingredients` (ingredient + unit + amount + note + `group_label` + `position`). Recipes are either public (`is_public = true`) or private to their creator — RLS enforces this.
 
 ## File map
 
@@ -30,6 +30,8 @@ Recipes are the core domain object. A recipe has a name, servings count, ordered
 **`RecipeForm` is presentational — state is lifted.** `CreateRecipe` holds form state in `useState` and persists a localStorage draft (restored in a `useEffect` to avoid SSR/hydration mismatch). `EditRecipe` seeds state from the loaded recipe. Both pass controlled `formData`/`onChange`/`onSubmit` props down.
 
 **Validation bounds mirror DB constraints.** `RecipeForm.tsx` enforces `name < 100 chars` and `0 < servings < 300` — these match the `recipes_name_check` and `recipes_servings_check` Postgres constraints. Keep them in sync if the constraints change.
+
+**Ingredients are a flat, ordered array — groups are derived, not nested.** Each `RecipeIngredient` row carries an optional `group_label` (null/"" = ungrouped); `IngredientMultiSelect` and `RecipeDetails` render sections by splitting the array into *contiguous runs of equal `group_label`*. Array order is the source of truth and is persisted as `position` (assigned from the array index in `useRecipeMutations`). The same ingredient may appear in multiple groups, but the per-group add dropdown blocks duplicates *within* one group. `rowId` (`RecipeIngredient.rowId`) is a client-only stable identity for form rows (the DB row `id` on edit, a `crypto.randomUUID()` on create) — it is never sent to the server. Empty groups awaiting their first ingredient live in component state only. Grocery aggregation ignores groups: it keys by `ingredient_id` and combines a repeated ingredient into one line.
 
 ## Adding a new recipe field
 

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useCreateRecipe } from "../hooks/useRecipeMutations";
 import { RecipeForm } from "./RecipeForm";
 import { ROUTES } from "@/utils/constants";
-import type { RecipeFormData } from "../types";
+import type { RecipeFormData, RecipeIngredient } from "../types";
 
 const FORM_STORAGE_KEY = "createRecipeFormData";
 
@@ -34,7 +34,19 @@ export const CreateRecipe = () => {
           image_file: undefined, // Files can't be persisted
           image_url: parsed.image_url || undefined,
           ingredients: Array.isArray(parsed.ingredients)
-            ? parsed.ingredients
+            ? parsed.ingredients.map(
+                (ing: Record<string, unknown>): RecipeIngredient => ({
+                  ...(ing as unknown as RecipeIngredient),
+                  // Back-compat: older drafts predate rowId. Generate one (this
+                  // runs in an effect, so crypto is available client-side).
+                  rowId:
+                    typeof ing.rowId === "string" && ing.rowId
+                      ? ing.rowId
+                      : crypto.randomUUID(),
+                  group_label:
+                    (ing.group_label as string | null | undefined) ?? null,
+                })
+              )
             : [],
           servings: parsed.servings || 1,
         });
@@ -98,6 +110,7 @@ export const CreateRecipe = () => {
           unit_amount:
             ing.unit_amount && ing.unit_amount > 0 ? ing.unit_amount : null,
           note: ing.note?.trim() || null,
+          group_label: ing.group_label ?? null,
         })),
         imageFile: formData.image_file,
         imageUrl: formData.image_url,

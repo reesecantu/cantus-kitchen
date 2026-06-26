@@ -7,6 +7,7 @@ interface RecipeIngredientForDB {
   unit_id?: string | null;
   unit_amount?: number | null;
   note?: string | null;
+  group_label?: string | null;
 }
 
 interface RecipeWithIngredients {
@@ -75,11 +76,13 @@ export const useCreateRecipe = () => {
           steps: recipe.steps,
           servings: recipe.servings,
           image_url: finalImageUrl,
-          ingredients: ingredients.map((ing) => ({
+          ingredients: ingredients.map((ing, index) => ({
             ingredient_id: ing.ingredient_id,
             unit_id: ing.unit_id ?? null,
             unit_amount: ing.unit_amount || null,
             note: ing.note || null,
+            group_label: ing.group_label ?? null,
+            position: index,
           })),
         }),
       });
@@ -145,11 +148,13 @@ export const useUpdateRecipe = () => {
           steps: recipe.steps,
           servings: recipe.servings,
           image_url: finalImageUrl,
-          ingredients: ingredients.map((ing) => ({
+          ingredients: ingredients.map((ing, index) => ({
             ingredient_id: ing.ingredient_id,
             unit_id: ing.unit_id ?? null,
             unit_amount: ing.unit_amount || null,
             note: ing.note || null,
+            group_label: ing.group_label ?? null,
+            position: index,
           })),
         }),
       });
