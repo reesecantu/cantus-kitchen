@@ -19,6 +19,7 @@ import {
   findBestUnitForQuantity,
   roundQuantity,
 } from "@/server/grocery-aggregation";
+import { groupContiguous, labelOf } from "@/features/recipes/ingredient-groups";
 
 interface RecipeDetailsProps {
   recipeId: string;
@@ -118,17 +119,14 @@ export const RecipeDetails = ({
 
   // Group ingredients into contiguous runs of equal group_label (the source of
   // truth is their stored order). Ungrouped rows ("") render without a header.
-  const ingredientSections = useMemo(() => {
-    const sections: { label: string; rows: RecipeIngredientWithDetails[] }[] =
-      [];
-    for (const ing of displayIngredients) {
-      const label = ing.group_label ?? "";
-      const last = sections[sections.length - 1];
-      if (last && last.label === label) last.rows.push(ing);
-      else sections.push({ label, rows: [ing] });
-    }
-    return sections;
-  }, [displayIngredients]);
+  const ingredientSections = useMemo(
+    () =>
+      groupContiguous(displayIngredients, labelOf).map((rows) => ({
+        label: labelOf(rows[0]),
+        rows,
+      })),
+    [displayIngredients]
+  );
 
   const handleServingsChange = (delta: number) => {
     if (!recipe) return;

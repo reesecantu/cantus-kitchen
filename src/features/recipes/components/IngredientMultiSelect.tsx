@@ -5,6 +5,7 @@ import type { RecipeIngredient } from "@/features/recipes/types";
 import { useUnits } from "@/hooks/useUnits";
 import { SearchableDropdown } from "@/components/SearchableDropdown";
 import { COLORS } from "@/utils/constants";
+import { groupContiguous, labelOf } from "@/features/recipes/ingredient-groups";
 
 interface IngredientMultiSelectProps {
   ingredients: Tables<"ingredients">[];
@@ -27,7 +28,6 @@ interface Section {
   rows: RecipeIngredient[];
 }
 
-const labelOf = (row: RecipeIngredient) => row.group_label ?? "";
 /** Group key: identity is the groupId; ungrouped rows collapse to "". */
 const groupKey = (row: RecipeIngredient) => row.groupId ?? "";
 
@@ -38,22 +38,12 @@ const groupKey = (row: RecipeIngredient) => row.groupId ?? "";
  * group keep its rows together while its name is momentarily blank.
  */
 function buildSections(rows: RecipeIngredient[]): Section[] {
-  const sections: Section[] = [];
-  for (const row of rows) {
-    const key = groupKey(row);
-    const last = sections[sections.length - 1];
-    if (last && groupKey(last.rows[0]) === key) {
-      last.rows.push(row);
-    } else {
-      sections.push({
-        key: row.groupId ?? row.rowId,
-        groupId: row.groupId,
-        label: labelOf(row),
-        rows: [row],
-      });
-    }
-  }
-  return sections;
+  return groupContiguous(rows, groupKey).map((run) => ({
+    key: run[0].groupId ?? run[0].rowId,
+    groupId: run[0].groupId,
+    label: labelOf(run[0]),
+    rows: run,
+  }));
 }
 
 export const IngredientMultiSelect = ({
@@ -212,16 +202,6 @@ export const IngredientMultiSelect = ({
 
   const totalCount = selectedIngredients.length;
 
-  // Ingredients already in the ungrouped run — excluded from the main dropdown
-  // so the same ingredient can't be added twice to the same section.
-  const ungroupedIds = useMemo(() => {
-    const set = new Set<number>();
-    for (const r of selectedIngredients) {
-      if (r.groupId === undefined) set.add(r.ingredient_id);
-    }
-    return set;
-  }, [selectedIngredients]);
-
   const renderIngredientRow = (row: RecipeIngredient) => {
     const index = indexByRowId.get(row.rowId) ?? 0;
     const canUp = index > 0;
@@ -373,10 +353,6 @@ export const IngredientMultiSelect = ({
       {/* Sections in array order; ungrouped runs render without a header. */}
       {sections.map((section, sectionIndex) => {
         const groupId = section.groupId;
-        const sectionIngredientIds = new Set(
-          section.rows.map((r) => r.ingredient_id)
-        );
-
         if (groupId === undefined) {
           return (
             <div key={section.key} className="space-y-2">
@@ -431,7 +407,7 @@ export const IngredientMultiSelect = ({
             {renderAddDropdown(
               groupId,
               section.label,
-              sectionIngredientIds,
+              new Set<number>(),
               "Add to this group"
             )}
           </div>
@@ -487,7 +463,7 @@ export const IngredientMultiSelect = ({
           {renderAddDropdown(
             undefined,
             "",
-            ungroupedIds,
+            new Set<number>(),
             totalCount === 0 ? "Ingredients" : "Add ingredient"
           )}
           <button
