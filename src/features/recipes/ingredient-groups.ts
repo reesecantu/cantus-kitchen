@@ -1,5 +1,37 @@
 import type { RecipeIngredient } from "./types";
 
+/** Display name of a group; null/"" both mean "ungrouped". */
+export const labelOf = (row: { group_label?: string | null }): string =>
+  row.group_label ?? "";
+
+/** Normalize a user-entered group name for persistence: trimmed, or null. */
+export const normalizeGroupLabel = (
+  label: string | null | undefined
+): string | null => {
+  const trimmed = (label ?? "").trim();
+  return trimmed ? trimmed : null;
+};
+
+/**
+ * Split an ordered array into contiguous runs sharing the same key. Array order
+ * is the source of truth; this is purely for display grouping. Used by both the
+ * editor (keyed by groupId) and the read-only detail view (keyed by label).
+ */
+export function groupContiguous<T>(rows: T[], keyOf: (row: T) => string): T[][] {
+  const runs: T[][] = [];
+  let lastKey: string | undefined;
+  for (const row of rows) {
+    const key = keyOf(row);
+    if (runs.length > 0 && lastKey === key) {
+      runs[runs.length - 1].push(row);
+    } else {
+      runs.push([row]);
+      lastKey = key;
+    }
+  }
+  return runs;
+}
+
 /**
  * Reconstruct a stable client-only `groupId` for each row when seeding form
  * state from persisted data (which carries only `group_label`). Rows in the
