@@ -5,6 +5,7 @@ import { RecipeForm } from "./RecipeForm";
 import { ROUTES } from "@/utils/constants";
 import type { RecipeWithIngredients } from "../api";
 import type { RecipeFormData } from "../types";
+import { seedGroupIds } from "../ingredient-groups";
 
 interface EditRecipeProps {
   recipe: RecipeWithIngredients;
@@ -17,14 +18,22 @@ function toFormData(recipe: RecipeWithIngredients): RecipeFormData {
     image_file: undefined,
     image_url: recipe.image_url ?? undefined,
     servings: recipe.servings,
-    ingredients: recipe.ingredients.map((ing) => ({
-      ingredient_id: ing.ingredient_id,
-      ingredient_name: ing.ingredient_name,
-      unit_id: ing.unit_id,
-      unit_name: ing.unit_name,
-      unit_amount: ing.unit_amount ?? undefined,
-      note: ing.note ?? undefined,
-    })),
+    // seedGroupIds rebuilds the client-only groupId from contiguous label runs;
+    // it's deterministic (derived from rowId), so SSR and hydration agree.
+    ingredients: seedGroupIds(
+      recipe.ingredients.map((ing) => ({
+        // The DB row id is a stable, unique client identity — deterministic across
+        // SSR/hydration (no random IDs needed for already-persisted rows).
+        rowId: String(ing.id),
+        ingredient_id: ing.ingredient_id,
+        ingredient_name: ing.ingredient_name,
+        unit_id: ing.unit_id,
+        unit_name: ing.unit_name,
+        unit_amount: ing.unit_amount ?? undefined,
+        note: ing.note ?? undefined,
+        group_label: ing.group_label,
+      }))
+    ),
   };
 }
 
@@ -50,6 +59,7 @@ export const EditRecipe = ({ recipe }: EditRecipeProps) => {
           unit_amount:
             ing.unit_amount && ing.unit_amount > 0 ? ing.unit_amount : null,
           note: ing.note?.trim() || null,
+          group_label: ing.group_label ?? null,
         })),
         imageFile: formData.image_file,
         imageUrl: formData.image_url,

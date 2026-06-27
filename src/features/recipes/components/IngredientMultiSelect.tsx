@@ -1,13 +1,11 @@
-import { useRef } from "react";
-import { X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ChevronDown, ChevronUp, Plus, X } from "lucide-react";
 import type { Tables } from "@/types/database-types";
 import type { RecipeIngredient } from "@/features/recipes/types";
 import { useUnits } from "@/hooks/useUnits";
-import {
-  SearchableDropdown,
-  type SearchableDropdownRef,
-} from "@/components/SearchableDropdown";
+import { SearchableDropdown } from "@/components/SearchableDropdown";
 import { COLORS } from "@/utils/constants";
+import { groupContiguous, labelOf } from "@/features/recipes/ingredient-groups";
 
 interface IngredientMultiSelectProps {
   ingredients: Tables<"ingredients">[];
@@ -15,6 +13,37 @@ interface IngredientMultiSelectProps {
   onIngredientsChange: (ingredients: RecipeIngredient[]) => void;
   isLoading?: boolean;
   isError?: boolean;
+}
+
+/** Display section derived from a contiguous run of rows sharing a groupId. */
+interface Section {
+  /** Stable React key — the group's id, or the first row's rowId when ungrouped.
+   *  Survives label edits, so the section subtree (and its group-name input)
+   *  isn't remounted on every keystroke. */
+  key: string;
+  /** Group identity; undefined = the ungrouped run (rendered without a header). */
+  groupId?: string;
+  /** Display name of the group ("" while unnamed). */
+  label: string;
+  rows: RecipeIngredient[];
+}
+
+/** Group key: identity is the groupId; ungrouped rows collapse to "". */
+const groupKey = (row: RecipeIngredient) => row.groupId ?? "";
+
+/**
+ * Group the flat ordered ingredient array into contiguous runs sharing a
+ * groupId. Array order is the source of truth; this is purely for display.
+ * Grouping by identity (not label) lets two groups share a name and lets a
+ * group keep its rows together while its name is momentarily blank.
+ */
+function buildSections(rows: RecipeIngredient[]): Section[] {
+  return groupContiguous(rows, groupKey).map((run) => ({
+    key: run[0].groupId ?? run[0].rowId,
+    groupId: run[0].groupId,
+    label: labelOf(run[0]),
+    rows: run,
+  }));
 }
 
 export const IngredientMultiSelect = ({
@@ -25,192 +54,428 @@ export const IngredientMultiSelect = ({
   isError = false,
 }: IngredientMultiSelectProps) => {
   const { data: units = [] } = useUnits();
-  const dropdownRef = useRef<SearchableDropdownRef>(null);
 
-  // Filter out already selected ingredients
-  const availableIngredients = ingredients.filter(
-    (ingredient) =>
-      !selectedIngredients.some(
-        (selected) => selected.ingredient_id === ingredient.id,
-      ),
+  // Empty groups the user has created but not yet filled. They can't live in
+  // the flat array (no rows = no representation), so they're held here until
+  // the first ingredient is added, then dropped. Client-only, never persisted.
+  const [pendingGroups, setPendingGroups] = useState<
+    { id: string; name: string }[]
+  >([]);
+
+  const sections = useMemo(
+    () => buildSections(selectedIngredients),
+    [selectedIngredients]
   );
 
-  const addIngredient = (ingredient: Tables<"ingredients">) => {
-    // Set default unit to the first unit in the list
-    const defaultUnit = units[0];
+  const indexByRowId = useMemo(() => {
+    const map = new Map<string, number>();
+    selectedIngredients.forEach((row, i) => map.set(row.rowId, i));
+    return map;
+  }, [selectedIngredients]);
 
-    const newIngredient: RecipeIngredient = {
+  const makeRow = (
+    ingredient: Tables<"ingredients">,
+    groupId: string | undefined,
+    groupLabel: string
+  ): RecipeIngredient => {
+    const defaultUnit = units[0];
+    return {
+      rowId: crypto.randomUUID(),
+      groupId,
       ingredient_id: ingredient.id,
       ingredient_name: ingredient.name,
       unit_id: defaultUnit?.id || null,
       unit_name: defaultUnit?.name || "",
       unit_amount: undefined,
       note: "",
+      group_label: groupLabel || null,
     };
-    onIngredientsChange([...selectedIngredients, newIngredient]);
   };
 
-  const removeIngredient = (ingredientId: number) => {
-    onIngredientsChange(
-      selectedIngredients.filter((ing) => ing.ingredient_id !== ingredientId),
-    );
+  /** Append a new ingredient row at the end of the run that shares `groupId`. */
+  const addIngredient = (
+    ingredient: Tables<"ingredients">,
+    groupId: string | undefined,
+    groupLabel: string,
+    pendingId?: string
+  ) => {
+    const newRow = makeRow(ingredient, groupId, groupLabel);
+    const arr = [...selectedIngredients];
+    const targetKey = groupId ?? "";
+    let insertAt = arr.length;
+    for (let i = arr.length - 1; i >= 0; i--) {
+      if (groupKey(arr[i]) === targetKey) {
+        insertAt = i + 1;
+        break;
+      }
+    }
+    arr.splice(insertAt, 0, newRow);
+    onIngredientsChange(arr);
+    // The group now has a row in the array — it's no longer pending.
+    if (pendingId) {
+      setPendingGroups((pg) => pg.filter((g) => g.id !== pendingId));
+    }
+  };
+
+  const removeIngredient = (rowId: string) => {
+    onIngredientsChange(selectedIngredients.filter((r) => r.rowId !== rowId));
   };
 
   const updateIngredient = (
-    ingredientId: number,
-    updates: Partial<RecipeIngredient>,
+    rowId: string,
+    updates: Partial<RecipeIngredient>
   ) => {
     onIngredientsChange(
-      selectedIngredients.map((ing) =>
-        ing.ingredient_id === ingredientId ? { ...ing, ...updates } : ing,
-      ),
+      selectedIngredients.map((r) =>
+        r.rowId === rowId ? { ...r, ...updates } : r
+      )
     );
   };
 
-  const updateIngredientUnit = (
-    ingredientId: number,
-    unitId: string | null,
-  ) => {
+  const updateIngredientUnit = (rowId: string, unitId: string | null) => {
     const selectedUnit = units.find((unit) => unit.id === unitId);
-    updateIngredient(ingredientId, {
+    updateIngredient(rowId, {
       unit_id: unitId,
       unit_name: selectedUnit?.name || "",
     });
   };
 
+  /**
+   * Move a row up/down by swapping with its array neighbor; the moved row
+   * adopts the neighbor's group_label. Within a group this is a plain reorder;
+   * across a group boundary it moves the row into the adjacent group.
+   */
+  const moveIngredient = (rowId: string, dir: "up" | "down") => {
+    const i = indexByRowId.get(rowId);
+    if (i === undefined) return;
+    const j = dir === "up" ? i - 1 : i + 1;
+    if (j < 0 || j >= selectedIngredients.length) return;
+    const arr = [...selectedIngredients];
+    const neighborGroupId = arr[j].groupId;
+    const neighborLabel = arr[j].group_label ?? null;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    arr[j] = { ...arr[j], groupId: neighborGroupId, group_label: neighborLabel };
+    onIngredientsChange(arr);
+  };
+
+  /** Reorder a whole group (contiguous run) among the rendered sections. */
+  const moveSection = (sectionIndex: number, dir: "up" | "down") => {
+    const j = dir === "up" ? sectionIndex - 1 : sectionIndex + 1;
+    if (j < 0 || j >= sections.length) return;
+    const reordered = [...sections];
+    [reordered[sectionIndex], reordered[j]] = [
+      reordered[j],
+      reordered[sectionIndex],
+    ];
+    onIngredientsChange(reordered.flatMap((s) => s.rows));
+  };
+
+  // Rename by groupId, not by rows: the group keeps its identity even when the
+  // name is cleared, so an empty field doesn't merge it into the ungrouped run.
+  const renameSection = (groupId: string, newName: string) => {
+    onIngredientsChange(
+      selectedIngredients.map((r) =>
+        r.groupId === groupId ? { ...r, group_label: newName || null } : r
+      )
+    );
+  };
+
+  const deleteSection = (groupId: string) => {
+    onIngredientsChange(
+      selectedIngredients.filter((r) => r.groupId !== groupId)
+    );
+  };
+
+  const addGroup = () => {
+    setPendingGroups((pg) => [...pg, { id: crypto.randomUUID(), name: "" }]);
+  };
+
+  const renamePendingGroup = (id: string, name: string) => {
+    setPendingGroups((pg) =>
+      pg.map((g) => (g.id === id ? { ...g, name } : g))
+    );
+  };
+
+  const removePendingGroup = (id: string) => {
+    setPendingGroups((pg) => pg.filter((g) => g.id !== id));
+  };
+
+  const totalCount = selectedIngredients.length;
+
+  const renderIngredientRow = (row: RecipeIngredient) => {
+    const index = indexByRowId.get(row.rowId) ?? 0;
+    const canUp = index > 0;
+    const canDown = index < totalCount - 1;
+    return (
+      <div
+        key={row.rowId}
+        className="p-2 bg-white rounded-lg border border-gray-300 shadow-sm"
+      >
+        <div className="flex-1 min-w-0 mb-2">
+          <span className="font-medium text-sm text-gray-900">
+            {row.ingredient_name}
+          </span>
+        </div>
+        <div className="flex items-end gap-2">
+          <div className="grid grid-cols-12 gap-3 items-end flex-1">
+            <div className="col-span-3">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Amount
+              </label>
+              <input
+                type="number"
+                inputMode="decimal"
+                value={row.unit_amount?.toString() || ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  updateIngredient(row.rowId, {
+                    unit_amount:
+                      value === "" ? undefined : parseFloat(value) || undefined,
+                  });
+                }}
+                onBlur={(e) => {
+                  const value = e.target.value;
+                  if (value !== "") {
+                    const num = parseFloat(value);
+                    if (isNaN(num) || num <= 0) {
+                      updateIngredient(row.rowId, { unit_amount: undefined });
+                    }
+                  }
+                }}
+                className="w-full px-2 py-1 h-8 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+            </div>
+
+            <div className="col-span-3">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Unit
+              </label>
+              <select
+                value={row.unit_id || ""}
+                onChange={(e) =>
+                  updateIngredientUnit(row.rowId, e.target.value || null)
+                }
+                className="w-full px-2 py-1 h-8 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {units.map((unit) => (
+                  <option key={unit.id} value={unit.id}>
+                    {unit.abbreviation
+                      ? `${unit.name} (${unit.abbreviation})`
+                      : unit.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-span-6">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Notes
+              </label>
+              <input
+                type="text"
+                placeholder="e.g., 'diced', 'finely chopped'"
+                value={row.note || ""}
+                onChange={(e) =>
+                  updateIngredient(row.rowId, { note: e.target.value })
+                }
+                className="w-full px-3 py-1 h-8 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* Move / delete controls */}
+          <div className="flex flex-col items-center flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => moveIngredient(row.rowId, "up")}
+              disabled={!canUp}
+              className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed p-0.5"
+              title="Move up"
+            >
+              <ChevronUp className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => moveIngredient(row.rowId, "down")}
+              disabled={!canDown}
+              className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed p-0.5"
+              title="Move down"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => removeIngredient(row.rowId)}
+              className="text-red-500 hover:text-red-700 p-0.5"
+              title="Remove ingredient"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  /** Add-ingredient dropdown scoped to a group; excludes dupes already in it. */
+  const renderAddDropdown = (
+    groupId: string | undefined,
+    groupLabel: string,
+    excludeIds: Set<number>,
+    placeholderLabel: string,
+    pendingId?: string,
+    disabled?: boolean
+  ) => {
+    const available = ingredients.filter((ing) => !excludeIds.has(ing.id));
+    return (
+      <SearchableDropdown
+        label={placeholderLabel}
+        placeholder={isLoading ? "Loading ingredients..." : "Add ingredient..."}
+        searchPlaceholder="Search ingredients..."
+        items={available}
+        onItemSelect={(ing) => addIngredient(ing, groupId, groupLabel, pendingId)}
+        getItemId={(ing) => ing.id}
+        getItemLabel={(ing) => ing.name}
+        mode="single"
+        disabled={isLoading || disabled}
+      />
+    );
+  };
+
   return (
     <div className="space-y-4">
-      {/* Selected ingredients display */}
-      {selectedIngredients.length > 0 && (
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Selected Ingredients ({selectedIngredients.length})
-          </label>
-          {selectedIngredients.map((ingredient) => (
-            <div
-              key={ingredient.ingredient_id}
-              className="p-2 bg-white rounded-lg border border-gray-300 shadow-sm"
-            >
-              <div className="flex-1 min-w-0 mb-2">
-                <span className="font-medium text-sm text-gray-900">
-                  {ingredient.ingredient_name}
-                </span>
-              </div>
-              {/* Amount, Unit, notes and Remove button all on one row */}
-              <div className="grid grid-cols-12 gap-3 items-end">
-                <div className="col-span-2">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Amount
-                  </label>
-                  <input
-                    type="number"
-                    inputMode="decimal"
-                    placeholder=""
-                    value={ingredient.unit_amount?.toString() || ""}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      updateIngredient(ingredient.ingredient_id, {
-                        unit_amount:
-                          value === ""
-                            ? undefined
-                            : parseFloat(value) || undefined,
-                      });
-                    }}
-                    onBlur={(e) => {
-                      const value = e.target.value;
-                      if (value !== "") {
-                        const num = parseFloat(value);
-                        if (isNaN(num) || num <= 0) {
-                          // Clear invalid input
-                          updateIngredient(ingredient.ingredient_id, {
-                            unit_amount: undefined,
-                          });
-                        }
-                      }
-                    }}
-                    className="w-full px-2 py-1 h-8 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                </div>
-
-                <div className="col-span-3">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Unit
-                  </label>
-                  <select
-                    value={ingredient.unit_id || ""}
-                    onChange={(e) =>
-                      updateIngredientUnit(
-                        ingredient.ingredient_id,
-                        e.target.value || null,
-                      )
-                    }
-                    className="w-full px-2 py-1 h-8 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {units.map((unit) => (
-                      <option key={unit.id} value={unit.id}>
-                        {unit.abbreviation
-                          ? `${unit.name} (${unit.abbreviation})`
-                          : unit.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="col-span-6">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">
-                    Notes
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., 'diced', 'finely chopped'"
-                    value={ingredient.note || ""}
-                    onChange={(e) =>
-                      updateIngredient(ingredient.ingredient_id, {
-                        note: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-1 h-8 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="col-span-1 flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => removeIngredient(ingredient.ingredient_id)}
-                    className="text-red-500 hover:text-red-700 p-1 flex-shrink-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      {totalCount > 0 && (
+        <label className="block text-sm font-medium text-gray-700">
+          Ingredients ({totalCount})
+        </label>
       )}
 
-      {/* Add ingredient dropdown */}
+      {/* Sections in array order; ungrouped runs render without a header. */}
+      {sections.map((section, sectionIndex) => {
+        const groupId = section.groupId;
+        if (groupId === undefined) {
+          return (
+            <div key={section.key} className="space-y-2">
+              {section.rows.map(renderIngredientRow)}
+            </div>
+          );
+        }
+
+        return (
+          <div
+            key={section.key}
+            className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-3"
+          >
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={section.label}
+                onChange={(e) => renameSection(groupId, e.target.value)}
+                placeholder="Group name"
+                className="flex-1 px-2 py-1 h-8 border border-gray-300 bg-white rounded text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={() => moveSection(sectionIndex, "up")}
+                disabled={sectionIndex === 0}
+                className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed p-1"
+                title="Move group up"
+              >
+                <ChevronUp className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => moveSection(sectionIndex, "down")}
+                disabled={sectionIndex === sections.length - 1}
+                className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed p-1"
+                title="Move group down"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => deleteSection(groupId)}
+                className="text-red-500 hover:text-red-700 p-1"
+                title="Delete group and its ingredients"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {section.rows.map(renderIngredientRow)}
+
+            {renderAddDropdown(
+              groupId,
+              section.label,
+              new Set<number>(),
+              "Add to this group"
+            )}
+          </div>
+        );
+      })}
+
+      {/* Empty groups awaiting their first ingredient. */}
+      {pendingGroups.map((group) => (
+        <div
+          key={group.id}
+          className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-3"
+        >
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={group.name}
+              onChange={(e) => renamePendingGroup(group.id, e.target.value)}
+              placeholder="Group name"
+              className="flex-1 px-2 py-1 h-8 border border-gray-300 rounded text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="button"
+              onClick={() => removePendingGroup(group.id)}
+              className="text-red-500 hover:text-red-700 p-1"
+              title="Remove group"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          {group.name.trim() ? (
+            renderAddDropdown(
+              group.id,
+              group.name,
+              new Set<number>(),
+              "Add to this group",
+              group.id
+            )
+          ) : (
+            <p className="text-xs text-gray-500 italic">
+              Name this group to start adding ingredients.
+            </p>
+          )}
+        </div>
+      ))}
+
+      {/* Add ungrouped ingredient + create a new group */}
       {isError ? (
         <p className="text-sm text-red-600">
           Failed to load ingredients. Please refresh.
         </p>
       ) : (
-        <SearchableDropdown
-          ref={dropdownRef}
-          label={
-            selectedIngredients.length === 0
-              ? "Ingredients"
-              : "Add More Ingredients"
-          }
-          placeholder={isLoading ? "Loading ingredients..." : "Add ingredients..."}
-          searchPlaceholder="Search ingredients..."
-          items={availableIngredients}
-          onItemSelect={addIngredient}
-          getItemId={(ingredient) => ingredient.id}
-          getItemLabel={(ingredient) => ingredient.name}
-          mode="single"
-          disabled={isLoading}
-        />
+        <div className="space-y-3">
+          {renderAddDropdown(
+            undefined,
+            "",
+            new Set<number>(),
+            totalCount === 0 ? "Ingredients" : "Add ingredient"
+          )}
+          <button
+            type="button"
+            onClick={addGroup}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
+          >
+            <Plus className="h-4 w-4" /> Add a group
+          </button>
+        </div>
       )}
+
       <p className={`text-xs ${COLORS.TEXT_SECONDARY}`}>
         Can't find an ingredient you want?{" "}
         <a

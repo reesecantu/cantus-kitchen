@@ -1,5 +1,55 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { regenerateGroceryListItems } from "./grocery-lists.server";
+import { normalizeGroupLabel } from "@/features/recipes/ingredient-groups";
+
+/** Validated, normalized ingredient row as persisted by the create/replace RPCs. */
+export interface PayloadIngredient {
+  ingredient_id: number;
+  unit_id: string | null;
+  unit_amount: number | null;
+  note: string | null;
+  group_label: string | null;
+  position: number;
+}
+
+/**
+ * Validate + normalize the untrusted `ingredients` array from a create/update
+ * request body. Returns null if the array is missing/empty or any row is
+ * malformed (callers map that to a 400). Shared by both recipe routes so create
+ * and update enforce identical rules.
+ */
+export function validateIngredients(
+  raw: unknown
+): PayloadIngredient[] | null {
+  if (!Array.isArray(raw) || raw.length === 0) return null;
+  const ingredients: PayloadIngredient[] = [];
+  for (const [index, item] of raw.entries()) {
+    if (!item || typeof item !== "object") return null;
+    const ing = item as Record<string, unknown>;
+    if (typeof ing.ingredient_id !== "number") return null;
+    if (ing.unit_id != null && typeof ing.unit_id !== "string") return null;
+    if (ing.unit_amount != null && typeof ing.unit_amount !== "number") {
+      return null;
+    }
+    if (ing.group_label != null && typeof ing.group_label !== "string") {
+      return null;
+    }
+    if (ing.position != null && typeof ing.position !== "number") return null;
+    ingredients.push({
+      ingredient_id: ing.ingredient_id,
+      unit_id: (ing.unit_id as string | null) ?? null,
+      unit_amount: (ing.unit_amount as number | null) ?? null,
+      note:
+        typeof ing.note === "string" && ing.note.trim() ? ing.note.trim() : null,
+      group_label: normalizeGroupLabel(
+        typeof ing.group_label === "string" ? ing.group_label : null
+      ),
+      // Trust the client's order but fall back to array index defensively.
+      position: typeof ing.position === "number" ? ing.position : index,
+    });
+  }
+  return ingredients;
+}
 
 /**
  * Delete a recipe row (RLS-checked via the user's client) and clean up its
@@ -72,12 +122,7 @@ export interface CreateRecipePayload {
   servings: number;
   image_url: string | null;
   created_by: string;
-  ingredients: {
-    ingredient_id: number;
-    unit_id: string | null;
-    unit_amount: number | null;
-    note: string | null;
-  }[];
+  ingredients: PayloadIngredient[];
 }
 
 /**
@@ -105,12 +150,7 @@ export interface UpdateRecipePayload {
   steps: string[];
   servings: number;
   image_url: string | null;
-  ingredients: {
-    ingredient_id: number;
-    unit_id: string | null;
-    unit_amount: number | null;
-    note: string | null;
-  }[];
+  ingredients: PayloadIngredient[];
 }
 
 /**

@@ -4,6 +4,7 @@ import { getServerClient } from "@/lib/supabase.server";
 import {
   deleteRecipe,
   updateRecipe,
+  validateIngredients,
   type UpdateRecipePayload,
 } from "@/server/recipes.server";
 import { createSupabaseAdminClient } from "@/server/supabase-admin.server";
@@ -87,23 +88,8 @@ function validateUpdatePayload(body: unknown): UpdateRecipePayload | null {
   );
   if (steps.length === 0) return null;
 
-  if (!Array.isArray(b.ingredients) || b.ingredients.length === 0) return null;
-  const ingredients: UpdateRecipePayload["ingredients"] = [];
-  for (const raw of b.ingredients) {
-    if (!raw || typeof raw !== "object") return null;
-    const ing = raw as Record<string, unknown>;
-    if (typeof ing.ingredient_id !== "number") return null;
-    if (ing.unit_id != null && typeof ing.unit_id !== "string") return null;
-    if (ing.unit_amount != null && typeof ing.unit_amount !== "number") {
-      return null;
-    }
-    ingredients.push({
-      ingredient_id: ing.ingredient_id,
-      unit_id: (ing.unit_id as string | null) ?? null,
-      unit_amount: (ing.unit_amount as number | null) ?? null,
-      note: typeof ing.note === "string" && ing.note.trim() ? ing.note.trim() : null,
-    });
-  }
+  const ingredients = validateIngredients(b.ingredients);
+  if (!ingredients) return null;
 
   const image_url =
     typeof b.image_url === "string" && b.image_url ? b.image_url : null;

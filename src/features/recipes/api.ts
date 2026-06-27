@@ -7,6 +7,8 @@ export interface RecipeIngredientWithDetails {
   unit_amount: number | null;
   unit_id: string | null;
   note: string | null;
+  group_label: string | null;
+  position: number;
   ingredient_name: string;
   unit_name: string;
   unit_abbreviation: string;
@@ -92,12 +94,19 @@ export async function fetchRecipeDetails(
         unit_amount,
         unit_id,
         note,
+        group_label,
+        position,
         ingredients (name),
         units (name, abbreviation)
       )
     `
     )
     .eq("id", recipeId)
+    .order("position", { referencedTable: "recipe_ingredients", ascending: true })
+    // Tiebreaker: pre-migration rows all default to position 0, so without a
+    // secondary key their order is non-deterministic. Ordering by the primary
+    // key reproduces the stable insertion order the old query returned.
+    .order("id", { referencedTable: "recipe_ingredients", ascending: true })
     .single();
 
   if (error) {
@@ -114,6 +123,8 @@ export async function fetchRecipeDetails(
         unit_amount: ri.unit_amount,
         unit_id: ri.unit_id,
         note: ri.note,
+        group_label: ri.group_label,
+        position: ri.position,
         ingredient_name: ri.ingredients?.name || "Unknown Ingredient",
         unit_name: ri.units?.name || "",
         unit_abbreviation: ri.units?.abbreviation || "",

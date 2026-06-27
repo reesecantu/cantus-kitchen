@@ -19,6 +19,7 @@ import {
   findBestUnitForQuantity,
   roundQuantity,
 } from "@/server/grocery-aggregation";
+import { groupContiguous, labelOf } from "@/features/recipes/ingredient-groups";
 
 interface RecipeDetailsProps {
   recipeId: string;
@@ -115,6 +116,17 @@ export const RecipeDetails = ({
       allUnits
     );
   }, [recipe, isScaled, effectiveServings, unitsById, allUnits]);
+
+  // Group ingredients into contiguous runs of equal group_label (the source of
+  // truth is their stored order). Ungrouped rows ("") render without a header.
+  const ingredientSections = useMemo(
+    () =>
+      groupContiguous(displayIngredients, labelOf).map((rows) => ({
+        label: labelOf(rows[0]),
+        rows,
+      })),
+    [displayIngredients]
+  );
 
   const handleServingsChange = (delta: number) => {
     if (!recipe) return;
@@ -264,35 +276,44 @@ export const RecipeDetails = ({
               Ingredients
             </h2>
             {displayIngredients.length > 0 ? (
-              <div className="space-y-2">
-                {displayIngredients.map((ingredient) => (
-                  <div
-                    key={ingredient.id}
-                    className="flex items-start gap-3 bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex-1 bg-white py-1 px-3 border rounded-lg border-gray-200">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {ingredient.unit_amount && (
-                          <span className="font-medium text-gray-900">
-                            {ingredient.unit_amount}
-                          </span>
-                        )}
-                        {ingredient.unit_name && (
-                          <span className="text-gray-900">
-                            {ingredient.unit_abbreviation ||
-                              ingredient.unit_name}
-                          </span>
-                        )}
-                        <span className="font-medium text-gray-900">
-                          {ingredient.ingredient_name}
-                        </span>
-                      </div>
-                      {ingredient.note && (
-                        <div className="text-sm text-gray-600 mt-1 italic">
-                          {ingredient.note}
+              <div className="space-y-5">
+                {ingredientSections.map((section, sectionIndex) => (
+                  <div key={`${sectionIndex}:${section.label}`} className="space-y-2">
+                    {section.label && (
+                      <h3 className="text-base font-semibold text-gray-800">
+                        {section.label}
+                      </h3>
+                    )}
+                    {section.rows.map((ingredient) => (
+                      <div
+                        key={ingredient.id}
+                        className="flex items-start gap-3 bg-gray-50 rounded-lg"
+                      >
+                        <div className="flex-1 bg-white py-1 px-3 border rounded-lg border-gray-200">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {ingredient.unit_amount && (
+                              <span className="font-medium text-gray-900">
+                                {ingredient.unit_amount}
+                              </span>
+                            )}
+                            {ingredient.unit_name && (
+                              <span className="text-gray-900">
+                                {ingredient.unit_abbreviation ||
+                                  ingredient.unit_name}
+                              </span>
+                            )}
+                            <span className="font-medium text-gray-900">
+                              {ingredient.ingredient_name}
+                            </span>
+                          </div>
+                          {ingredient.note && (
+                            <div className="text-sm text-gray-600 mt-1 italic">
+                              {ingredient.note}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>

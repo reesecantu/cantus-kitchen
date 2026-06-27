@@ -7,10 +7,30 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "12.2.12 (cd3cf9e)"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -213,27 +233,33 @@ export type Database = {
       recipe_ingredients: {
         Row: {
           created_at: string
+          group_label: string | null
           id: number
           ingredient_id: number
           note: string | null
+          position: number
           recipe_id: string | null
           unit_amount: number | null
           unit_id: string
         }
         Insert: {
           created_at?: string
+          group_label?: string | null
           id?: number
           ingredient_id: number
           note?: string | null
+          position?: number
           recipe_id?: string | null
           unit_amount?: number | null
           unit_id?: string
         }
         Update: {
           created_at?: string
+          group_label?: string | null
           id?: number
           ingredient_id?: number
           note?: string | null
+          position?: number
           recipe_id?: string | null
           unit_amount?: number | null
           unit_id?: string
@@ -268,6 +294,7 @@ export type Database = {
           created_by: string
           id: string
           image_url: string | null
+          is_public: boolean
           name: string
           servings: number
           steps: string[]
@@ -277,6 +304,7 @@ export type Database = {
           created_by?: string
           id?: string
           image_url?: string | null
+          is_public?: boolean
           name: string
           servings: number
           steps: string[]
@@ -286,6 +314,7 @@ export type Database = {
           created_by?: string
           id?: string
           image_url?: string | null
+          is_public?: boolean
           name?: string
           servings?: number
           steps?: string[]
@@ -362,6 +391,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_recipe: {
+        Args: {
+          p_created_by: string
+          p_image_url: string
+          p_ingredients: Json
+          p_name: string
+          p_servings: number
+          p_steps: string[]
+        }
+        Returns: string
+      }
       delete_old_anonymous_users: {
         Args: never
         Returns: {
@@ -511,7 +551,11 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
 } as const
+
