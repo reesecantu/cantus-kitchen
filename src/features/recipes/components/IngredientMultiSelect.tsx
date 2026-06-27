@@ -336,7 +336,6 @@ export const IngredientMultiSelect = ({
         onItemSelect={(ing) => addIngredient(ing, groupId, groupLabel, pendingId)}
         getItemId={(ing) => ing.id}
         getItemLabel={(ing) => ing.name}
-        mode="single"
         disabled={isLoading || disabled}
       />
     );

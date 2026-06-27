@@ -4,8 +4,6 @@ import Lily from "@/assets/testimonials/Lily.png";
 import Jewel from "@/assets/testimonials/Jewel.png";
 import Susie from "@/assets/testimonials/Susie.png";
 
-import { ANIMATION_CONSTANTS } from "@/utils/constants";
-
 interface Testimonial {
   id: string;
   image: string;
@@ -34,7 +32,7 @@ const testimonials: Testimonial[] = [
   },
 ];
 
-const AUTOPLAY_INTERVAL = ANIMATION_CONSTANTS.TESTIMONIALS_AUTOPLAY_INTERVAL;
+const AUTOPLAY_INTERVAL = 4500;
 
 export const Testimonials = () => {
   // Start at index 2 because we add two clones to the left

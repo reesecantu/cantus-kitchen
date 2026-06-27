@@ -103,7 +103,6 @@ export const GroceryListRecipes = ({
                   onItemSelect={setSelectedRecipe}
                   getItemId={(recipe) => recipe.id}
                   getItemLabel={(recipe) => recipe.name}
-                  mode="single"
                 />
               </div>
 

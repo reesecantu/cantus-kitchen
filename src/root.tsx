@@ -16,8 +16,15 @@ import "./index.css";
 import { AuthProvider } from "@/features/auth/AuthContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { isAuthRoute } from "@/utils/routeHelper";
+import { ROUTES } from "@/utils/constants";
 import { getServerClient } from "@/lib/supabase.server";
+
+const AUTH_ROUTES = new Set<string>([
+  ROUTES.SIGN_IN,
+  ROUTES.SIGN_UP,
+  ROUTES.FORGOT_PASSWORD,
+  ROUTES.RESET_PASSWORD,
+]);
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", type: "image/png", href: "/favicon.png" },
@@ -76,7 +83,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App({ loaderData }: Route.ComponentProps) {
   const [queryClient] = useState(() => new QueryClient());
   const location = useLocation();
-  const hideNavbar = isAuthRoute(location.pathname);
+  const hideNavbar = AUTH_ROUTES.has(location.pathname);
 
   return (
     <QueryClientProvider client={queryClient}>

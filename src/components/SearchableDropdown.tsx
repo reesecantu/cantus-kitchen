@@ -4,7 +4,7 @@ import {
   useEffect,
   useImperativeHandle,
 } from "react";
-import { ChevronDown, Plus, Check } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
 
 interface SearchableDropdownProps<T> {
   label?: string;
@@ -17,9 +17,6 @@ interface SearchableDropdownProps<T> {
   getItemLabel: (item: T) => string;
   className?: string;
   disabled?: boolean;
-  mode?: "single" | "multi";
-  selectedItems?: T[];
-  renderSelectedItem?: (item: T, onRemove: () => void) => React.ReactNode;
 }
 
 export interface SearchableDropdownRef {
@@ -35,14 +32,11 @@ export const SearchableDropdown = <T,>(
     searchPlaceholder = "Search items...",
     items,
     selectedItem,
-    selectedItems = [],
     onItemSelect,
     getItemId,
     getItemLabel,
-    renderSelectedItem,
     className = "",
     disabled = false,
-    mode = "single",
   } = props;
 
   const [isOpen, setIsOpen] = useState(false);
@@ -88,21 +82,9 @@ export const SearchableDropdown = <T,>(
   }, [isOpen]);
 
   // Filter items based on search
-  const filteredItems = items.filter((item) => {
-    const matchesSearch = getItemLabel(item)
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-
-    if (mode === "single") {
-      return matchesSearch;
-    } else {
-      // Multi-select: exclude already selected items
-      const notAlreadySelected = !selectedItems.some(
-        (selected) => getItemId(selected) === getItemId(item)
-      );
-      return matchesSearch && notAlreadySelected;
-    }
-  });
+  const filteredItems = items.filter((item) =>
+    getItemLabel(item).toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleItemSelect = (item: T) => {
     onItemSelect(item);
@@ -110,23 +92,8 @@ export const SearchableDropdown = <T,>(
     setIsOpen(false);
   };
 
-  // For single select, determine what to show in the trigger
-  const getDisplayValue = () => {
-    if (mode === "single" && selectedItem) {
-      return getItemLabel(selectedItem);
-    }
-    return placeholder;
-  };
-
-  const isSelected = (item: T) => {
-    if (mode === "single") {
-      return selectedItem && getItemId(selectedItem) === getItemId(item);
-    } else {
-      return selectedItems.some(
-        (selected) => getItemId(selected) === getItemId(item)
-      );
-    }
-  };
+  const isSelected = (item: T) =>
+    selectedItem && getItemId(selectedItem) === getItemId(item);
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -135,17 +102,6 @@ export const SearchableDropdown = <T,>(
           <label className="block text-sm font-medium text-gray-700 mb-2">
             {label}
           </label>
-        )}
-
-        {/* Multi-select: Selected items display */}
-        {mode === "multi" && renderSelectedItem && selectedItems.length > 0 && (
-          <div className="space-y-2 mb-2">
-            {selectedItems.map((item) =>
-              renderSelectedItem(item, () => {
-                // Handle removal would need to be passed in if needed
-              })
-            )}
-          </div>
         )}
 
         {/* Dropdown trigger button or search input */}
@@ -161,7 +117,7 @@ export const SearchableDropdown = <T,>(
                 selectedItem ? "text-gray-900" : "text-gray-500"
               }`}
             >
-              {getDisplayValue()}
+              {selectedItem ? getItemLabel(selectedItem) : placeholder}
             </span>
             <ChevronDown className="h-5 w-5 text-gray-400" />
           </button>
@@ -201,15 +157,11 @@ export const SearchableDropdown = <T,>(
                     isSelected(item) ? "bg-blue-50" : ""
                   }`}
                 >
-                  {mode === "single" ? (
-                    <Check
-                      className={`h-4 w-4 mr-2 flex-shrink-0 ${
-                        isSelected(item) ? "text-blue-500" : "text-transparent"
-                      }`}
-                    />
-                  ) : (
-                    <Plus className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                  )}
+                  <Check
+                    className={`h-4 w-4 mr-2 flex-shrink-0 ${
+                      isSelected(item) ? "text-blue-500" : "text-transparent"
+                    }`}
+                  />
                   <span className="truncate">{getItemLabel(item)}</span>
                 </button>
               ))}
