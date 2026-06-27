@@ -17,6 +17,50 @@ const EMPTY_FORM: RecipeFormData = {
   servings: 1,
 };
 
+/**
+ * Parse one untrusted draft ingredient, or null if it can't be rendered/saved.
+ * `ingredient_id` (number) and `ingredient_name` (string) are mandatory — the
+ * server rejects a non-number id and the row can't render without a name — so a
+ * malformed row from an older or corrupted draft is dropped rather than spread
+ * blindly into form state (where it would later fail create with a generic 400).
+ */
+function parseDraftIngredient(raw: unknown): RecipeIngredient | null {
+  if (!raw || typeof raw !== "object") return null;
+  const ing = raw as Record<string, unknown>;
+  if (typeof ing.ingredient_id !== "number") return null;
+  if (typeof ing.ingredient_name !== "string" || !ing.ingredient_name) return null;
+  return {
+    rowId:
+      typeof ing.rowId === "string" && ing.rowId
+        ? ing.rowId
+        : crypto.randomUUID(),
+    groupId: typeof ing.groupId === "string" ? ing.groupId : undefined,
+    ingredient_id: ing.ingredient_id,
+    ingredient_name: ing.ingredient_name,
+    unit_id: typeof ing.unit_id === "string" ? ing.unit_id : null,
+    unit_name: typeof ing.unit_name === "string" ? ing.unit_name : "",
+    unit_amount: typeof ing.unit_amount === "number" ? ing.unit_amount : undefined,
+    note: typeof ing.note === "string" ? ing.note : "",
+    group_label: typeof ing.group_label === "string" ? ing.group_label : null,
+  };
+}
+
+/** Validate + normalize a draft's ingredient array, then (re)seed group ids. */
+function parseDraftIngredients(raw: unknown): RecipeIngredient[] {
+  if (!Array.isArray(raw)) return [];
+  const rows = raw
+    .map(parseDraftIngredient)
+    .filter((r): r is RecipeIngredient => r !== null);
+  if (rows.length !== raw.length) {
+    console.warn(
+      `Dropped ${raw.length - rows.length} malformed draft ingredient(s).`
+    );
+  }
+  // seedGroupIds preserves a groupId already in the draft and rebuilds it from
+  // contiguous label runs for older drafts that predate the field.
+  return seedGroupIds(rows);
+}
+
 export const CreateRecipe = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<RecipeFormData>(EMPTY_FORM);
@@ -34,25 +78,7 @@ export const CreateRecipe = () => {
           steps: Array.isArray(parsed.steps) ? parsed.steps : [],
           image_file: undefined, // Files can't be persisted
           image_url: parsed.image_url || undefined,
-          // seedGroupIds preserves a groupId already in the draft and rebuilds it
-          // from contiguous label runs for older drafts that predate the field.
-          ingredients: Array.isArray(parsed.ingredients)
-            ? seedGroupIds(
-                parsed.ingredients.map(
-                  (ing: Record<string, unknown>): RecipeIngredient => ({
-                    ...(ing as unknown as RecipeIngredient),
-                    // Back-compat: older drafts predate rowId. Generate one (this
-                    // runs in an effect, so crypto is available client-side).
-                    rowId:
-                      typeof ing.rowId === "string" && ing.rowId
-                        ? ing.rowId
-                        : crypto.randomUUID(),
-                    group_label:
-                      (ing.group_label as string | null | undefined) ?? null,
-                  })
-                )
-              )
-            : [],
+          ingredients: parseDraftIngredients(parsed.ingredients),
           servings: parsed.servings || 1,
         });
       }
