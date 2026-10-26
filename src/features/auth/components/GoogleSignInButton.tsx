@@ -13,17 +13,8 @@ export const GoogleSignInButton = ({
   disabled,
   onError,
 }: GoogleSignInButtonProps) => {
-  const { googleLoading, googleWrapperRef, triggerGoogle } = useGoogleAuth();
-
-  const handleClick = async () => {
-    try {
-      triggerGoogle();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Google sign-in failed";
-      onError?.(message);
-    }
-  };
+  const { googleLoading, googleWrapperRef, triggerGoogle } =
+    useGoogleAuth(onError);
 
   return (
     <>
@@ -37,7 +28,7 @@ export const GoogleSignInButton = ({
       {/* Custom Google Button */}
       <button
         type="button"
-        onClick={handleClick}
+        onClick={triggerGoogle}
         disabled={googleLoading || disabled}
         className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 text-gray-700 font-medium py-3 px-4 rounded-lg shadow-sm transition-colors"
       >

@@ -4,7 +4,7 @@ import { useAuth } from "@/features/auth/AuthContext";
 import { isSupabaseError, type GoogleCredentialResponse } from "../types";
 import { ROUTES } from "../../../utils/constants";
 
-export const useGoogleAuth = () => {
+export const useGoogleAuth = (onError?: (message: string) => void) => {
   const { signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
@@ -12,6 +12,11 @@ export const useGoogleAuth = () => {
   const googleWrapperRef = useRef<HTMLDivElement | null>(null);
   const googleRealButtonRef = useRef<HTMLDivElement | null>(null);
   const googleInitializedRef = useRef(false);
+  // Google keeps the callback from its one-time initialize, so read the latest onError via a ref.
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    onErrorRef.current = onError;
+  });
 
   const handleGoogleSignIn = useCallback(
     async (response: GoogleCredentialResponse) => {
@@ -24,7 +29,7 @@ export const useGoogleAuth = () => {
         let errorMessage = "Google sign-in failed. Please try again.";
         if (isSupabaseError(error)) errorMessage = error.message;
         else if (error instanceof Error) errorMessage = error.message;
-        throw new Error(errorMessage);
+        onErrorRef.current?.(errorMessage);
       } finally {
         setGoogleLoading(false);
       }
@@ -75,8 +80,8 @@ export const useGoogleAuth = () => {
     });
   }, [handleGoogleSignIn]);
 
+  // No loading state here: if the user dismisses Google's popup, no callback ever fires.
   const triggerGoogle = () => {
-    setGoogleLoading(true);
     requestAnimationFrame(() => {
       googleRealButtonRef.current?.click();
     });
