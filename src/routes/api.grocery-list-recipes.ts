@@ -5,6 +5,7 @@ import {
   addRecipeToGroceryList,
   removeRecipeFromGroceryList,
   ownsList,
+  canSeeRecipe,
 } from "@/server/grocery-lists.server";
 
 /**
@@ -45,6 +46,10 @@ export async function action({ request, params }: Route.ActionArgs) {
         { message: "servingsMultiplier must be a positive number" },
         { status: 400, headers }
       );
+    }
+    // DELETE skips this so a link to a now-hidden recipe can still be removed
+    if (!(await canSeeRecipe(supabase, recipeId))) {
+      throw data({ message: "Recipe not found" }, { status: 404, headers });
     }
     await addRecipeToGroceryList(supabase, {
       listId: params.listId,
