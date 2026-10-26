@@ -12,7 +12,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { useRecipeDetails } from "../hooks";
 import { useDeleteRecipe } from "../hooks/useRecipeMutations";
 import { useAuth } from "@/features/auth/AuthContext";
-import { ROUTES } from "../../../utils/constants";
+import { ROUTES, VALIDATION_RULES } from "../../../utils/constants";
 import { DeleteButton } from "@/components/DeleteButton";
 import type { RecipeIngredientWithDetails, RecipeWithIngredients, UnitDisplayInfo } from "../api";
 import {
@@ -92,7 +92,7 @@ export const RecipeDetails = ({
   const [displayServings, setDisplayServings] = useState<number | null>(() => {
     const s = searchParams.get("servings");
     const n = s ? parseInt(s, 10) : NaN;
-    return !isNaN(n) && n >= 1 ? Math.min(50, n) : null;
+    return !isNaN(n) && n >= 1 ? Math.min(VALIDATION_RULES.SERVINGS_MAX, n) : null;
   });
 
   const [unitsById, allUnits] = useMemo(() => {
@@ -131,7 +131,7 @@ export const RecipeDetails = ({
   const handleServingsChange = (delta: number) => {
     if (!recipe) return;
     const current = displayServings ?? recipe.servings;
-    const next = Math.min(50, Math.max(1, current + delta));
+    const next = Math.min(VALIDATION_RULES.SERVINGS_MAX, Math.max(1, current + delta));
     setDisplayServings(next === recipe.servings ? null : next);
   };
 
@@ -214,7 +214,7 @@ export const RecipeDetails = ({
               <div className="flex flex-col">
                 <button
                   onClick={() => handleServingsChange(1)}
-                  disabled={effectiveServings >= 50}
+                  disabled={effectiveServings >= VALIDATION_RULES.SERVINGS_MAX}
                   className="flex items-center justify-center rounded text-gray-500 hover:text-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   aria-label="Increase servings"
                 >
