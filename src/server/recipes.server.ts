@@ -26,17 +26,21 @@ export function validateIngredients(
   for (const [index, item] of raw.entries()) {
     if (!item || typeof item !== "object") return null;
     const ing = item as Record<string, unknown>;
-    if (typeof ing.ingredient_id !== "number") return null;
+    if (!Number.isInteger(ing.ingredient_id)) return null;
     if (ing.unit_id != null && typeof ing.unit_id !== "string") return null;
-    if (ing.unit_amount != null && typeof ing.unit_amount !== "number") {
+    // null = "to taste"; otherwise a positive amount (no "-2 cups" on lists).
+    if (
+      ing.unit_amount != null &&
+      !(Number.isFinite(ing.unit_amount) && (ing.unit_amount as number) > 0)
+    ) {
       return null;
     }
     if (ing.group_label != null && typeof ing.group_label !== "string") {
       return null;
     }
-    if (ing.position != null && typeof ing.position !== "number") return null;
+    if (ing.position != null && !Number.isInteger(ing.position)) return null;
     ingredients.push({
-      ingredient_id: ing.ingredient_id,
+      ingredient_id: ing.ingredient_id as number,
       unit_id: (ing.unit_id as string | null) ?? null,
       unit_amount: (ing.unit_amount as number | null) ?? null,
       note:
@@ -151,6 +155,43 @@ export interface UpdateRecipePayload {
   servings: number;
   image_url: string | null;
   ingredients: PayloadIngredient[];
+}
+
+/**
+ * Server-side validation of a create/update request body — never trust the
+ * client. Bounds mirror the DB CHECK constraints exactly: recipes_name_check
+ * (length < 100) and recipes_servings_check (servings > 0 AND servings < 300).
+ * Integer checks match the int/bigint columns so bad input is a 400, not a 500.
+ */
+export function validateRecipeBody(body: unknown): UpdateRecipePayload | null {
+  if (!body || typeof body !== "object") return null;
+  const b = body as Record<string, unknown>;
+
+  const name = typeof b.name === "string" ? b.name.trim() : "";
+  if (!name || name.length >= 100) return null;
+
+  if (
+    typeof b.servings !== "number" ||
+    !Number.isInteger(b.servings) ||
+    b.servings <= 0 ||
+    b.servings >= 300
+  ) {
+    return null;
+  }
+
+  if (!Array.isArray(b.steps)) return null;
+  const steps = b.steps.filter(
+    (s): s is string => typeof s === "string" && s.trim().length > 0
+  );
+  if (steps.length === 0) return null;
+
+  const ingredients = validateIngredients(b.ingredients);
+  if (!ingredients) return null;
+
+  const image_url =
+    typeof b.image_url === "string" && b.image_url ? b.image_url : null;
+
+  return { name, steps, servings: b.servings, image_url, ingredients };
 }
 
 /**

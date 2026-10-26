@@ -3,8 +3,7 @@ import type { Route } from "./+types/api.recipes.create";
 import { getServerClient } from "@/lib/supabase.server";
 import {
   createRecipe,
-  validateIngredients,
-  type CreateRecipePayload,
+  validateRecipeBody,
 } from "@/server/recipes.server";
 
 /** POST /api/recipes — create a recipe and its ingredients atomically. */
@@ -23,40 +22,14 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   const body = await request.json().catch(() => null);
-  const payload = validateCreatePayload(body, user.id);
+  const payload = validateRecipeBody(body);
   if (!payload) {
     throw data({ message: "Invalid recipe data" }, { status: 400, headers });
   }
 
-  const recipeId = await createRecipe(supabase, payload);
+  const recipeId = await createRecipe(supabase, {
+    ...payload,
+    created_by: user.id,
+  });
   return data({ id: recipeId }, { status: 201, headers });
-}
-
-function validateCreatePayload(
-  body: unknown,
-  userId: string
-): CreateRecipePayload | null {
-  if (!body || typeof body !== "object") return null;
-  const b = body as Record<string, unknown>;
-
-  const name = typeof b.name === "string" ? b.name.trim() : "";
-  if (!name || name.length >= 100) return null;
-
-  if (typeof b.servings !== "number" || b.servings <= 0 || b.servings >= 300) {
-    return null;
-  }
-
-  if (!Array.isArray(b.steps)) return null;
-  const steps = b.steps.filter(
-    (s): s is string => typeof s === "string" && s.trim().length > 0
-  );
-  if (steps.length === 0) return null;
-
-  const ingredients = validateIngredients(b.ingredients);
-  if (!ingredients) return null;
-
-  const image_url =
-    typeof b.image_url === "string" && b.image_url ? b.image_url : null;
-
-  return { name, steps, servings: b.servings, image_url, created_by: userId, ingredients };
 }
