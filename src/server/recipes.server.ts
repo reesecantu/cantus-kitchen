@@ -51,6 +51,54 @@ export function validateIngredients(
   return ingredients;
 }
 
+/** Distinct ids of every grocery list referencing a recipe (cross-user → admin). */
+async function fetchListIdsForRecipe(
+  admin: SupabaseClient,
+  recipeId: string
+): Promise<string[]> {
+  const { data: affectedLists, error: affectedError } = await admin
+    .from("grocery_list_recipes")
+    .select("grocery_list_id")
+    .eq("recipe_id", recipeId);
+  if (affectedError) throw affectedError;
+  return [...new Set((affectedLists ?? []).map((row) => row.grocery_list_id))];
+}
+
+async function regenerateLists(
+  admin: SupabaseClient,
+  listIds: string[]
+): Promise<void> {
+  // Per-list try/catch: one bad list must not abort regeneration of the rest.
+  for (const listId of listIds) {
+    try {
+      await regenerateGroceryListItems(admin, listId);
+    } catch (err) {
+      console.error(`Failed to regenerate grocery list ${listId}:`, err);
+    }
+  }
+}
+
+/**
+ * Best-effort removal of a recipe photo from Storage, using the caller's client
+ * (image_url is client-controlled, so never the admin client). URLs outside the
+ * recipe-photos bucket (e.g. external images) are skipped. Errors are logged
+ * and swallowed: an orphaned object beats a broken flow.
+ */
+async function removeRecipePhoto(
+  supabase: SupabaseClient,
+  imageUrl: string
+): Promise<void> {
+  if (!imageUrl.includes("/recipe-photos/")) return;
+  const path = imageUrl.replace(/^.*?\/recipe-photos\//, "");
+  if (!path) return;
+  const { error: storageError } = await supabase.storage
+    .from("recipe-photos")
+    .remove([path]);
+  if (storageError) {
+    console.error("Failed to delete recipe photo:", storageError);
+  }
+}
+
 /**
  * Delete a recipe row (RLS-checked via the user's client) and clean up its
  * photo in Storage — replaces the `trg_enqueue_recipe_photo_delete` trigger
@@ -77,43 +125,23 @@ export async function deleteRecipe(
   if (!recipe) throw new Error("Recipe not found");
 
   // Capture which lists reference this recipe before the cascade erases them
-  const { data: affectedLists, error: affectedError } = await admin
-    .from("grocery_list_recipes")
-    .select("grocery_list_id")
-    .eq("recipe_id", recipeId);
-  if (affectedError) throw affectedError;
+  const listIds = await fetchListIdsForRecipe(admin, recipeId);
 
-  const { error: deleteError } = await supabase
+  const { data: deleted, error: deleteError } = await supabase
     .from("recipes")
     .delete()
-    .eq("id", recipeId);
+    .eq("id", recipeId)
+    .select("id");
   if (deleteError) throw deleteError;
+  // RLS lets only the owner delete; a non-owner's delete matches zero rows
+  // without an error, so treat it as not found before any side effects.
+  if (!deleted || deleted.length === 0) throw new Error("Recipe not found");
 
   // Clean up photo before regen: the row is already gone, so this must run
   // regardless of whether regen succeeds.
-  if (recipe.image_url) {
-    const path = recipe.image_url.replace(/^.*?\/recipe-photos\//, "");
-    if (path) {
-      const { error: storageError } = await supabase.storage
-        .from("recipe-photos")
-        .remove([path]);
-      if (storageError) {
-        console.error("Failed to delete recipe photo:", storageError);
-      }
-    }
-  }
+  if (recipe.image_url) await removeRecipePhoto(supabase, recipe.image_url);
 
-  const listIds = [
-    ...new Set((affectedLists ?? []).map((row) => row.grocery_list_id)),
-  ];
-  // Per-list try/catch: one bad list must not abort regeneration of the rest.
-  for (const listId of listIds) {
-    try {
-      await regenerateGroceryListItems(admin, listId);
-    } catch (err) {
-      console.error(`Failed to regenerate grocery list ${listId}:`, err);
-    }
-  }
+  await regenerateLists(admin, listIds);
 }
 
 export interface CreateRecipePayload {
@@ -197,34 +225,10 @@ export async function updateRecipe(
   }
 
   // Regenerate every list that references this recipe (cross-user → admin).
-  const { data: affectedLists, error: affectedError } = await admin
-    .from("grocery_list_recipes")
-    .select("grocery_list_id")
-    .eq("recipe_id", recipeId);
-  if (affectedError) throw affectedError;
-
-  const listIds = [
-    ...new Set((affectedLists ?? []).map((row) => row.grocery_list_id)),
-  ];
-  // Per-list try/catch: one bad list must not abort regeneration of the rest.
-  for (const listId of listIds) {
-    try {
-      await regenerateGroceryListItems(admin, listId);
-    } catch (err) {
-      console.error(`Failed to regenerate grocery list ${listId}:`, err);
-    }
-  }
+  await regenerateLists(admin, await fetchListIdsForRecipe(admin, recipeId));
 
   // Clean up the old photo only when the image actually changed.
   if (existing.image_url && existing.image_url !== payload.image_url) {
-    const path = existing.image_url.replace(/^.*?\/recipe-photos\//, "");
-    if (path && existing.image_url.includes("/recipe-photos/")) {
-      const { error: storageError } = await supabase.storage
-        .from("recipe-photos")
-        .remove([path]);
-      if (storageError) {
-        console.error("Failed to delete old recipe photo:", storageError);
-      }
-    }
+    await removeRecipePhoto(supabase, existing.image_url);
   }
 }
