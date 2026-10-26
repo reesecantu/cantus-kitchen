@@ -30,6 +30,26 @@ export async function ownsList(
 }
 
 /**
+ * RLS hides recipes the user can't see. Linking one anyway would insert the
+ * row (FK checks bypass RLS) and then break every regeneration of the list.
+ * A malformed uuid (22P02) counts as not found.
+ */
+export async function canSeeRecipe(
+  supabase: SupabaseClient,
+  recipeId: string
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("recipes")
+    .select("id")
+    .eq("id", recipeId)
+    .maybeSingle();
+
+  if (error?.code === "22P02") return false;
+  if (error) throw error;
+  return data !== null;
+}
+
+/**
  * Recompute all generated (non-manual) items for a list from its linked
  * recipes. Replaces `regenerate_grocery_list_items` + its trigger; the final
  * delete+insert goes through the atomic `replace_generated_grocery_list_items`
