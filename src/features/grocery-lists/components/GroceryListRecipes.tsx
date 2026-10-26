@@ -7,7 +7,7 @@ import {
   useRemoveRecipeFromGroceryList,
 } from "../hooks";
 import { SearchableDropdown } from "@/components/SearchableDropdown";
-import { ROUTES } from "../../../utils/constants";
+import { ROUTES, VALIDATION_RULES } from "../../../utils/constants";
 import type { GroceryListFull } from "../types";
 import type { Tables } from "@/types/database-types";
 
@@ -116,7 +116,7 @@ export const GroceryListRecipes = ({
                   type="number"
                   step="1"
                   min="1"
-                  max="50"
+                  max={VALIDATION_RULES.SERVINGS_MAX}
                   inputMode="numeric"
                   value={servingsMultiplier === 0 ? "" : servingsMultiplier}
                   onChange={(e) => {
@@ -128,7 +128,7 @@ export const GroceryListRecipes = ({
                       const numValue = parseInt(value, 10);
                       if (!isNaN(numValue)) {
                         setServingsMultiplier(
-                          Math.max(1, Math.min(50, numValue)),
+                          Math.max(1, Math.min(VALIDATION_RULES.SERVINGS_MAX, numValue)),
                         );
                       }
                     }
