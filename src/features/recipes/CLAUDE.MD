@@ -21,7 +21,9 @@ Recipes are the core domain object. A recipe has a name, servings count, ordered
 
 ## Key invariants
 
-**Photo upload is client-side.** `uploadRecipeImage` in `useRecipeMutations.ts` uploads directly to the `recipe-photos` Storage bucket before the row write. The resulting public URL is passed in the `POST /api/recipes` or `PUT /api/recipes/:id` body. Deletion is server-side in `src/server/recipes.server.ts` (needs the service-role client to clean up Storage).
+**Photo upload is client-side.** `uploadRecipeImage` in `useRecipeMutations.ts` uploads directly to the `recipe-photos` Storage bucket before the row write. The resulting public URL is passed in the `POST /api/recipes` or `PUT /api/recipes/:id` body. Deletion is server-side in `src/server/recipes.server.ts`, using the caller's own RLS-scoped client to remove the photo from Storage. The admin client there is only for regenerating other users' grocery lists.
+
+**Do not move photo deletion to the admin client.** `image_url` comes from the browser, so an admin-side delete would let any user delete anyone's photo.
 
 **Mutations go through resource routes, not Supabase directly.** `useCreateRecipe` → `POST /api/recipes`, `useUpdateRecipe` → `PUT /api/recipes/:id`, `useDeleteRecipe` → `DELETE /api/recipes/:id`. The server routes run under RLS and regenerate affected grocery lists after edits/deletes.
 
@@ -40,5 +42,5 @@ Recipes are the core domain object. A recipe has a name, servings count, ordered
 3. Add the field to `RecipeFormData` in `types.ts`.
 4. Update `RecipeForm.tsx` to render the input.
 5. Pass the field in the `POST`/`PUT` body inside `useRecipeMutations.ts`.
-6. Handle it in the server route (`src/routes/api.recipes.ts` or `api.recipes.$recipeId.ts`).
+6. Handle it in the server route (`src/routes/api.recipes.create.ts` for `POST /api/recipes`, `src/routes/api.recipes.ts` for `PUT`/`DELETE /api/recipes/:recipeId`).
 7. Include it in the `fetchRecipeDetails` select in `api.ts` if it needs to be displayed.
