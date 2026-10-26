@@ -4,8 +4,7 @@ import { getServerClient } from "@/lib/supabase.server";
 import {
   deleteRecipe,
   updateRecipe,
-  validateIngredients,
-  type UpdateRecipePayload,
+  validateRecipeBody,
 } from "@/server/recipes.server";
 import { createSupabaseAdminClient } from "@/server/supabase-admin.server";
 
@@ -42,7 +41,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   if (request.method === "PUT") {
     const body = await request.json().catch(() => null);
-    const payload = validateUpdatePayload(body);
+    const payload = validateRecipeBody(body);
     if (!payload) {
       throw data({ message: "Invalid recipe data" }, { status: 400, headers });
     }
@@ -64,35 +63,4 @@ export async function action({ request, params }: Route.ActionArgs) {
   }
 
   throw data({ message: "Method not allowed" }, { status: 405, headers });
-}
-
-/**
- * Server-side validation — never trust the client. Bounds mirror the DB CHECK
- * constraints exactly: recipes_name_check (length < 100) and
- * recipes_servings_check (servings > 0 AND servings < 300).
- */
-function validateUpdatePayload(body: unknown): UpdateRecipePayload | null {
-  if (!body || typeof body !== "object") return null;
-  const b = body as Record<string, unknown>;
-
-  const name = typeof b.name === "string" ? b.name.trim() : "";
-  if (!name || name.length >= 100) return null;
-
-  if (typeof b.servings !== "number" || b.servings <= 0 || b.servings >= 300) {
-    return null;
-  }
-
-  if (!Array.isArray(b.steps)) return null;
-  const steps = b.steps.filter(
-    (s): s is string => typeof s === "string" && s.trim().length > 0
-  );
-  if (steps.length === 0) return null;
-
-  const ingredients = validateIngredients(b.ingredients);
-  if (!ingredients) return null;
-
-  const image_url =
-    typeof b.image_url === "string" && b.image_url ? b.image_url : null;
-
-  return { name, steps, servings: b.servings, image_url, ingredients };
 }
