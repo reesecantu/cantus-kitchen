@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { GROCERY_LIST_QUERY_KEYS } from "@/features/grocery-lists/hooks/query-keys";
 import type { TablesInsert } from "@/types/database-types";
 
 interface RecipeIngredientForDB {
@@ -173,8 +174,12 @@ export const useUpdateRecipe = () => {
         queryKey: ["recipe-details", variables.recipeId],
       });
       // Editing ingredients or servings changes aggregated grocery list
-      // quantities — the server regenerates them, so flush the client cache.
-      queryClient.invalidateQueries({ queryKey: ["grocery-list-items"] });
+      // quantities and item counts — the server regenerates them, so flush
+      // every cached list (prefix match) and the overview.
+      queryClient.invalidateQueries({ queryKey: ["grocery-list"] });
+      queryClient.invalidateQueries({
+        queryKey: GROCERY_LIST_QUERY_KEYS.groceryLists,
+      });
     },
   });
 };
@@ -199,6 +204,11 @@ export const useDeleteRecipe = () => {
     onSuccess: (_data, recipeId) => {
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
       queryClient.invalidateQueries({ queryKey: ["recipe-details", recipeId] });
+      // The server removes the recipe from every list and regenerates them.
+      queryClient.invalidateQueries({ queryKey: ["grocery-list"] });
+      queryClient.invalidateQueries({
+        queryKey: GROCERY_LIST_QUERY_KEYS.groceryLists,
+      });
     },
   });
 };
