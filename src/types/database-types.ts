@@ -122,6 +122,32 @@ export type Database = {
           },
         ]
       }
+      grocery_list_members: {
+        Row: {
+          grocery_list_id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          grocery_list_id: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          grocery_list_id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grocery_list_members_grocery_list_id_fkey"
+            columns: ["grocery_list_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       grocery_list_recipes: {
         Row: {
           added_at: string | null
@@ -168,6 +194,7 @@ export type Database = {
           id: string
           is_completed: boolean
           name: string
+          share_token: string | null
           updated_at: string | null
           user_id: string
         }
@@ -177,6 +204,7 @@ export type Database = {
           id?: string
           is_completed?: boolean
           name: string
+          share_token?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -186,6 +214,7 @@ export type Database = {
           id?: string
           is_completed?: boolean
           name?: string
+          share_token?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -391,6 +420,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accessible_grocery_list_ids: { Args: never; Returns: string[] }
       create_recipe: {
         Args: {
           p_created_by: string
@@ -408,6 +438,15 @@ export type Database = {
           deleted_count: number
         }[]
       }
+      get_grocery_list_recipe_names: {
+        Args: { p_list_id: string }
+        Returns: {
+          name: string
+          recipe_id: string
+          recipe_visible: boolean
+        }[]
+      }
+      join_grocery_list: { Args: { p_token: string }; Returns: string | null }
       replace_generated_grocery_list_items: {
         Args: { p_items: Json; p_list_id: string }
         Returns: undefined
