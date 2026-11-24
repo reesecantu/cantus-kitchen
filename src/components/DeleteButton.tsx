@@ -3,6 +3,7 @@ import { Trash2 } from "lucide-react";
 interface DeleteButtonProps {
   onDelete: () => void | Promise<void>;
   isPending?: boolean;
+  pendingLabel?: string;
   label?: string;
   confirmMessage?: string;
   ariaLabel?: string;
@@ -11,6 +12,7 @@ interface DeleteButtonProps {
 export const DeleteButton = ({
   onDelete,
   isPending = false,
+  pendingLabel = "Deleting...",
   label = "Delete",
   confirmMessage = "Are you sure?",
   ariaLabel = "Delete",
@@ -30,7 +32,7 @@ export const DeleteButton = ({
       className="flex items-center gap-1.5 px-3 py-2 text-sm text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
       <Trash2 className="h-4 w-4" />
-      {isPending ? "Deleting..." : label}
+      {isPending ? pendingLabel : label}
     </button>
   );
 };

@@ -172,3 +172,82 @@ export const useDeleteGroceryList = () => {
     },
   });
 };
+
+// Members leave by deleting their own membership row (RLS self-delete; the
+// user_id filter keeps it scoped even if delete policies widen). Never use
+// useDeleteGroceryList for a member: RLS makes it a silent 0-row no-op.
+export const useLeaveGroceryList = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      listId,
+      userId,
+    }: {
+      listId: string;
+      userId: string;
+    }) => {
+      const { data, error } = await supabase
+        .from("grocery_list_members")
+        .delete()
+        .eq("grocery_list_id", listId)
+        .eq("user_id", userId)
+        .select();
+
+      if (error) throw new Error(error.message);
+      // RLS turns a delete that matches nothing into a silent 0-row success.
+      if (!data?.length) throw new Error("Membership not found");
+    },
+    // Blank (not remove) the cached list: Back then shows "not found" instead
+    // of a list we lost access to, and a still-mounted page doesn't refetch.
+    onSuccess: (_, { listId }) => {
+      queryClient.setQueryData<GroceryListFull | null>(
+        GROCERY_LIST_QUERY_KEYS.groceryList(listId),
+        null,
+      );
+      queryClient.invalidateQueries({
+        queryKey: GROCERY_LIST_QUERY_KEYS.groceryLists,
+      });
+    },
+  });
+};
+
+// Owner only. share: true creates or regenerates the token, false stops sharing.
+export const useSetGroceryListSharing = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      listId,
+      share,
+    }: {
+      listId: string;
+      share: boolean;
+    }) => {
+      const response = await fetch(`/api/grocery-lists/${listId}/share`, {
+        method: share ? "POST" : "DELETE",
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || !payload) {
+        throw new Error(payload?.message ?? "Failed to update sharing");
+      }
+      return payload.shareToken as string | null;
+    },
+    // Stop an older in-flight refetch from landing after us with the old token.
+    onMutate: ({ listId }) =>
+      queryClient.cancelQueries({
+        queryKey: GROCERY_LIST_QUERY_KEYS.groceryList(listId),
+      }),
+    // Write the returned token straight into the cache so the panel never
+    // shows a dead link, even if a refetch would fail.
+    onSuccess: (shareToken, { listId }) => {
+      queryClient.setQueryData<GroceryListFull>(
+        GROCERY_LIST_QUERY_KEYS.groceryList(listId),
+        (old) => old && { ...old, share_token: shareToken },
+      );
+      queryClient.invalidateQueries({
+        queryKey: GROCERY_LIST_QUERY_KEYS.groceryLists,
+      });
+    },
+  });
+};

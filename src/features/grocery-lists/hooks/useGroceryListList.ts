@@ -14,7 +14,8 @@ export const useGroceryListList = () => {
           `
           *,
           grocery_list_recipes(*),
-          grocery_list_items(is_checked)
+          grocery_list_items(is_checked),
+          grocery_list_members(count)
         `,
         )
         .order("created_at", { ascending: false });
@@ -36,6 +37,11 @@ export const useGroceryListList = () => {
           recipe_count: recipes.length,
           item_count: items.length,
           completed_item_count: completedItems.length,
+          // Owners count every member row (keeps the badge after stop-sharing
+          // while members remain); a member always counts their own row.
+          is_shared:
+            list.share_token != null ||
+            (list.grocery_list_members?.[0]?.count ?? 0) > 0,
         };
       });
     },

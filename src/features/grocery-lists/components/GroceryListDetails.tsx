@@ -4,12 +4,15 @@ import {
   useGroceryList,
   useUpdateGroceryList,
   useDeleteGroceryList,
+  useLeaveGroceryList,
 } from "../hooks/useGroceryList";
 import { GroceryListRecipes } from "./GroceryListRecipes";
 import { GroceryListItems } from "./GroceryListItems";
+import { GroceryListSharePanel } from "./GroceryListSharePanel";
 import { Link, useNavigate } from "react-router";
 import { ROUTES } from "../../../utils/constants";
 import { DeleteButton } from "@/components/DeleteButton";
+import { useAuth } from "@/features/auth/AuthContext";
 
 interface GroceryListDetailsProps {
   listId: string;
@@ -31,6 +34,10 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
   const { data: groceryList, isLoading } = useGroceryList(listId);
   const updateMutation = useUpdateGroceryList();
   const deleteMutation = useDeleteGroceryList();
+  const leaveMutation = useLeaveGroceryList();
+  const { user } = useAuth();
+  // Members can edit items/recipes but not rename, describe, share, or delete.
+  const isOwner = !!user && groceryList?.user_id === user.id;
 
   // State for editing name
   const [isEditingName, setIsEditingName] = useState(false);
@@ -118,6 +125,20 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
     }
   };
 
+  const handleLeaveList = async () => {
+    if (groceryList && user) {
+      try {
+        await leaveMutation.mutateAsync({
+          listId: groceryList.id,
+          userId: user.id,
+        });
+        navigate(ROUTES.GROCERY_LISTS);
+      } catch (error) {
+        console.error("Failed to leave grocery list:", error);
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="py-12">
@@ -177,6 +198,10 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
                   <X className="h-5 w-5" />
                 </button>
               </div>
+            ) : !isOwner ? (
+              <h1 className="text-3xl font-bold text-gray-900">
+                {groceryList.name}
+              </h1>
             ) : (
               <div className="flex items-center gap-2 group">
                 <button
@@ -193,19 +218,35 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
             )}
           </div>
 
-          {/* Delete Button */}
-          {!isEditingName && (
+          {/* Delete (owner) / Leave (member); hidden until the role is known */}
+          {!isEditingName && user && (
             <div className="ml-4">
-              <DeleteButton
-                onDelete={handleDeleteList}
-                isPending={deleteMutation.isPending}
-                label="Delete"
-                confirmMessage="Delete this grocery list?"
-                ariaLabel="Delete grocery list"
-              />
+              {isOwner ? (
+                <DeleteButton
+                  onDelete={handleDeleteList}
+                  isPending={deleteMutation.isPending}
+                  label="Delete"
+                  confirmMessage="Delete this grocery list?"
+                  ariaLabel="Delete grocery list"
+                />
+              ) : (
+                <DeleteButton
+                  onDelete={handleLeaveList}
+                  isPending={leaveMutation.isPending}
+                  pendingLabel="Leaving..."
+                  label="Leave"
+                  confirmMessage="Leave this grocery list? You'll need a current share link to rejoin."
+                  ariaLabel="Leave grocery list"
+                />
+              )}
             </div>
           )}
         </div>
+        {leaveMutation.isError && (
+          <p role="alert" className="text-sm text-red-600 mb-2">
+            Couldn't leave this list. Please try again.
+          </p>
+        )}
 
         {/* Editable Description */}
         <div className="mb-2">
@@ -246,21 +287,25 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
                   <p className="text-gray-600 flex-1">
                     {groceryList.description}
                   </p>
-                  <button
-                    onClick={handleStartEditDescription}
-                    className="p-1 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-gray-600 transition-all"
-                    title="Edit description"
-                  >
-                    <Edit3 className="h-3 w-3" />
-                  </button>
+                  {isOwner && (
+                    <button
+                      onClick={handleStartEditDescription}
+                      className="p-1 text-gray-400 opacity-0 group-hover:opacity-100 hover:text-gray-600 transition-all"
+                      title="Edit description"
+                    >
+                      <Edit3 className="h-3 w-3" />
+                    </button>
+                  )}
                 </div>
               ) : (
-                <button
-                  onClick={handleStartEditDescription}
-                  className="text-gray-400 hover:text-gray-600 text-sm italic transition-colors"
-                >
-                  + Add description
-                </button>
+                isOwner && (
+                  <button
+                    onClick={handleStartEditDescription}
+                    className="text-gray-400 hover:text-gray-600 text-sm italic transition-colors"
+                  >
+                    + Add description
+                  </button>
+                )
               )}
             </div>
           )}
@@ -272,6 +317,13 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
           items
         </div>
       </div>
+
+      {isOwner && (
+        <GroceryListSharePanel
+          listId={groceryList.id}
+          shareToken={groceryList.share_token}
+        />
+      )}
 
       {/* Recipes Section */}
       <GroceryListRecipes groceryList={groceryList} />

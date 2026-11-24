@@ -1,3 +1,4 @@
+import { Users } from "lucide-react";
 import type { GroceryListWithStats } from "../types";
 
 interface GroceryListTileProps {
@@ -8,9 +9,17 @@ export const GroceryListTile = ({ list }: GroceryListTileProps) => {
   return (
     <div className="bg-white rounded-lg border transition-transform duration-200 cursor-pointer hover:-translate-y-1 group">
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:underline group-hover:decoration-2 group-hover:decoration-gray-700">
-          {list.name}
-        </h3>
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 group-hover:underline group-hover:decoration-2 group-hover:decoration-gray-700">
+            {list.name}
+          </h3>
+          {list.is_shared && (
+            <span className="flex shrink-0 items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+              <Users className="h-3 w-3" aria-hidden="true" />
+              Shared
+            </span>
+          )}
+        </div>
         {list.description && (
           <p className="text-gray-600 text-sm mb-3 line-clamp-2">
             {list.description}

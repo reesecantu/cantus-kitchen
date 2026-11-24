@@ -8,6 +8,7 @@ export interface GroceryListWithStats extends GroceryList {
   recipe_count: number;
   item_count: number;
   completed_item_count: number;
+  is_shared: boolean;
 }
 
 export interface GroceryListItemWithDetails extends GroceryListItem {

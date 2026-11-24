@@ -15,6 +15,19 @@ interface GroceryListRecipesProps {
   groceryList: GroceryListFull;
 }
 
+const RecipeSummary = ({
+  recipe,
+}: {
+  recipe: GroceryListFull["recipes"][number];
+}) => (
+  <>
+    <div className="font-semibold text-gray-800 ">{recipe.recipe_name}</div>
+    <div className="text-sm font-medium text-blue-500">
+      Servings: {recipe.servings_multiplier}x
+    </div>
+  </>
+);
+
 export const GroceryListRecipes = ({
   groceryList,
 }: GroceryListRecipesProps) => {
@@ -186,21 +199,23 @@ export const GroceryListRecipes = ({
                 <X className="h-3 w-3" />
               </button>
 
-              <Link
-                to={
-                  recipe.servings_multiplier
-                    ? `${ROUTES.RECIPE_DETAILS(recipe.recipe_id!)}?servings=${recipe.servings_multiplier}`
-                    : ROUTES.RECIPE_DETAILS(recipe.recipe_id!)
-                }
-                className="hover:underline decoration-blue-600 decoration-2 transition-colors"
-              >
-                <div className="font-semibold text-gray-800 ">
-                  {recipe.recipe_name}
+              {recipe.recipe_visible ? (
+                <Link
+                  to={
+                    recipe.servings_multiplier
+                      ? `${ROUTES.RECIPE_DETAILS(recipe.recipe_id!)}?servings=${recipe.servings_multiplier}`
+                      : ROUTES.RECIPE_DETAILS(recipe.recipe_id!)
+                  }
+                  className="hover:underline decoration-blue-600 decoration-2 transition-colors"
+                >
+                  <RecipeSummary recipe={recipe} />
+                </Link>
+              ) : (
+                // Another member's private recipe: name only, no link.
+                <div title="This recipe is private">
+                  <RecipeSummary recipe={recipe} />
                 </div>
-                <div className="text-sm font-medium text-blue-500">
-                  Servings: {recipe.servings_multiplier}x
-                </div>
-              </Link>
+              )}
             </div>
           ))}
         </div>
