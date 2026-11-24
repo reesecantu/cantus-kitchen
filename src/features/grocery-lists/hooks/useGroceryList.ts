@@ -4,24 +4,29 @@ import type {
   GroceryListFull,
   GroceryListItemTransformed,
   GroceryListItemWithRelations,
-  GroceryListRecipeWithRecipe,
+  GroceryListRecipe,
 } from "../types";
 import { supabase } from "@/lib/supabase";
+import type { Database } from "@/types/database-types";
+
+type RecipeName =
+  Database["public"]["Functions"]["get_grocery_list_recipe_names"]["Returns"][number];
 
 // Fetch single grocery list with full details
 export const useGroceryList = (listId: string) => {
   return useQuery({
     queryKey: GROCERY_LIST_QUERY_KEYS.groceryList(listId),
     queryFn: async (): Promise<GroceryListFull> => {
-      const { data, error } = await supabase
-        .from("grocery_lists")
-        .select(
-          `
+      // Recipe names come from a definer RPC: recipes RLS would hide another
+      // member's private recipe from this user.
+      const [{ data, error }, { data: recipeNames, error: namesError }] =
+        await Promise.all([
+          supabase
+            .from("grocery_lists")
+            .select(
+              `
           *,
-          grocery_list_recipes (
-            *,
-            recipes (name)
-          ),
+          grocery_list_recipes (*),
           grocery_list_items (
             *,
             ingredients (
@@ -33,26 +38,37 @@ export const useGroceryList = (listId: string) => {
             units (name, abbreviation)
           )
         `,
-        )
-        .eq("id", listId)
-        .order("created_at", {
-          referencedTable: "grocery_list_items",
-          ascending: true,
-        }) // Add this line
-        .single();
+            )
+            .eq("id", listId)
+            .order("created_at", {
+              referencedTable: "grocery_list_items",
+              ascending: true,
+            })
+            .single(),
+          supabase.rpc("get_grocery_list_recipe_names", { p_list_id: listId }),
+        ]);
 
-      if (error) {
-        console.error("Error fetching grocery list:", error);
-        throw error;
+      const fetchError = error ?? namesError;
+      if (fetchError) {
+        console.error("Error fetching grocery list:", fetchError);
+        throw fetchError;
       }
+
+      const namesById = new Map<string | null, RecipeName>(
+        (recipeNames ?? []).map((r: RecipeName) => [r.recipe_id, r]),
+      );
 
       return {
         ...data,
         recipes: (data.grocery_list_recipes || []).map(
-          (glr: GroceryListRecipeWithRecipe) => ({
-            ...glr,
-            recipe_name: glr.recipes?.name || "Unknown Recipe",
-          }),
+          (glr: GroceryListRecipe) => {
+            const named = namesById.get(glr.recipe_id);
+            return {
+              ...glr,
+              recipe_name: named?.name || "Unknown Recipe",
+              recipe_visible: named?.recipe_visible ?? false,
+            };
+          },
         ),
         items: (data.grocery_list_items || [])
           .map(

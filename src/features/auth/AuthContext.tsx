@@ -44,6 +44,9 @@ const migrateLegacyLocalStorageSession = async (): Promise<void> => {
 
 interface AuthContextType {
   user: User | null;
+  // True once the client session is known (legacy-session migration done).
+  // Until then `user` is only the SSR seed.
+  isReady: boolean;
   signInWithGoogle: (response: { credential: string }) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
@@ -63,14 +66,19 @@ export const AuthProvider = ({
   initialUser?: User | null;
 }) => {
   const [user, setUser] = useState<User | null>(initialUser);
+  const [isReady, setIsReady] = useState(false);
   const { revalidate } = useRevalidator();
 
   useEffect(() => {
-    migrateLegacyLocalStorageSession().then(() =>
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        setUser(session?.user ?? null);
-      })
-    );
+    migrateLegacyLocalStorageSession()
+      .then(() =>
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          setUser(session?.user ?? null);
+        })
+      )
+      .catch((error) => console.warn("Failed to restore auth session:", error))
+      // Ready even on failure, so nothing waits on this forever.
+      .finally(() => setIsReady(true));
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -172,6 +180,7 @@ export const AuthProvider = ({
     <AuthContext.Provider
       value={{
         user,
+        isReady,
         signInWithGoogle,
         signUpWithEmail,
         signInWithEmail,

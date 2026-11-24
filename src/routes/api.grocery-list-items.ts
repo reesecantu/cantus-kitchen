@@ -1,7 +1,7 @@
 import { data } from "react-router";
 import type { Route } from "./+types/api.grocery-list-items";
 import { getServerClient } from "@/lib/supabase.server";
-import { addManualItem, ownsList } from "@/server/grocery-lists.server";
+import { addManualItem, getAccessibleList } from "@/server/grocery-lists.server";
 
 /**
  * POST /api/grocery-lists/:listId/items
@@ -42,7 +42,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     );
   }
 
-  if (!(await ownsList(supabase, params.listId))) {
+  if (!(await getAccessibleList(supabase, params.listId))) {
     throw data({ message: "Grocery list not found" }, { status: 404, headers });
   }
 

@@ -9,6 +9,7 @@ export default [
   route(ROUTES.CREATE_RECIPE, "routes/create.tsx"),
   route(ROUTES.GROCERY_LISTS, "routes/grocery-lists.tsx"),
   route(ROUTES.GROCERY_LIST_DETAILS_PATTERN, "routes/grocery-list-details.tsx"),
+  route(ROUTES.GROCERY_LIST_JOIN_PATTERN, "routes/grocery-list-join.tsx"),
   route(ROUTES.SIGN_IN, "routes/sign-in.tsx"),
   route(ROUTES.SIGN_UP, "routes/sign-up.tsx"),
   route(ROUTES.FORGOT_PASSWORD, "routes/forgot-password.tsx"),
@@ -19,6 +20,7 @@ export default [
   // Resource routes (no UI) — the app-layer replacement for the Postgres RPCs
   route("/api/grocery-lists/:listId/recipes", "routes/api.grocery-list-recipes.ts"),
   route("/api/grocery-lists/:listId/items", "routes/api.grocery-list-items.ts"),
+  route("/api/grocery-lists/:listId/share", "routes/api.grocery-list-share.ts"),
   route("/api/recipes", "routes/api.recipes.create.ts"),
   route("/api/recipes/:recipeId", "routes/api.recipes.ts"),
   route("/api/cron/cleanup-anonymous-users", "routes/api.cron.cleanup-anonymous-users.ts"),

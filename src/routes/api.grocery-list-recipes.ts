@@ -4,7 +4,7 @@ import { getServerClient } from "@/lib/supabase.server";
 import {
   addRecipeToGroceryList,
   removeRecipeFromGroceryList,
-  ownsList,
+  getAccessibleList,
 } from "@/server/grocery-lists.server";
 
 /**
@@ -13,6 +13,7 @@ import {
  *
  * Replaces the add_recipe_to_grocery_list RPC and the regeneration trigger:
  * both mutations recompute the list's generated items before responding.
+ * Owners and members of the list may call it.
  */
 export async function action({ request, params }: Route.ActionArgs) {
   const { supabase, headers } = getServerClient(request);
@@ -34,7 +35,9 @@ export async function action({ request, params }: Route.ActionArgs) {
     throw data({ message: "recipeId is required" }, { status: 400, headers });
   }
 
-  if (!(await ownsList(supabase, params.listId))) {
+  // The user-client access check must precede the admin-client regeneration
+  // inside add/remove.
+  if (!(await getAccessibleList(supabase, params.listId))) {
     throw data({ message: "Grocery list not found" }, { status: 404, headers });
   }
 
@@ -46,11 +49,19 @@ export async function action({ request, params }: Route.ActionArgs) {
         { status: 400, headers }
       );
     }
-    await addRecipeToGroceryList(supabase, {
-      listId: params.listId,
-      recipeId,
-      servingsMultiplier,
-    });
+    try {
+      await addRecipeToGroceryList(supabase, {
+        listId: params.listId,
+        recipeId,
+        servingsMultiplier,
+      });
+    } catch (error) {
+      // Only the link write maps to this; regeneration failures stay 500s.
+      if (error instanceof Error && error.message === "Recipe not found") {
+        throw data({ message: error.message }, { status: 404, headers });
+      }
+      throw error;
+    }
   } else {
     await removeRecipeFromGroceryList(supabase, {
       listId: params.listId,

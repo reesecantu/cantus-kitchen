@@ -36,6 +36,8 @@ export const ERROR_MESSAGES = {
     UPDATE_FAILED: "Failed to update grocery list. Please try again.",
     DELETE_FAILED: "Failed to delete grocery list. Please try again.",
     ITEM_REMOVE_FAILED: "Error removing grocery list item",
+    SHARE_LINK_INVALID:
+      "This share link is no longer valid. Ask the list owner for a new one.",
   },
   GENERAL: {
     USER_NOT_AUTHENTICATED: "User not authenticated",
@@ -57,11 +59,13 @@ export const ROUTES = {
   RECIPE_DETAILS_PATTERN: "/recipe/:id",
   RECIPE_EDIT_PATTERN: "/recipe/:id/edit",
   GROCERY_LIST_DETAILS_PATTERN: "/grocery-list/:id",
+  GROCERY_LIST_JOIN_PATTERN: "/grocery-list/join/:token",
 
   // Dynamic route builders
   RECIPE_DETAILS: (id: string) => `/recipe/${id}`,
   RECIPE_EDIT: (id: string) => `/recipe/${id}/edit`,
   GROCERY_LIST_DETAILS: (id: string) => `/grocery-list/${id}`,
+  GROCERY_LIST_JOIN: (token: string) => `/grocery-list/join/${token}`,
 } as const;
 
 export const COLORS = {

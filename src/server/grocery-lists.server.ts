@@ -4,29 +4,34 @@ import {
   type RecipeForAggregation,
   type UnitInfo,
 } from "./grocery-aggregation";
+import { createSupabaseAdminClient } from "./supabase-admin.server";
 
 /**
  * Server-side replacement for the Postgres trigger that regenerated grocery
- * list items. Every function takes the caller's cookie-scoped Supabase client,
- * so RLS remains the authorization layer — a user can only touch lists they own.
+ * list items. Writes use the caller's cookie-scoped Supabase client, so RLS
+ * remains the authorization layer — a user can only touch lists they own or
+ * have joined. Regeneration alone runs on the admin client (see below).
  */
 
 /**
- * RLS hides lists the user doesn't own, so "visible" means "owned". Lets
- * routes return a clean 404 instead of silently writing zero rows.
+ * RLS hides lists the user neither owns nor has joined, so a returned row
+ * means "owner or member" (compare `user_id` to tell which); null lets routes
+ * return a clean 404 instead of silently writing zero rows.
  */
-export async function ownsList(
+export async function getAccessibleList(
   supabase: SupabaseClient,
   listId: string
-): Promise<boolean> {
+): Promise<{ user_id: string } | null> {
   const { data, error } = await supabase
     .from("grocery_lists")
-    .select("id")
+    .select("user_id")
     .eq("id", listId)
     .maybeSingle();
 
+  // 22P02: listId isn't a uuid, so no such list
+  if (error?.code === "22P02") return null;
   if (error) throw error;
-  return data !== null;
+  return data;
 }
 
 /**
@@ -34,6 +39,10 @@ export async function ownsList(
  * recipes. Replaces `regenerate_grocery_list_items` + its trigger; the final
  * delete+insert goes through the atomic `replace_generated_grocery_list_items`
  * RPC so readers never observe a half-written list.
+ *
+ * `supabase` must be the admin client (and the caller's access already
+ * checked): on a shared list a user client can't see another member's private
+ * recipe, and its null `recipes(servings)` would throw below.
  */
 export async function regenerateGroceryListItems(
   supabase: SupabaseClient,
@@ -83,7 +92,14 @@ export async function regenerateGroceryListItems(
   if (replaceError) throw replaceError;
 }
 
-/** Port of `add_recipe_to_grocery_list`: upsert the link, then regenerate. */
+/**
+ * Port of `add_recipe_to_grocery_list`: upsert the link, then regenerate.
+ *
+ * The link write runs on the caller's client (RLS checks list access and that
+ * the recipe is visible to them). Regeneration runs on the admin client
+ * because a shared list can hold another member's private recipe, which the
+ * caller's RLS hides — callers must check list access before calling this.
+ */
 export async function addRecipeToGroceryList(
   supabase: SupabaseClient,
   args: { listId: string; recipeId: string; servingsMultiplier?: number }
@@ -96,14 +112,20 @@ export async function addRecipeToGroceryList(
     },
     { onConflict: "grocery_list_id,recipe_id" }
   );
+  // 42501: the restrictive insert policy (caller can't see the recipe, or it
+  // doesn't exist). 22P02: recipeId isn't a uuid.
+  if (error?.code === "42501" || error?.code === "22P02") {
+    throw new Error("Recipe not found");
+  }
   if (error) throw error;
 
   // Membership row committed above; regen runs next. A concurrent add/remove
   // between these two statements can read stale membership and produce a lost
   // update — full prevention requires moving the read inside a Postgres function.
-  await regenerateGroceryListItems(supabase, args.listId);
+  await regenerateGroceryListItems(createSupabaseAdminClient(), args.listId);
 }
 
+/** Same client split as addRecipeToGroceryList. */
 export async function removeRecipeFromGroceryList(
   supabase: SupabaseClient,
   args: { listId: string; recipeId: string }
@@ -116,7 +138,24 @@ export async function removeRecipeFromGroceryList(
   if (error) throw error;
 
   // Same race note as addRecipeToGroceryList: membership committed, regen next.
-  await regenerateGroceryListItems(supabase, args.listId);
+  await regenerateGroceryListItems(createSupabaseAdminClient(), args.listId);
+}
+
+/**
+ * Set (share / regenerate) or clear (stop sharing) a list's share token. The
+ * guard trigger rejects non-owners with 42501; routes pre-check ownership for
+ * a clean 403.
+ */
+export async function setShareToken(
+  supabase: SupabaseClient,
+  listId: string,
+  shareToken: string | null
+): Promise<void> {
+  const { error } = await supabase
+    .from("grocery_lists")
+    .update({ share_token: shareToken })
+    .eq("id", listId);
+  if (error) throw error;
 }
 
 /**

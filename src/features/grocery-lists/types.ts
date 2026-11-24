@@ -22,20 +22,11 @@ export interface GroceryListItemWithDetails extends GroceryListItem {
 }
 
 export interface GroceryListFull extends GroceryList {
-  recipes: (GroceryListRecipe & { recipe_name: string })[];
+  // recipe_visible: false when recipes RLS hides the recipe from this user
+  // (another member's private recipe) — show the name, don't link to it.
+  recipes: (GroceryListRecipe & { recipe_name: string; recipe_visible: boolean })[];
   items: GroceryListItemWithDetails[];
 }
-
-export type GroceryListRecipeWithRecipe = {
-  id: string;
-  grocery_list_id: string | null;
-  recipe_id: number | null;
-  servings_multiplier: number | null;
-  added_at: string | null;
-  recipes: {
-    name: string;
-  } | null;
-};
 
 export type GroceryListItemForStats = {
   is_checked: boolean | null;
