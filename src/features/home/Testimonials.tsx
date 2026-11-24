@@ -239,6 +239,7 @@ export const Testimonials = () => {
                       <img
                         src={testimonial.image}
                         alt={testimonial.alt}
+                        loading="lazy"
                         className="max-h-full h-full w-auto object-contain"
                         draggable={false}
                       />
