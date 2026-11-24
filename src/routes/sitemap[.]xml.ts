@@ -1,17 +1,31 @@
-import { createSupabaseAdminClient } from "@/server/supabase-admin.server";
+import { createClient } from "@supabase/supabase-js";
 
 const BASE_URL = "https://cantuskitchen.com";
-const PUBLIC_CATALOG_USER_ID = "6e0258f5-c980-47d2-a7ee-981e76e56333";
 
 const STATIC_ROUTES = ["/", "/recipes"];
 
 export async function loader() {
-  const admin = createSupabaseAdminClient();
-  const { data: recipes } = await admin
+  // Cookie-less anon client: the response is publicly cached, so it must never
+  // depend on the visitor's session or forward Set-Cookie headers.
+  const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_ANON_KEY as string,
+    { auth: { persistSession: false, autoRefreshToken: false } }
+  );
+  const { data: recipes, error } = await supabase
     .from("recipes")
     .select("id, created_at")
-    .eq("created_by", PUBLIC_CATALOG_USER_ID)
+    .eq("is_public", true)
     .order("created_at", { ascending: false });
+
+  // Don't serve (and cache for a day) a sitemap missing every recipe.
+  if (error) {
+    console.error("sitemap: failed to load public recipes", error);
+    return new Response("Failed to generate sitemap", {
+      status: 500,
+      headers: { "Cache-Control": "no-store" },
+    });
+  }
 
   const staticUrls = STATIC_ROUTES.map(
     (path) => `
@@ -22,7 +36,7 @@ export async function loader() {
   </url>`
   ).join("");
 
-  const recipeUrls = (recipes ?? [])
+  const recipeUrls = recipes
     .map(
       (r) => `
   <url>
