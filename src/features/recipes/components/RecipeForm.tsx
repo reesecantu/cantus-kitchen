@@ -4,12 +4,13 @@ import { IngredientMultiSelect } from "./IngredientMultiSelect";
 import { StepsInput } from "./StepsInput";
 import { ImageUpload } from "@/components/ImageUpload";
 import type { RecipeFormData } from "../types";
+import { VALIDATION_RULES } from "@/utils/constants";
 
 // Bounds mirror the DB CHECK constraints exactly:
 // recipes_name_check (length(name) < 100) and
 // recipes_servings_check (servings > 0 AND servings < 300).
 const NAME_MAX = 99;
-const SERVINGS_MAX = 299;
+const { SERVINGS_MAX } = VALIDATION_RULES;
 
 interface RecipeFormProps {
   formData: RecipeFormData;

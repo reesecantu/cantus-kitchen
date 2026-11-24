@@ -2,6 +2,8 @@ export const VALIDATION_RULES = {
   PASSWORD_MIN_LENGTH: 8,
   EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   PASSWORD_REGEX: /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+  // Inclusive; mirrors recipes_servings_check (servings > 0 AND servings < 300).
+  SERVINGS_MAX: 299,
 } as const;
 
 export const VALIDATION_MESSAGES = {
