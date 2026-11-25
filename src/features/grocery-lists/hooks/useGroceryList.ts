@@ -238,9 +238,13 @@ export const useSetGroceryListSharing = () => {
       queryClient.cancelQueries({
         queryKey: GROCERY_LIST_QUERY_KEYS.groceryList(listId),
       }),
-    // Write the returned token straight into the cache so the panel never
-    // shows a dead link, even if a refetch would fail.
-    onSuccess: (shareToken, { listId }) => {
+    // Write the returned token straight into the cache so the share popover never
+    // shows a dead link, even if a refetch would fail. Cancel again first: a refetch
+    // started while the request was in flight may have read the old token.
+    onSuccess: async (shareToken, { listId }) => {
+      await queryClient.cancelQueries({
+        queryKey: GROCERY_LIST_QUERY_KEYS.groceryList(listId),
+      });
       queryClient.setQueryData<GroceryListFull>(
         GROCERY_LIST_QUERY_KEYS.groceryList(listId),
         (old) => old && { ...old, share_token: shareToken },

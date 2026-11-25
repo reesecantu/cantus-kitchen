@@ -8,7 +8,7 @@ import {
 } from "../hooks/useGroceryList";
 import { GroceryListRecipes } from "./GroceryListRecipes";
 import { GroceryListItems } from "./GroceryListItems";
-import { GroceryListSharePanel } from "./GroceryListSharePanel";
+import { GroceryListShareButton } from "./GroceryListShareButton";
 import { Link, useNavigate } from "react-router";
 import { ROUTES } from "../../../utils/constants";
 import { DeleteButton } from "@/components/DeleteButton";
@@ -167,7 +167,7 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
       {/* Header */}
       <div className="mb-8">
         {/* Name and Delete Button Row */}
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-2">
           <div className="flex-1">
             {/* Editable Name */}
             {isEditingName ? (
@@ -207,7 +207,7 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
                 <button
                   onClick={handleStartEditName}
                   title="Edit name"
-                  className="flex gap-2.5"
+                  className="flex gap-2.5 text-left"
                 >
                   <h1 className="text-3xl font-bold text-gray-900">
                     {groceryList.name}
@@ -218,17 +218,28 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
             )}
           </div>
 
-          {/* Delete (owner) / Leave (member); hidden until the role is known */}
-          {!isEditingName && user && (
-            <div className="ml-4">
+          {/* Share + Delete (owner) / Leave (member); hidden until the role is known.
+              Hidden (not unmounted) while renaming so an in-flight share change keeps its
+              pending label and any error; the cache write itself survives an unmount. */}
+          {user && (
+            <div
+              className={`sm:ml-4 items-center gap-2 shrink-0 ${isEditingName ? "hidden" : "flex"}`}
+            >
               {isOwner ? (
-                <DeleteButton
-                  onDelete={handleDeleteList}
-                  isPending={deleteMutation.isPending}
-                  label="Delete"
-                  confirmMessage="Delete this grocery list?"
-                  ariaLabel="Delete grocery list"
-                />
+                <>
+                  <GroceryListShareButton
+                    key={groceryList.id}
+                    listId={groceryList.id}
+                    shareToken={groceryList.share_token}
+                  />
+                  <DeleteButton
+                    onDelete={handleDeleteList}
+                    isPending={deleteMutation.isPending}
+                    label="Delete"
+                    confirmMessage="Delete this grocery list?"
+                    ariaLabel="Delete grocery list"
+                  />
+                </>
               ) : (
                 <DeleteButton
                   onDelete={handleLeaveList}
@@ -317,13 +328,6 @@ export const GroceryListDetails = ({ listId }: GroceryListDetailsProps) => {
           items
         </div>
       </div>
-
-      {isOwner && (
-        <GroceryListSharePanel
-          listId={groceryList.id}
-          shareToken={groceryList.share_token}
-        />
-      )}
 
       {/* Recipes Section */}
       <GroceryListRecipes groceryList={groceryList} />
