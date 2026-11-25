@@ -117,7 +117,10 @@ const userTables = {
 
 /** Make createSupabaseAdminClient() return a fake admin that sees the private recipe. */
 function fakeAdmin(rpcs?: Record<string, Result>) {
-  const admin = fakeSupabase("admin", { tables: adminTables, rpcs });
+  const admin = fakeSupabase("admin", {
+    tables: adminTables,
+    rpcs: { begin_grocery_list_regeneration: { data: 42, error: null }, ...rpcs },
+  });
   adminFactory.mockImplementation(() => {
     log.push("admin:created");
     return admin.client;
@@ -143,12 +146,42 @@ describe("grocery list recipe mutations", () => {
     expect(admin.rpcArgs.replace_generated_grocery_list_items).toMatchObject({
       p_list_id: "l1",
       p_items: [expect.objectContaining({ ingredient_id: 7 })],
+      p_generation: 42,
     });
+    // The ticket must be taken before inputs are read, or a concurrent
+    // regeneration's newer snapshot could be overwritten by this stale one.
+    expect(log.indexOf("admin:rpc:begin_grocery_list_regeneration")).toBeLessThan(
+      log.indexOf("admin:grocery_list_recipes.select"),
+    );
+  });
+
+  it("does not read inputs or write when taking the ticket fails", async () => {
+    const user = fakeSupabase("user", { tables: userTables });
+    fakeAdmin({
+      begin_grocery_list_regeneration: { data: null, error: { code: "XX000" } },
+    });
+
+    await expect(
+      addRecipeToGroceryList(user.client, { listId: "l1", recipeId: "r1" }),
+    ).rejects.toMatchObject({ code: "XX000" });
+    expect(log).not.toContain("admin:grocery_list_recipes.select");
+    expect(log).not.toContain("admin:rpc:replace_generated_grocery_list_items");
+  });
+
+  it("treats a skipped write (a later regeneration already wrote) as success", async () => {
+    const user = fakeSupabase("user", { tables: userTables });
+    fakeAdmin({
+      replace_generated_grocery_list_items: { data: false, error: null },
+    });
+
+    await expect(
+      addRecipeToGroceryList(user.client, { listId: "l1", recipeId: "r1" }),
+    ).resolves.toBeUndefined();
   });
 
   it("removes the link on the user client and regenerates on the admin client", async () => {
     const user = fakeSupabase("user", { tables: userTables });
-    fakeAdmin();
+    const admin = fakeAdmin();
 
     await removeRecipeFromGroceryList(user.client, {
       listId: "l1",
@@ -160,7 +193,9 @@ describe("grocery list recipe mutations", () => {
       "user:grocery_list_recipes.eq",
       "user:grocery_list_recipes.eq",
     ]);
-    expect(log).toContain("admin:rpc:replace_generated_grocery_list_items");
+    expect(admin.rpcArgs.replace_generated_grocery_list_items).toMatchObject({
+      p_generation: 42,
+    });
   });
 
   it("does not regenerate when the link write fails", async () => {

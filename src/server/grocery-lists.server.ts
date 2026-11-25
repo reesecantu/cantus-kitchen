@@ -40,6 +40,10 @@ export async function getAccessibleList(
  * delete+insert goes through the atomic `replace_generated_grocery_list_items`
  * RPC so readers never observe a half-written list.
  *
+ * Call it after the input mutation commits. It takes a ticket before reading
+ * inputs, and the RPC skips the write if a later-ticketed regeneration already
+ * wrote, so concurrent calls can't leave items built from a stale snapshot.
+ *
  * `supabase` must be the admin client (and the caller's access already
  * checked): on a shared list a user client can't see another member's private
  * recipe, and its null `recipes(servings)` would throw below.
@@ -48,6 +52,14 @@ export async function regenerateGroceryListItems(
   supabase: SupabaseClient,
   listId: string
 ): Promise<void> {
+  // Units don't depend on the ticket; fetch them alongside it.
+  const [{ data: generation, error: generationError }, units] =
+    await Promise.all([
+      supabase.rpc("begin_grocery_list_regeneration"),
+      fetchUnits(supabase),
+    ]);
+  if (generationError) throw generationError;
+
   const { data: listRecipes, error: listRecipesError } = await supabase
     .from("grocery_list_recipes")
     .select("recipe_id, servings_multiplier, recipes(servings)")
@@ -82,12 +94,11 @@ export async function regenerateGroceryListItems(
     }));
   }
 
-  const units = await fetchUnits(supabase);
   const items = aggregateGroceryItems(recipes, units);
 
   const { error: replaceError } = await supabase.rpc(
     "replace_generated_grocery_list_items",
-    { p_list_id: listId, p_items: items }
+    { p_list_id: listId, p_items: items, p_generation: generation }
   );
   if (replaceError) throw replaceError;
 }
@@ -119,9 +130,6 @@ export async function addRecipeToGroceryList(
   }
   if (error) throw error;
 
-  // Membership row committed above; regen runs next. A concurrent add/remove
-  // between these two statements can read stale membership and produce a lost
-  // update — full prevention requires moving the read inside a Postgres function.
   await regenerateGroceryListItems(createSupabaseAdminClient(), args.listId);
 }
 
@@ -137,7 +145,6 @@ export async function removeRecipeFromGroceryList(
     .eq("recipe_id", args.recipeId);
   if (error) throw error;
 
-  // Same race note as addRecipeToGroceryList: membership committed, regen next.
   await regenerateGroceryListItems(createSupabaseAdminClient(), args.listId);
 }
 

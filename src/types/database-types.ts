@@ -55,6 +55,29 @@ export type Database = {
         }
         Relationships: []
       }
+      grocery_list_generations: {
+        Row: {
+          generation: number
+          grocery_list_id: string
+        }
+        Insert: {
+          generation: number
+          grocery_list_id: string
+        }
+        Update: {
+          generation?: number
+          grocery_list_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grocery_list_generations_grocery_list_id_fkey"
+            columns: ["grocery_list_id"]
+            isOneToOne: true
+            referencedRelation: "grocery_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       grocery_list_items: {
         Row: {
           created_at: string | null
@@ -421,6 +444,7 @@ export type Database = {
     }
     Functions: {
       accessible_grocery_list_ids: { Args: never; Returns: string[] }
+      begin_grocery_list_regeneration: { Args: never; Returns: number }
       create_recipe: {
         Args: {
           p_created_by: string
@@ -447,10 +471,15 @@ export type Database = {
         }[]
       }
       join_grocery_list: { Args: { p_token: string }; Returns: string | null }
-      replace_generated_grocery_list_items: {
-        Args: { p_items: Json; p_list_id: string }
-        Returns: undefined
-      }
+      replace_generated_grocery_list_items:
+        | {
+            Args: { p_items: Json; p_list_id: string }
+            Returns: undefined
+          }
+        | {
+            Args: { p_generation: number; p_items: Json; p_list_id: string }
+            Returns: boolean
+          }
       replace_recipe: {
         Args: {
           p_image_url: string
